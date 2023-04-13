@@ -7,7 +7,7 @@
 
 typedef struct
 {
-	soul_token_array_t* tokens;
+	soul_token_vector_t* tokens;
 	size_t tokens_index;
 
 	soul_token_t current_token;

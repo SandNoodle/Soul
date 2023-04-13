@@ -2,14 +2,23 @@
 
 #include <stdio.h>
 
+SOUL_VECTOR_DECLARE(token, soul_token_t);
+
 #define SCANNER_PEEK() *scanner->current
 
-static const soul_token_array_t soul__invalid_token_array = {
+static const soul_token_vector_t soul__invalid_token_vector = {
 	.data  = NULL,
 	.size = 0,
 	.capacity = 0,
 	.valid = false,
 };
+
+static void soul__scanner_init(soul_scanner_t* scanner, const char* buffer)
+{
+	scanner->start =  buffer;
+	scanner->current = buffer;
+	scanner->line = 1;
+}
 
 static bool soul__scanner_is_digit(char c)
 {
@@ -205,47 +214,22 @@ static soul_token_t soul__scanner_scan_token(soul_scanner_t* scanner)
 	return soul__scanner_make_error_token(scanner, "Unrecognized token!");
 }
 
-
-// ------------------------------------------------------------------------
-// @TODO Maybe move this out from here when VM needs similar functions.
-#define ORION_GROW_CAPACITY(capacity) ((capacity) < 8 ? 8 : (capacity) * 2)
-#define ORION_GROW_ARRAY(type, ptr, capacity) \
-	(type*)realloc((ptr), (capacity) * sizeof(type))
-#define ORION_FREE_ARRAY(type, ptr, capacity) \
-	realloc((ptr), 0)
-// ------------------------------------------------------------------------
-
-SOUL_API soul_token_array_t soul_scan(const char* buffer, size_t size)
+// @TODO We have no guarantee that buffer is NULL terminated.
+//       We should stop scanning if current index = size - 1!
+SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size)
 {
-	if(size < 1) return soul__invalid_token_array;
+	if(size < 1) return soul__invalid_token_vector;
 
-	// @TODO: Maybe move scanner initialization to a function?
-	soul_scanner_t scanner = {
-		.start = buffer,
-		.current = buffer,
-		.line = 1,
-	};
+	soul_scanner_t scanner;
+	soul__scanner_init(&scanner, buffer);
 
-	soul_token_array_t tokens;
-	tokens.valid = true;
-	tokens.size = 0;
-	tokens.capacity = ORION_GROW_CAPACITY(0);
-	tokens.data = ORION_GROW_ARRAY(soul_token_t, NULL, tokens.capacity);
+	soul_token_vector_t tokens;
+	soul__new_token_vector(&tokens);
 
 	for(;;)
 	{
 		soul_token_t token = soul__scanner_scan_token(&scanner);
-
-		// @TODO This is bad. We should probably make a designated dynamic_array structure to contain this madness.
-		if(tokens.size + 1 > tokens.capacity)
-		{
-			size_t old_capacity = tokens.capacity;
-			tokens.capacity = ORION_GROW_CAPACITY(old_capacity);
-			tokens.data = ORION_GROW_ARRAY(soul_token_t, tokens.data, tokens.capacity);
-		}
-
-		tokens.data[tokens.size++] = token;
-		//
+		soul__token_vector_push(&tokens, token);
 
 		if(token.type == TOKEN_EOF) break;
 	}

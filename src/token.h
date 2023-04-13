@@ -36,21 +36,14 @@ static const soul_token_keyword_t keywords[KEYWORDS_LENGTH] =
 	{ TOKEN_BREAK,     "break",     5 },
 };
 
-typedef struct {
+struct soul_token_t {
 	soul_token_type_t type;
 	const char* start;
 	size_t length;
 
 	uint32_t line;
-} soul_token_t;
-
-struct soul_token_array_t {
-	soul_token_t* data;
-	size_t   size;
-	size_t   capacity;
-	soul_valid_t  valid;
 };
 
 // @TODO Move this out to soul.h
 const char* soul_token_to_string(soul_token_type_t type);
-void soul_print_token_array(soul_token_array_t* array, bool pretty_print); // @TEMP
+void soul_print_token_array(soul_token_vector_t* array, bool pretty_print); // @TEMP

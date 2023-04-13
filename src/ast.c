@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+SOUL_VECTOR_DECLARE(ast_statement, soul_ast_statement_t*);
+
 //
 // Misc
 //
@@ -33,30 +35,49 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_FOREACH:
 		case AST_STMT_WHILE:
 		case AST_STMT_BLOCK:
+			{
+				size_t size = s->as.block_stmt.stmts->size;
+				for(size_t i = 0; i < size; ++i)
+				{
+					soul__ast_print_statement(s->as.block_stmt.stmts->data[i]);
+				}
+			}
+			break;
 		case AST_STMT_RETURN:
 		case AST_STMT_IMPORT:
 			break;
 		case AST_STMT_VARIABLE_DECL:
-			soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
-			int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64;
-			printf("[VAR_DECL, '%.*s' = %lld]\n", (int)id->length, id->name, val);
+			{
+				soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
+				int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64;
+				printf("[VAR_DECL, '%.*s' = %lld]\n", (int)id->length, id->name, val);
+			}
+			break;
 		case AST_STMT_FUNCTION_DECL:
+			{
+				soul_ast_identifier_t* id = s->as.decl_stmt.fun_decl.id;
+				printf("[FUNC_DECL, '%.*s'| BODY: ", (int)id->length, id->name);
+				soul__ast_print_statement(s->as.decl_stmt.fun_decl.body);
+				printf("]\n");
+			}
+			break;
 		case AST_STMT_NATIVE_DECL:
 		case AST_STMT_DEFINE_DECL:
 			break;
 	}
 }
 
-void soul__ast_print(soul_ast_t ast)
+void soul__ast_print(soul_ast_t* ast)
 {
-	if(!ast.valid)
+	if(!ast->valid)
 	{
 		const char* message = "Cannot print an AST, because it is invalid!";
 		printf("%s\n", message);
 		return;
 	}
 
-	soul__ast_print_statement(ast.root);
+	printf("=== [AST] ===\n");
+	soul__ast_print_statement(ast->root);
 }
 
 //
@@ -170,7 +191,7 @@ void soul__ast_free_expression(soul_ast_expression_t* expression)
 //
 // Statements
 //
-//
+
 // @TODO REMOVE MALLOC FOR USER DEFINED ALLOCATOR
 soul_ast_statement_t* soul__ast_new_statement(soul_ast_statement_type_t type, uint32_t line)
 {
@@ -193,18 +214,14 @@ soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_VARIABLE_DECL, line);
 	d->as.decl_stmt.var_decl.id = id;
 	d->as.decl_stmt.var_decl.val = init;
-
 	return d;
 }
 
-soul_ast_statement_t* soul__ast_function_declaration(soul_token_t* name,
-	/* @TODO args? */
-	soul_ast_statement_t* body,
-	uint32_t line)
+soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
+	/* @TODO args? */ soul_ast_statement_t* body, uint32_t line)
 {
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_FUNCTION_DECL, line);
-	d->as.decl_stmt.fun_decl.id->name = name->start;
-	d->as.decl_stmt.fun_decl.id->length = name->length;
+	d->as.decl_stmt.fun_decl.id = id;
 	d->as.decl_stmt.fun_decl.body = body;
 	return d;
 }
@@ -242,6 +259,14 @@ soul_ast_statement_t* soul__ast_while_statement(soul_ast_expression_t* condition
 	return s;
 }
 
+soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stmts,
+	uint32_t line)
+{
+	soul_ast_statement_t* s = soul__ast_new_statement(AST_STMT_BLOCK, line);
+	s->as.block_stmt.stmts = stmts;
+	return s;
+}
+
 // @TODO REMOVE MALLOC FOR USER DEFINED DEALLOCATOR
 // @TODO !!!!
 void soul__ast_free_statement(soul_ast_statement_t* s)
@@ -264,6 +289,12 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 			soul__ast_free_statement(s->as.while_stmt.body);
 			break;
 		case AST_STMT_BLOCK:
+			size_t size = s->as.block_stmt.stmts->size;
+			for(size_t i = 0; i < size; ++i)
+			{
+				soul__ast_free_statement(s->as.block_stmt.stmts->data[i]);
+			}
+			soul__free_ast_statement_vector(s->as.block_stmt.stmts);
 			break;
 		case AST_STMT_RETURN:
 			soul__ast_free_expression(s->as.return_stmt.return_expression);

@@ -16,7 +16,7 @@ static const soul_ast_t soul__invalid_ast = {
 	.valid = false,
 };
 
-static void soul__parser_init(soul_parser_t* parser, soul_token_array_t* array)
+static void soul__parser_init(soul_parser_t* parser, soul_token_vector_t* array)
 {
 	parser->had_panic = false;
 	parser->had_error = false;
@@ -113,10 +113,51 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	return soul__ast_variable_declaration(identifier, value, line);
 }
 
+static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// Consume block start(TOKEN_BRACE_LEFT)
+	soul__parser_advance(p);
+
+	soul_ast_statement_vector_t stmts;
+	soul__new_ast_statement_vector(&stmts);
+	while(p->current_token.type != TOKEN_BRACE_RIGHT)
+	{
+		soul_ast_statement_t* s = soul__parser_parse_statement(p);
+		soul__ast_statement_vector_push(&stmts, s);
+	}
+
+	// Require block end(TOKEN_BRACE_RIGHT)
+	soul__parser_require(p, TOKEN_BRACE_RIGHT);
+
+	return soul__ast_block_statement(&stmts, line);
+}
+
 static soul_ast_statement_t* soul__parser_parse_function(soul_parser_t* p)
 {
-	SOUL_UNUSED(p);
-	return NULL; // @TEMP @nocheckin
+	const uint32_t line = p->current_token.line;
+
+	// Consume function declaration (TOKEN_FN)
+	soul__parser_advance(p);
+
+	// Function identifier
+	soul_token_t id_token = soul__parser_require(p, TOKEN_IDENTIFIER);
+	soul_ast_identifier_t* identifier = soul__ast_new_identifier(id_token.start, id_token.length);
+
+	// @TODO PARAMETERS
+
+	// Consume type declaration (TOKEN_DOUBLE_COLON);
+	soul__parser_require(p, TOKEN_DOUBLE_COLON);
+
+	// Return type
+	// @TODO Return type
+	soul__parser_advance(p);
+
+	// Function body
+	soul_ast_statement_t* body = soul__parser_parse_body(p);
+
+	return soul__ast_function_declaration(identifier, body, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
@@ -124,14 +165,15 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 	switch(p->current_token.type)
 	{
 		case TOKEN_LET:
-			soul_ast_statement_t* s = soul__parser_parse_variable(p);
-			soul__parser_require(p, TOKEN_SEMICOLON);
-			return s;
+			{
+				soul_ast_statement_t* s = soul__parser_parse_variable(p);
+				soul__parser_require(p, TOKEN_SEMICOLON);
+				return s;
+			}
+		case TOKEN_FN:
+			return soul__parser_parse_function(p);
 		case TOKEN_BRACE_LEFT:
-			soul__parser_require(p, TOKEN_BRACE_LEFT); // Begin scope
-			// @TODO
-			soul__parser_require(p, TOKEN_BRACE_RIGHT); // End scope
-			break;
+			return soul__parser_parse_body(p);
 		default:
 			soul__parser_error(p, "Expected statement.");
 			soul__parser_advance(p);
@@ -171,32 +213,45 @@ static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
 	return NULL;
 }
 
-static soul_ast_t soul__parser_parse_program(soul_parser_t* p)
+static soul_ast_t* soul__parser_parse_program(soul_parser_t* p)
 {
-	if(!p->tokens->valid) return soul__invalid_ast;
+	/* if(!p->tokens->valid) return soul__invalid_ast; */ // @TODO
 
-	// @TODO
+	soul_ast_statement_vector_t* stmts = malloc(sizeof(*stmts));
+	soul__new_ast_statement_vector(stmts);
 	while(p->current_token.type != TOKEN_EOF)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);
-		soul__ast_print_statement(s);
-		soul__ast_free_statement(s);
+		soul__ast_statement_vector_push(stmts, s);
 	}
 
-	return soul__invalid_ast; // @TEMP
+	// @TODO Switch to function scope???
+	soul_ast_statement_t* root = soul__ast_block_statement(stmts, 0);
+
+	soul_ast_t* ast = (soul_ast_t*)malloc(sizeof(soul_ast_t));
+	ast->valid = true;
+	ast->root = root;
+	return ast;
 }
 
-SOUL_API soul_ast_t soul_parse(soul_token_array_t array)
+SOUL_API soul_ast_t* soul_parse(soul_token_vector_t array)
 {
 	// @TEMP SUPRESS WARNING IN THIS FILE
 	SOUL_UNUSED(soul__parser_is_declaration);
 	SOUL_UNUSED(soul__parser_parse_function);
 	//
 
-	if(!array.valid) { return soul__invalid_ast; }
+	/* if(!array.valid) { return soul__invalid_ast; } */ // @TODO
 
 	soul_parser_t parser;
 	soul__parser_init(&parser, &array);
 
 	return soul__parser_parse_program(&parser);
+}
+
+SOUL_API void soul_free_ast(soul_ast_t* ast)
+{
+	ast->valid = false;
+	soul__ast_free_statement(ast->root);
+	free(ast);
 }

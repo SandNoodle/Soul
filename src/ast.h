@@ -11,6 +11,8 @@ typedef struct {
 	size_t length;
 } soul_ast_identifier_t;
 
+SOUL_VECTOR_DEFINE(ast_statement, soul_ast_statement_t*);
+
 typedef enum {
 	AST_EXPR_ASSIGN,
 	AST_EXPR_BINARY,
@@ -102,7 +104,7 @@ struct soul_ast_statement_t {
 			soul_ast_statement_t* body;
 		} while_stmt;
 		struct {
-			// @TODO dynarray of statements
+			soul_ast_statement_vector_t* stmts;
 		} block_stmt;
 		struct {
 			soul_ast_expression_t* return_expression;
@@ -122,7 +124,7 @@ struct soul_ast_t {
 // @TEMP
 void soul__ast_print_expression(soul_ast_expression_t* e);
 void soul__ast_print_statement(soul_ast_statement_t* s);
-void soul__ast_print(soul_ast_t ast);
+void soul__ast_print(soul_ast_t* ast);
 //
 
 //
@@ -169,7 +171,7 @@ soul_ast_statement_t* soul__ast_new_declaration(soul_ast_statement_type_t type,
 soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 	soul_ast_expression_t* init, uint32_t line);
 
-soul_ast_statement_t* soul__ast_function_declaration(soul_token_t* name,
+soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
 	/* @TODO args? */ soul_ast_statement_t* body, uint32_t line);
 
 soul_ast_statement_t* soul__ast_if_statement(soul_ast_expression_t* condition,
@@ -179,6 +181,8 @@ soul_ast_statement_t* soul__ast_for_statement(soul_ast_statement_t* var,
 	soul_ast_expression_t* condition, soul_ast_expression_t* actual,
 	soul_ast_statement_t* body, uint32_t line);
 
-soul_ast_statement_t* soul_ast_while_statement(soul_ast_expression_t* condition,
+soul_ast_statement_t* soul__ast_while_statement(soul_ast_expression_t* condition,
 	soul_ast_statement_t* body, uint32_t line);
 
+soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stmts,
+	uint32_t line);

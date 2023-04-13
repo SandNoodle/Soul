@@ -95,9 +95,58 @@ typedef struct{
 
 typedef soul_value_t soul_register_t;
 
+// @TODO Poor man's vector inspired by Wren implementation.
+//       Replace realloc with user provided allocator.
+#define SOUL_GROW_CAPACITY(capacity) ((capacity) < 8 ? 8 : (capacity) * 2)
+#define SOUL_GROW_ARRAY(type, ptr, capacity) (type*)realloc((ptr), (capacity) * sizeof(type))
+
+#define SOUL_VECTOR_DEFINE(name, type)                                   \
+	typedef struct {                                                     \
+		type* data;                                                      \
+		size_t size;                                                     \
+		size_t capacity;                                                 \
+		soul_valid_t valid;                                              \
+	} soul_##name##_vector_t;                                            \
+                                                                         \
+	void soul__new_##name##_vector(soul_##name##_vector_t* vector);      \
+	void soul__free_##name##_vector(soul_##name##_vector_t* vector);     \
+	void soul__##name##_vector_push(soul_##name##_vector_t* v, type t);
+
+#define SOUL_VECTOR_DECLARE(name, type)                                  \
+	void soul__new_##name##_vector(soul_##name##_vector_t* v)            \
+	{                                                                    \
+		v->size = 0;                                                     \
+		v->capacity = SOUL_GROW_CAPACITY(0);                             \
+		v->data = SOUL_GROW_ARRAY(type, NULL, v->capacity);              \
+		v->valid = true;                                                 \
+	}                                                                    \
+                                                                         \
+	void soul__free_##name##_vector(soul_##name##_vector_t* v)           \
+	{                                                                    \
+		free(v->data);                                                   \
+		v->data = NULL;                                                  \
+		v->size = 0;                                                     \
+		v->capacity = 0;                                                 \
+		v->valid = false;                                                \
+	}                                                                    \
+                                                                         \
+	void soul__##name##_vector_push(soul_##name##_vector_t* v, type t)   \
+	{                                                                    \
+		if(v->size + 1 > v->capacity)                                    \
+		{                                                                \
+			v->capacity = SOUL_GROW_CAPACITY(v->capacity);               \
+			v->data = SOUL_GROW_ARRAY(type, v->data, v->capacity);       \
+		}                                                                \
+		v->data[v->size++] = t;                                          \
+	}
+
 // ----------------------------------------------------------------------------
 // PUBLIC API
 // ----------------------------------------------------------------------------
+
+// @TODO Dont pass by value to functions.
+//       Might be slow and memory consuming.
+//       Benchmark first!
 
 typedef enum {
 	SOUL_SUCCESS,       // Runtime success.
@@ -106,7 +155,7 @@ typedef enum {
 	SOUL_RUNTIME_ERROR, // Error while running the script.
 } soul_result_t;
 
-typedef void* (*soul_allocate_fn)(void* memory, size_t new_size);
+typedef void* (*soul_allocate_fn)(void* memory, size_t new_size, void* user_data);
 
 typedef void (*soul_message_callback_t)(const char* file, uint32_t line, const char* message, size_t length);
 
@@ -138,11 +187,13 @@ typedef struct {
 	soul_message_callback_t error_callback; // Can be null.
 } soul_scanner_config_t;
 
-typedef struct soul_token_array_t soul_token_array_t;
+typedef struct soul_token_t soul_token_t;
+
+SOUL_VECTOR_DEFINE(token, soul_token_t);
 
 SOUL_API soul_scanner_config_t soul_get_defualt_scanner_config(void);
 
-SOUL_API soul_token_array_t soul_scan(const char* buffer, size_t size);
+SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size);
 
 //
 // Parsing
@@ -157,9 +208,9 @@ typedef struct soul_ast_t soul_ast_t;
 
 SOUL_API soul_parser_config_t soul_get_defualt_parser_config(void);
 
-SOUL_API soul_ast_t soul_parse(soul_token_array_t tokens);
+SOUL_API soul_ast_t* soul_parse(soul_token_vector_t tokens);
 
-SOUL_API void soul_free_ast(soul_ast_t ast);
+SOUL_API void soul_free_ast(soul_ast_t* ast);
 
 //
 // Compiling

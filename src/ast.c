@@ -56,7 +56,7 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_FUNCTION_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.fun_decl.id;
-				printf("[FUNC_DECL, '%.*s'| BODY: ", (int)id->length, id->name);
+				printf("[FUNC_DECL, '%.*s'| [BODY]:\n", (int)id->length, id->name);
 				soul__ast_print_statement(s->as.decl_stmt.fun_decl.body);
 				printf("]\n");
 			}

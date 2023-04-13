@@ -120,18 +120,19 @@ static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)
 	// Consume block start(TOKEN_BRACE_LEFT)
 	soul__parser_advance(p);
 
-	soul_ast_statement_vector_t stmts;
-	soul__new_ast_statement_vector(&stmts);
+	soul_ast_statement_vector_t* stmts =
+		(soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
+	soul__new_ast_statement_vector(stmts);
 	while(p->current_token.type != TOKEN_BRACE_RIGHT)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);
-		soul__ast_statement_vector_push(&stmts, s);
+		soul__ast_statement_vector_push(stmts, s);
 	}
 
 	// Require block end(TOKEN_BRACE_RIGHT)
 	soul__parser_require(p, TOKEN_BRACE_RIGHT);
 
-	return soul__ast_block_statement(&stmts, line);
+	return soul__ast_block_statement(stmts, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_function(soul_parser_t* p)

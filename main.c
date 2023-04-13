@@ -15,8 +15,6 @@
 //       Parse based on type. Currently hardcoded I64.
 // @TODO Currently working on swaping all return types
 //       to pointers instead of return by value.
-// @TODO Trying to print function body crashes.
-//       Investigate ASAP.
 
 int main()
 {

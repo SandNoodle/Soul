@@ -18,9 +18,6 @@
 // @TODO Trying to print function body crashes.
 //       Investigate ASAP.
 
-SOUL_VECTOR_DEFINE(int32_t, int32_t);
-SOUL_VECTOR_DECLARE(int32_t, int32_t);
-
 int main()
 {
 	// READ FILE HELPER

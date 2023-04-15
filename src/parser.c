@@ -114,7 +114,6 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	soul__parser_require(p, TOKEN_EQUAL);
 
 	// Variable value
-	// @TODO Currently only numbers are supported.
 	soul_ast_expression_t* value = soul__parser_parse_expression(p);
 
 	return soul__ast_variable_declaration(identifier, type, value, line);
@@ -319,6 +318,12 @@ static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
 		case TOKEN_FALSE:
 			{
 				soul_ast_expression_t* e = soul__ast_bool_literal_expression(false, token.line);
+				soul__parser_advance(p);
+				return e;
+			}
+		case TOKEN_STRING:
+			{
+				soul_ast_expression_t* e = soul__ast_string_literal_expression(token.start, token.length, token.line);
 				soul__parser_advance(p);
 				return e;
 			}

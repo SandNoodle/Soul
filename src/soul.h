@@ -66,6 +66,7 @@ typedef bool soul_valid_t;
 // Declarations
 // ----------------------------------------------------------------------------
 
+// @TODO PREFIX SOUL
 typedef enum {
 	VAL_B8,
 	VAL_U8,  VAL_I8,

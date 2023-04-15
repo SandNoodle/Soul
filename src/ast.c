@@ -8,6 +8,29 @@ SOUL_VECTOR_DECLARE(ast_statement, soul_ast_statement_t*);
 // Misc
 //
 
+static void soul__ast_print_number_literal(soul_ast_expression_t* e)
+{
+	soul_value_type_t type = e->as.number_literal_expr.type;
+	switch(type)
+	{
+		case VAL_U8:
+		case VAL_U16:
+		case VAL_U32:
+		case VAL_U64:
+			printf("%llu", e->as.number_literal_expr.val.as.u64);
+			break;
+		case VAL_I8:
+		case VAL_I16:
+		case VAL_I32:
+		case VAL_I64:
+			printf("%lld", e->as.number_literal_expr.val.as.i64);
+			break;
+		default:
+			printf("[UNKNOWN TYPE]");
+			break;
+	}
+}
+
 void soul__ast_print_expression(soul_ast_expression_t* e)
 {
 	if(!e) return;
@@ -20,11 +43,16 @@ void soul__ast_print_expression(soul_ast_expression_t* e)
 		case AST_EXPR_BOOL_LITERAL:
 			{
 				bool val = e->as.bool_literal_expr.val;
-				printf("[BOOL_LIT, '%s']\n", val ? "true" : "false");
+				printf("[BOOL_LIT, '%s']", val ? "true" : "false");
 			}
 			break;
 		case AST_EXPR_NUMBER_LITERAL:
+			soul__ast_print_number_literal(e);
+			break;
 		case AST_EXPR_STRING_LITERAL:
+			{
+				printf("[STR_LIT, '%.*s']", (int) e->as.string_literal_expr.size, e->as.string_literal_expr.str);
+			}
 			break;
 	}
 }
@@ -78,8 +106,9 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
 				soul_ast_identifier_t* type = s->as.decl_stmt.var_decl.type;
-				int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64; // @TODO
-				printf("[VAR_DECL, '%.*s' : '%.*s' = %lld]\n", (int)id->length, id->name, (int)type->length, type->name, val);
+				printf("[VAR_DECL, '%.*s' : '%.*s' = ", (int)id->length, id->name, (int)type->length, type->name);
+				soul__ast_print_expression(s->as.decl_stmt.var_decl.val);
+				printf("]\n");
 			}
 			break;
 		case AST_STMT_FUNCTION_DECL:
@@ -198,6 +227,15 @@ soul_ast_expression_t* soul__ast_bool_literal_expression(bool value, uint32_t li
 {
 	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_BOOL_LITERAL, line);
 	e->as.bool_literal_expr.val = value;
+	return e;
+}
+
+soul_ast_expression_t* soul__ast_string_literal_expression(const char* str, size_t size,
+	uint32_t line)
+{
+	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_STRING_LITERAL, line);
+	e->as.string_literal_expr.str = str;
+	e->as.string_literal_expr.size = size;
 	return e;
 }
 

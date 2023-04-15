@@ -230,6 +230,32 @@ static soul_ast_statement_t* soul__parser_parse_if_statement(soul_parser_t* p)
 	return soul__ast_if_statement(cond, then_stmt, else_stmt, line);
 }
 
+static soul_ast_statement_t* soul__parser_parse_while_statement(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// Consume TOKEN_WHILE
+	soul__parser_advance(p);
+
+	soul_ast_expression_t* cond = NULL;
+	const bool has_params = soul__parser_match(p, TOKEN_PAREN_LEFT);
+	if(has_params)
+	{
+		soul__parser_advance(p); // Skip TOKEN_PAREN_LEFT
+		cond = soul__parser_parse_expression(p);
+		soul__parser_require(p, TOKEN_PAREN_RIGHT);
+	}
+	else
+	{
+		// NOTE: Parameterless variant has form: while { <body> }
+		cond = soul__ast_bool_literal_expression(true, line);
+		soul__parser_advance(p);
+	}
+
+	soul_ast_statement_t* body = soul__parser_parse_body(p);
+
+	return soul__ast_while_statement(cond, body, line);
+}
 static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 {
 	switch(p->current_token.type)
@@ -250,6 +276,8 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 			return soul__parser_parse_function(p);
 		case TOKEN_IF:
 			return soul__parser_parse_if_statement(p);
+		case TOKEN_WHILE:
+			return soul__parser_parse_while_statement(p);
 		case TOKEN_BRACE_LEFT:
 			return soul__parser_parse_body(p);
 		default:
@@ -272,14 +300,28 @@ static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
 	switch(token.type)
 	{
 		case TOKEN_NUMBER:
-			// @TODO Currenlty parse as I64.
-			soul_value_type_t type = VAL_I64;
-			soul_value_t value;
-			value.as.i64 = 420; // @TODO
-			//
-			soul_ast_expression_t* e = soul__ast_number_literal_expression(type, value, token.line);
-			soul__parser_advance(p);
-			return e;
+			{
+				// @TODO Currenlty parse as I64.
+				soul_value_type_t type = VAL_I64;
+				soul_value_t value;
+				value.as.i64 = 420; // @TODO
+				//
+				soul_ast_expression_t* e = soul__ast_number_literal_expression(type, value, token.line);
+				soul__parser_advance(p);
+				return e;
+			}
+		case TOKEN_TRUE:
+			{
+				soul_ast_expression_t* e = soul__ast_bool_literal_expression(true, token.line);
+				soul__parser_advance(p);
+				return e;
+			}
+		case TOKEN_FALSE:
+			{
+				soul_ast_expression_t* e = soul__ast_bool_literal_expression(false, token.line);
+				soul__parser_advance(p);
+				return e;
+			}
 		default:
 			soul__parser_error(p, "Expected expression.");
 			soul__parser_advance(p);

@@ -18,6 +18,11 @@ void soul__ast_print_expression(soul_ast_expression_t* e)
 		case AST_EXPR_BINARY:
 		case AST_EXPR_UNARY:
 		case AST_EXPR_BOOL_LITERAL:
+			{
+				bool val = e->as.bool_literal_expr.val;
+				printf("[BOOL_LIT, '%s']\n", val ? "true" : "false");
+			}
+			break;
 		case AST_EXPR_NUMBER_LITERAL:
 		case AST_EXPR_STRING_LITERAL:
 			break;
@@ -46,7 +51,17 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 			break;
 		case AST_STMT_FOR: break;
 		case AST_STMT_FOREACH: break;
-		case AST_STMT_WHILE: break;
+		case AST_STMT_WHILE:
+		   {
+			soul_ast_expression_t* cond = s->as.while_stmt.condition;
+			soul_ast_statement_t* body = s->as.while_stmt.body;
+			printf("[WHILE]\n");
+			printf("[COND]\n");
+			soul__ast_print_expression(cond);
+			printf("[BODY]\n");
+			soul__ast_print_statement(body);
+		   }
+		   break;
 		case AST_STMT_BLOCK:
 			{
 				size_t size = s->as.block_stmt.stmts->size;
@@ -179,6 +194,13 @@ soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_type_t typ
 	return e;
 }
 
+soul_ast_expression_t* soul__ast_bool_literal_expression(bool value, uint32_t line)
+{
+	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_BOOL_LITERAL, line);
+	e->as.bool_literal_expr.val = value;
+	return e;
+}
+
 // @TODO REMOVE MALLOC FOR USER DEFINED DEALLOCATOR
 void soul__ast_free_expression(soul_ast_expression_t* expression)
 {
@@ -286,7 +308,6 @@ soul_ast_statement_t* soul__ast_while_statement(soul_ast_expression_t* condition
 	soul_ast_statement_t* s = soul__ast_new_statement(AST_STMT_WHILE, line);
 	s->as.while_stmt.condition = condition;
 	s->as.while_stmt.body = body;
-
 	return s;
 }
 

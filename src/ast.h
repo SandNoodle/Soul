@@ -43,6 +43,9 @@ struct soul_ast_expression_t {
 			soul_value_type_t type;
 			soul_value_t val;
 		} number_literal_expr;
+		struct {
+			bool val;
+		} bool_literal_expr;
 	} as;
 };
 
@@ -156,6 +159,8 @@ soul_ast_expression_t* soul__ast_unary_expression(soul_ast_expression_t* expr,
 
 soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_type_t type,
 	soul_value_t value, uint32_t line);
+
+soul_ast_expression_t* soul__ast_bool_literal_expression(bool value, uint32_t line);
 
 //
 // Statements

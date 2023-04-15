@@ -107,8 +107,8 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	soul__parser_require(p, TOKEN_COLON);
 
 	// Token Type
-	/* soul_token_t type_token = p->current_token; */
-	soul__parser_advance(p); // @TODO: CHECK TYPE!
+	soul_token_t type_token = soul__parser_require(p, TOKEN_IDENTIFIER);
+	soul_ast_identifier_t* type = soul__ast_new_identifier(type_token.start, type_token.length);
 
 	// Consume TOKEN_EQUAL
 	soul__parser_require(p, TOKEN_EQUAL);
@@ -117,15 +117,15 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	// @TODO Currently only numbers are supported.
 	soul_ast_expression_t* value = soul__parser_parse_expression(p);
 
-	return soul__ast_variable_declaration(identifier, value, line);
+	return soul__ast_variable_declaration(identifier, type, value, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)
 {
 	const uint32_t line = p->current_token.line;
 
-	// Consume block start(TOKEN_BRACE_LEFT)
-	soul__parser_advance(p);
+	// Require block start(TOKEN_BRACE_LEFT)
+	soul__parser_require(p, TOKEN_BRACE_LEFT);
 
 	soul_ast_statement_vector_t* stmts =
 		(soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
@@ -204,6 +204,32 @@ static soul_ast_statement_t* soul__parser_parse_define(soul_parser_t* p)
 	return soul__ast_define_declaration(identifier, value, line);
 }
 
+static soul_ast_statement_t* soul__parser_parse_if_statement(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// Consume TOKEN_IF
+	soul__parser_advance(p);
+
+	// // Condition
+	soul__parser_require(p, TOKEN_PAREN_LEFT);
+	soul_ast_expression_t* cond = soul__parser_parse_expression(p);
+	soul__parser_require(p, TOKEN_PAREN_RIGHT);
+
+	// Then block
+	soul_ast_statement_t* then_stmt = soul__parser_parse_body(p);
+
+	// (Optional) Else
+	soul_ast_statement_t* else_stmt = NULL;
+	if(soul__parser_match(p, TOKEN_ELSE))
+	{
+		soul__parser_advance(p);
+		else_stmt = soul__parser_parse_body(p);
+	}
+
+	return soul__ast_if_statement(cond, then_stmt, else_stmt, line);
+}
+
 static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 {
 	switch(p->current_token.type)
@@ -222,6 +248,8 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 			}
 		case TOKEN_FN:
 			return soul__parser_parse_function(p);
+		case TOKEN_IF:
+			return soul__parser_parse_if_statement(p);
 		case TOKEN_BRACE_LEFT:
 			return soul__parser_parse_body(p);
 		default:
@@ -244,11 +272,10 @@ static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
 	switch(token.type)
 	{
 		case TOKEN_NUMBER:
-			// @TODO: TYPES!
-			// @TODO: VALUES!
+			// @TODO Currenlty parse as I64.
 			soul_value_type_t type = VAL_I64;
 			soul_value_t value;
-			value.as.i64 = 420;
+			value.as.i64 = 420; // @TODO
 			//
 			soul_ast_expression_t* e = soul__ast_number_literal_expression(type, value, token.line);
 			soul__parser_advance(p);

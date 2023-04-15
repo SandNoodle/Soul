@@ -31,9 +31,22 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 	switch(s->type)
 	{
 		case AST_STMT_IF:
-		case AST_STMT_FOR:
-		case AST_STMT_FOREACH:
-		case AST_STMT_WHILE:
+			{
+				soul_ast_expression_t* cond = s->as.if_stmt.condition;
+				soul_ast_statement_t* then_stmt = s->as.if_stmt.then_stmt;
+				soul_ast_statement_t* else_stmt = s->as.if_stmt.else_stmt;
+				printf("[IF]\n");
+				printf("[COND]\n");
+				soul__ast_print_expression(cond);
+				printf("[THEN]\n");
+				soul__ast_print_statement(then_stmt);
+				printf("[ELSE]\n");
+				soul__ast_print_statement(else_stmt);
+			}
+			break;
+		case AST_STMT_FOR: break;
+		case AST_STMT_FOREACH: break;
+		case AST_STMT_WHILE: break;
 		case AST_STMT_BLOCK:
 			{
 				size_t size = s->as.block_stmt.stmts->size;
@@ -49,8 +62,9 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_VARIABLE_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
+				soul_ast_identifier_t* type = s->as.decl_stmt.var_decl.type;
 				int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64; // @TODO
-				printf("[VAR_DECL, '%.*s' = %lld]\n", (int)id->length, id->name, val);
+				printf("[VAR_DECL, '%.*s' : '%.*s' = %lld]\n", (int)id->length, id->name, (int)type->length, type->name, val);
 			}
 			break;
 		case AST_STMT_FUNCTION_DECL:
@@ -215,10 +229,11 @@ soul_ast_statement_t* soul__ast_new_declaration(soul_ast_statement_type_t type, 
 }
 
 soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
-	soul_ast_expression_t* init, uint32_t line)
+	soul_ast_identifier_t* type, soul_ast_expression_t* init, uint32_t line)
 {
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_VARIABLE_DECL, line);
 	d->as.decl_stmt.var_decl.id = id;
+	d->as.decl_stmt.var_decl.type = type;
 	d->as.decl_stmt.var_decl.val = init;
 	return d;
 }

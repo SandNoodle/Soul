@@ -49,7 +49,7 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_VARIABLE_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
-				int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64;
+				int64_t val = s->as.decl_stmt.var_decl.val->as.number_literal_expr.val.as.i64; // @TODO
 				printf("[VAR_DECL, '%.*s' = %lld]\n", (int)id->length, id->name, val);
 			}
 			break;
@@ -62,7 +62,13 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 			}
 			break;
 		case AST_STMT_NATIVE_DECL:
+			break;
 		case AST_STMT_DEFINE_DECL:
+			{
+				soul_ast_identifier_t* id = s->as.decl_stmt.define_decl.id;
+				int64_t val = s->as.decl_stmt.define_decl.val->as.number_literal_expr.val.as.i64; // @TODO
+				printf("[DEFINE_DECL, '%.*s' = '%lld']\n", (int)id->length, id->name, val);
+			}
 			break;
 	}
 }
@@ -218,12 +224,22 @@ soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 }
 
 soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
-	/* @TODO args? */ soul_ast_statement_t* body, uint32_t line)
+	soul_ast_statement_vector_t* params, soul_ast_statement_t* body, uint32_t line)
 {
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_FUNCTION_DECL, line);
 	d->as.decl_stmt.fun_decl.id = id;
+	d->as.decl_stmt.fun_decl.params = params;
 	d->as.decl_stmt.fun_decl.body = body;
 	return d;
+}
+
+soul_ast_statement_t* soul__ast_define_declaration(soul_ast_identifier_t* id,
+	soul_ast_expression_t* val, uint32_t line)
+{
+	soul_ast_statement_t* s = soul__ast_new_declaration(AST_STMT_DEFINE_DECL, line);
+	s->as.decl_stmt.define_decl.id = id;
+	s->as.decl_stmt.define_decl.val = val;
+	return s;
 }
 
 soul_ast_statement_t* soul__ast_if_statement(soul_ast_expression_t* condition,
@@ -289,8 +305,7 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 			soul__ast_free_statement(s->as.while_stmt.body);
 			break;
 		case AST_STMT_BLOCK:
-			size_t size = s->as.block_stmt.stmts->size;
-			for(size_t i = 0; i < size; ++i)
+			for(size_t i = 0; i < s->as.block_stmt.stmts->size; ++i)
 			{
 				soul__ast_free_statement(s->as.block_stmt.stmts->data[i]);
 			}
@@ -307,6 +322,10 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 			break;
 		case AST_STMT_FUNCTION_DECL:
 			soul__ast_free_identifier(s->as.decl_stmt.fun_decl.id);
+			for(size_t i = 0; i < s->as.decl_stmt.fun_decl.params->size; ++i)
+			{
+				soul__ast_free_statement(s->as.decl_stmt.fun_decl.params->data[i]);
+			}
 			soul__ast_free_statement(s->as.decl_stmt.fun_decl.body);
 			break;
 		case AST_STMT_NATIVE_DECL:
@@ -314,6 +333,7 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 			break;
 		case AST_STMT_DEFINE_DECL:
 			soul__ast_free_identifier(s->as.decl_stmt.define_decl.id);
+			soul__ast_free_expression(s->as.decl_stmt.define_decl.val);
 			break;
 	}
 

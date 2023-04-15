@@ -72,7 +72,7 @@ struct soul_ast_statement_t {
 			} var_decl;
 			struct {
 				soul_ast_identifier_t* id;
-				// @TODO
+				soul_ast_statement_vector_t* params;
 				soul_ast_statement_t* body;
 			} fun_decl;
 			struct {
@@ -172,7 +172,10 @@ soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 	soul_ast_expression_t* init, uint32_t line);
 
 soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
-	/* @TODO args? */ soul_ast_statement_t* body, uint32_t line);
+	soul_ast_statement_vector_t* params, soul_ast_statement_t* body, uint32_t line);
+
+soul_ast_statement_t* soul__ast_define_declaration(soul_ast_identifier_t* id,
+	soul_ast_expression_t* val, uint32_t line);
 
 soul_ast_statement_t* soul__ast_if_statement(soul_ast_expression_t* condition,
 	soul_ast_statement_t* then_stmt, soul_ast_statement_t * else_stmt, uint32_t line);

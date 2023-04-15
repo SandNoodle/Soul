@@ -73,10 +73,17 @@ static soul_token_t soul__parser_require(soul_parser_t* p, soul_token_type_t typ
 	return (soul_token_t){TOKEN_ERROR, NULL, 0, 0}; // @TODO Line
 }
 
+static bool soul__parser_match(soul_parser_t* p, soul_token_type_t type)
+{
+	return p->current_token.type == type;
+}
+
 static bool soul__parser_is_declaration(soul_token_type_t type)
 {
 	return type == TOKEN_FN
 		|| type == TOKEN_LET
+		|| type == TOKEN_DEFINE
+		|| type == TOKEN_NATIVE
 		|| type == TOKEN_STRUCT
 		|| type == TOKEN_ENUM;
 }
@@ -146,7 +153,26 @@ static soul_ast_statement_t* soul__parser_parse_function(soul_parser_t* p)
 	soul_token_t id_token = soul__parser_require(p, TOKEN_IDENTIFIER);
 	soul_ast_identifier_t* identifier = soul__ast_new_identifier(id_token.start, id_token.length);
 
-	// @TODO PARAMETERS
+	// (Optional) parameters
+	soul_ast_statement_vector_t* params = (soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
+	if(soul__parser_match(p, TOKEN_PAREN_LEFT))
+	{
+		// Consume TOKEN_PAREN_LEFT
+		soul__parser_advance(p);
+
+		// NOTE: Parameters is defined as <IDENTIFIER> : <TYPE>
+		//       and delimited by ',' (TOKEN_COMMA)
+		while(soul__parser_match(p, TOKEN_IDENTIFIER))
+		{
+			soul__parser_advance(p); // @TODO IDENTIFIER
+			soul__parser_require(p, TOKEN_COLON);
+			soul__parser_advance(p); // @TODO TYPE
+
+			if(p->current_token.type != TOKEN_COMMA) break;
+		}
+
+		soul__parser_require(p, TOKEN_PAREN_RIGHT);
+	}
 
 	// Consume type declaration (TOKEN_DOUBLE_COLON);
 	soul__parser_require(p, TOKEN_DOUBLE_COLON);
@@ -158,13 +184,36 @@ static soul_ast_statement_t* soul__parser_parse_function(soul_parser_t* p)
 	// Function body
 	soul_ast_statement_t* body = soul__parser_parse_body(p);
 
-	return soul__ast_function_declaration(identifier, body, line);
+	return soul__ast_function_declaration(identifier, params, body, line);
+}
+
+static soul_ast_statement_t* soul__parser_parse_define(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// Consume define declaration (TOKEN_DEFINE)
+	soul__parser_advance(p);
+
+	// Identifier
+	soul_token_t id_token = soul__parser_require(p, TOKEN_IDENTIFIER);
+	soul_ast_identifier_t* identifier = soul__ast_new_identifier(id_token.start, id_token.length);
+
+	// Expression
+	soul_ast_expression_t* value = soul__parser_parse_expression(p);
+
+	return soul__ast_define_declaration(identifier, value, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 {
 	switch(p->current_token.type)
 	{
+		case TOKEN_DEFINE:
+			{
+				soul_ast_statement_t* s = soul__parser_parse_define(p);
+				soul__parser_require(p, TOKEN_SEMICOLON);
+				return s;
+			}
 		case TOKEN_LET:
 			{
 				soul_ast_statement_t* s = soul__parser_parse_variable(p);

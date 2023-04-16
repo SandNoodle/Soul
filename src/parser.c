@@ -96,6 +96,35 @@ static bool soul__parser_is_declaration(soul_token_type_t type)
 		|| type == TOKEN_ENUM;
 }
 
+static bool soul__parser_is_synchronization(soul_token_type_t type)
+{
+	return type == TOKEN_FN
+		|| type == TOKEN_LET
+		|| type == TOKEN_IF
+		|| type == TOKEN_FOR
+		|| type == TOKEN_WHILE
+		|| type == TOKEN_RETURN
+		|| type == TOKEN_STRUCT
+		|| type == TOKEN_ENUM
+		|| type == TOKEN_BRACE_LEFT; // Blocks
+}
+
+static void soul__parser_synchronize(soul_parser_t* p)
+{
+	p->had_panic = false;
+
+	while(!soul__parser_match(p, TOKEN_EOF))
+	{
+		if(!soul__parser_is_synchronization(p->current_token.type))
+		{
+			printf("TRYINGTO SYNC\n"); fflush(stdout);
+			soul__parser_advance(p);
+		}
+
+		break; // Synchronized!
+	}
+}
+
 //
 // Statements
 //
@@ -355,6 +384,11 @@ static soul_ast_t* soul__parser_parse_program(soul_parser_t* p)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);
 		soul__ast_statement_vector_push(stmts, s);
+
+		if(p->had_panic)
+		{
+			soul__parser_synchronize(p);
+		}
 	}
 
 	// @TODO Switch to function scope???

@@ -130,8 +130,6 @@ struct soul_ast_t {
 
 
 // @TEMP
-void soul__ast_print_expression(soul_ast_expression_t* e);
-void soul__ast_print_statement(soul_ast_statement_t* s);
 void soul__ast_print(soul_ast_t* ast);
 //
 

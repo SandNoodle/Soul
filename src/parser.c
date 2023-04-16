@@ -1,6 +1,7 @@
 #include "parser.h"
 
-#include <stdio.h>
+#include <stdio.h> // @TEMP
+#include <stdarg.h>
 
 #include "token.h"
 
@@ -25,7 +26,7 @@ static void soul__parser_init(soul_parser_t* parser, soul_token_vector_t* array)
 	parser->current_token = parser->tokens->data[0];
 }
 
-static void soul__parser_error(soul_parser_t* parser, const char* message)
+static void soul__parser_error(soul_parser_t* parser, const char* message, ...)
 {
 	if(parser->had_panic) return;
 	parser->had_panic = true;
@@ -38,7 +39,13 @@ static void soul__parser_error(soul_parser_t* parser, const char* message)
 		parser->error_callback("TEST", token.line, message, strlen(message));
 	}
 #else
-	printf("[ERROR] Parsing failed: %s\n", message);
+	// @TEMP @TODO error_callback!
+	va_list varg;
+	va_start(varg, message);
+	printf("[ERROR] PARSER: ");
+	vprintf(message, varg);
+	printf("\n");
+	va_end(varg);
 #endif
 }
 
@@ -68,7 +75,8 @@ static soul_token_t soul__parser_require(soul_parser_t* p, soul_token_type_t typ
 		return current_token;
 	}
 
-	soul__parser_error(p, "Expected token type: '%s', but found: '%s"); // @TODO Format
+	soul__parser_error(p, "Expected token type: '%s', but found: '%s'",
+		soul_token_to_string(type), soul_token_to_string(p->current_token.type));
 
 	return (soul_token_t){TOKEN_ERROR, NULL, 0, 0}; // @TODO Line
 }
@@ -210,7 +218,7 @@ static soul_ast_statement_t* soul__parser_parse_if_statement(soul_parser_t* p)
 	// Consume TOKEN_IF
 	soul__parser_advance(p);
 
-	// // Condition
+	// Condition
 	soul__parser_require(p, TOKEN_PAREN_LEFT);
 	soul_ast_expression_t* cond = soul__parser_parse_expression(p);
 	soul__parser_require(p, TOKEN_PAREN_RIGHT);

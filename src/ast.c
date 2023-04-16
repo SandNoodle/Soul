@@ -31,7 +31,7 @@ static void soul__ast_print_number_literal(soul_ast_expression_t* e)
 	}
 }
 
-void soul__ast_print_expression(soul_ast_expression_t* e)
+static void soul__ast_print_expression(soul_ast_expression_t* e)
 {
 	if(!e) return;
 
@@ -57,7 +57,7 @@ void soul__ast_print_expression(soul_ast_expression_t* e)
 	}
 }
 
-void soul__ast_print_statement(soul_ast_statement_t* s)
+static void soul__ast_print_statement(soul_ast_statement_t* s)
 {
 	if(!s) return;
 
@@ -73,22 +73,25 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 				soul__ast_print_expression(cond);
 				printf("[THEN]\n");
 				soul__ast_print_statement(then_stmt);
-				printf("[ELSE]\n");
-				soul__ast_print_statement(else_stmt);
+				if(else_stmt)
+				{
+					printf("[ELSE]\n");
+					soul__ast_print_statement(else_stmt);
+				}
 			}
 			break;
 		case AST_STMT_FOR: break;
 		case AST_STMT_FOREACH: break;
 		case AST_STMT_WHILE:
-		   {
-			soul_ast_expression_t* cond = s->as.while_stmt.condition;
-			soul_ast_statement_t* body = s->as.while_stmt.body;
-			printf("[WHILE]\n");
-			printf("[COND]\n");
-			soul__ast_print_expression(cond);
-			printf("[BODY]\n");
-			soul__ast_print_statement(body);
-		   }
+			{
+				soul_ast_expression_t* cond = s->as.while_stmt.condition;
+				soul_ast_statement_t* body = s->as.while_stmt.body;
+				printf("[WHILE]\n");
+				printf("[COND]\n");
+				soul__ast_print_expression(cond);
+				printf("[BODY]\n");
+				soul__ast_print_statement(body);
+			}
 		   break;
 		case AST_STMT_BLOCK:
 			{
@@ -114,9 +117,9 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_FUNCTION_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.fun_decl.id;
-				printf("[FUNC_DECL, '%.*s'| [BODY]:\n", (int)id->length, id->name);
+				printf("[FUNC_DECL, '%.*s']\n", (int)id->length, id->name);
+				printf("[BODY]\n");
 				soul__ast_print_statement(s->as.decl_stmt.fun_decl.body);
-				printf("]\n");
 			}
 			break;
 		case AST_STMT_NATIVE_DECL:
@@ -133,7 +136,7 @@ void soul__ast_print_statement(soul_ast_statement_t* s)
 
 void soul__ast_print(soul_ast_t* ast)
 {
-	if(!ast->valid)
+	if(!ast)
 	{
 		const char* message = "Cannot print an AST, because it is invalid!";
 		printf("%s\n", message);

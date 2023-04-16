@@ -1,0 +1,6 @@
+# While true
+while { }
+
+# While with param
+while(true) { }
+while(false) { }

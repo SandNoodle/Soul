@@ -1,0 +1,5 @@
+# If without else
+if (true) { }
+
+# If with else
+if (true) { } else { }

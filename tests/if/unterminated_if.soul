@@ -1,0 +1,14 @@
+# Missing parens
+if (true { }
+if true) { }
+if true  { }
+
+# Missing then body
+if (true)
+
+# Missing 'then body' but 'else' present without its body
+if (true) else
+
+# Missing 'then body' but 'else body' present
+if (true) else { }
+

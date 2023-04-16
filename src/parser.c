@@ -170,6 +170,9 @@ static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);
 		soul__ast_statement_vector_push(stmts, s);
+
+		// NOTE: Prevent trying to parse unterminated blocks.
+		if(p->current_token.type == TOKEN_EOF) break;
 	}
 
 	// Require block end(TOKEN_BRACE_RIGHT)

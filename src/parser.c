@@ -96,6 +96,19 @@ static bool soul__parser_is_declaration(soul_token_type_t type)
 		|| type == TOKEN_ENUM;
 }
 
+static bool soul__parser_is_assigment(soul_token_type_t type)
+{
+	return type == TOKEN_EQUAL;
+}
+
+static bool soul__parser_is_compound_assigment(soul_token_type_t type)
+{
+	return type != TOKEN_EQUAL &&
+		(type == TOKEN_PLUS_EQUAL ||
+		 type == TOKEN_MINUS_EQUAL ||
+		 type == TOKEN_STAR_EQUAL ||
+		 type == TOKEN_SLASH_EQUAL);
+}
 static bool soul__parser_is_synchronization(soul_token_type_t type)
 {
 	return type == TOKEN_FN
@@ -136,6 +149,13 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	// Consume variable declaration (TOKEN_LET)
 	soul__parser_advance(p);
 
+	bool is_mut = false;
+	if(p->current_token.type == TOKEN_MUT)
+	{
+		is_mut = true;
+		soul__parser_advance(p);
+	}
+
 	// Variable identifier
 	soul_token_t id_token = soul__parser_require(p, TOKEN_IDENTIFIER);
 	soul_ast_identifier_t* identifier = soul__ast_new_identifier(id_token.start, id_token.length);
@@ -153,7 +173,7 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	// Variable value
 	soul_ast_expression_t* value = soul__parser_parse_expression(p);
 
-	return soul__ast_variable_declaration(identifier, type, value, line);
+	return soul__ast_variable_declaration(identifier, type, value, is_mut, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)

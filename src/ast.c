@@ -109,7 +109,9 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
 				soul_ast_identifier_t* type = s->as.decl_stmt.var_decl.type;
-				printf("[VAR_DECL, '%.*s' : '%.*s' = ", (int)id->length, id->name, (int)type->length, type->name);
+				bool is_mut = s->as.decl_stmt.var_decl.is_mut;
+				printf("[%s, '%.*s' : '%.*s' = ", is_mut ? "MUT_VAR_DECL" : "VAR_DECL",
+					(int)id->length, id->name, (int)type->length, type->name);
 				soul__ast_print_expression(s->as.decl_stmt.var_decl.val);
 				printf("]\n");
 			}
@@ -292,12 +294,13 @@ soul_ast_statement_t* soul__ast_new_declaration(soul_ast_statement_type_t type, 
 }
 
 soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
-	soul_ast_identifier_t* type, soul_ast_expression_t* init, uint32_t line)
+	soul_ast_identifier_t* type, soul_ast_expression_t* init, bool is_mut, uint32_t line)
 {
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_VARIABLE_DECL, line);
 	d->as.decl_stmt.var_decl.id = id;
 	d->as.decl_stmt.var_decl.type = type;
 	d->as.decl_stmt.var_decl.val = init;
+	d->as.decl_stmt.var_decl.is_mut = is_mut;
 	return d;
 }
 

@@ -80,7 +80,23 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 				}
 			}
 			break;
-		case AST_STMT_FOR: break;
+		case AST_STMT_FOR:
+			{
+				soul_ast_statement_t* var = s->as.for_stmt.var;
+				soul_ast_expression_t* cond = s->as.for_stmt.condition;
+				soul_ast_expression_t* actual = s->as.for_stmt.actual;
+				soul_ast_statement_t* body = s->as.for_stmt.body;
+				printf("[FOR]\n");
+				printf("[VAR]\n");
+				soul__ast_print_statement(var);
+				printf("[COND]\n");
+				soul__ast_print_expression(cond);
+				printf("[ACTUAL]\n");
+				soul__ast_print_expression(actual);
+				printf("[BODY]\n");
+				soul__ast_print_statement(body);
+			}
+			break;
 		case AST_STMT_FOREACH: break;
 		case AST_STMT_WHILE:
 			{

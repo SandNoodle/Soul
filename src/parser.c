@@ -7,6 +7,7 @@
 
 // @TEMP @DEBUG
 #define DEBUG() printf("[DEBUG] %s:%d: %s\n", __FILE__, __LINE__, __func__); fflush(stdout);
+#define DEBUG_TOKEN() printf("[DEBUG] PEEK: '%s'\n", soul_token_to_string(p->current_token.type)); fflush(stdout);
 
 // Forward declare
 static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p);
@@ -98,17 +99,18 @@ static bool soul__parser_is_declaration(soul_token_type_t type)
 
 static bool soul__parser_is_assigment(soul_token_type_t type)
 {
-	return type == TOKEN_EQUAL;
+	return type == TOKEN_EQUAL
+		|| type == TOKEN_PLUS_EQUAL
+		|| type == TOKEN_MINUS_EQUAL
+		|| type == TOKEN_STAR_EQUAL
+		|| type == TOKEN_SLASH_EQUAL;
 }
 
 static bool soul__parser_is_compound_assigment(soul_token_type_t type)
 {
-	return type != TOKEN_EQUAL &&
-		(type == TOKEN_PLUS_EQUAL ||
-		 type == TOKEN_MINUS_EQUAL ||
-		 type == TOKEN_STAR_EQUAL ||
-		 type == TOKEN_SLASH_EQUAL);
+	return type != TOKEN_EQUAL && soul__parser_is_assigment(type);
 }
+
 static bool soul__parser_is_synchronization(soul_token_type_t type)
 {
 	return type == TOKEN_FN
@@ -130,7 +132,6 @@ static void soul__parser_synchronize(soul_parser_t* p)
 	{
 		if(!soul__parser_is_synchronization(p->current_token.type))
 		{
-			printf("TRYINGTO SYNC\n"); fflush(stdout);
 			soul__parser_advance(p);
 		}
 
@@ -149,6 +150,7 @@ static soul_ast_statement_t* soul__parser_parse_variable(soul_parser_t* p)
 	// Consume variable declaration (TOKEN_LET)
 	soul__parser_advance(p);
 
+	// (Optional) Mutable variable
 	bool is_mut = false;
 	if(p->current_token.type == TOKEN_MUT)
 	{
@@ -289,6 +291,51 @@ static soul_ast_statement_t* soul__parser_parse_if_statement(soul_parser_t* p)
 	return soul__ast_if_statement(cond, then_stmt, else_stmt, line);
 }
 
+static soul_ast_statement_t* soul__parser_parse_for_statement(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// Consume TOKEN_FOR
+	soul__parser_advance(p);
+
+	soul__parser_require(p, TOKEN_PAREN_LEFT);
+
+	// Mutable variable declaration
+	// @TODO Currently implemented just as variable declaration,
+	//       however in the future I'd like to remove 'let mut' prefix
+	//       for a cleaner <identifier> : <type> sytnax.
+	soul_ast_statement_t* var = NULL;
+	if(!soul__parser_match(p, TOKEN_SEMICOLON))
+	{
+		var = soul__parser_parse_variable(p);
+	}
+
+	soul__parser_require(p, TOKEN_SEMICOLON);
+
+	// Condition
+	soul_ast_expression_t* cond = NULL;
+	if(!soul__parser_match(p, TOKEN_SEMICOLON))
+	{
+		cond = soul__parser_parse_expression(p);
+	}
+
+	soul__parser_require(p, TOKEN_SEMICOLON);
+
+	// Increment
+	soul_ast_expression_t* actual = NULL;
+	if(!soul__parser_match(p, TOKEN_PAREN_RIGHT))
+	{
+		actual = soul__parser_parse_expression(p);
+	}
+
+	soul__parser_require(p, TOKEN_PAREN_RIGHT);
+
+	// Body
+	soul_ast_statement_t* body = soul__parser_parse_body(p);
+
+	return soul__ast_for_statement(var, cond, actual, body, line);
+}
+
 static soul_ast_statement_t* soul__parser_parse_while_statement(soul_parser_t* p)
 {
 	const uint32_t line = p->current_token.line;
@@ -335,6 +382,8 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 			return soul__parser_parse_function(p);
 		case TOKEN_IF:
 			return soul__parser_parse_if_statement(p);
+		case TOKEN_FOR:
+			return soul__parser_parse_for_statement(p);
 		case TOKEN_WHILE:
 			return soul__parser_parse_while_statement(p);
 		case TOKEN_BRACE_LEFT:

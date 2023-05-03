@@ -1,6 +1,9 @@
 #ifndef SOUL_H
 #define SOUL_H
 
+// @TEMP @DEBUG
+#define DEBUG() printf("[DEBUG] %s:%d: %s\n", __FILE__, __LINE__, __func__); fflush(stdout);
+
 #define SOUL_VERSION_MAJOR 0
 #define SOUL_VERSION_MINOR 0
 #define SOUL_VERSION_PATCH 0
@@ -78,6 +81,7 @@ typedef enum {
 } soul_value_type_t;
 
 typedef struct{
+	soul_value_type_t type;
 	union {
 		uint8_t  b8;
 		uint8_t  u8;
@@ -224,7 +228,7 @@ SOUL_API soul_compiler_config_t soul_get_defualt_compiler_config(void);
 
 typedef struct soul_chunk_t soul_chunk_t;
 
-SOUL_API soul_chunk_t soul_compile(soul_ast_t ast);
+SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast);
 
 //
 // Serialization

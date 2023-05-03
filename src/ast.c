@@ -10,7 +10,7 @@ SOUL_VECTOR_DECLARE(ast_statement, soul_ast_statement_t*);
 
 static void soul__ast_print_number_literal(soul_ast_expression_t* e)
 {
-	soul_value_type_t type = e->as.number_literal_expr.type;
+	soul_value_type_t type = e->as.number_literal_expr.val.type;
 	switch(type)
 	{
 		case VAL_U8:
@@ -40,6 +40,11 @@ static void soul__ast_print_expression(soul_ast_expression_t* e)
 		case AST_EXPR_ASSIGN:
 		case AST_EXPR_BINARY:
 		case AST_EXPR_UNARY:
+		case AST_EXPR_VAR_LITERAL:
+			{
+				printf("[VAR_LIT, '%.*s']", (int)e->as.var_literal_expr.id->length, e->as.var_literal_expr.id->name);
+			}
+			break;
 		case AST_EXPR_BOOL_LITERAL:
 			{
 				bool val = e->as.bool_literal_expr.val;
@@ -108,7 +113,7 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 				printf("[BODY]\n");
 				soul__ast_print_statement(body);
 			}
-		   break;
+			break;
 		case AST_STMT_BLOCK:
 			{
 				size_t size = s->as.block_stmt.stmts->size;
@@ -206,7 +211,7 @@ soul_ast_expression_t* soul__ast_new_expression(soul_ast_expression_type_t type,
 	return expr;
 }
 
-soul_ast_expression_t* soul__ast_assgin_expression(soul_ast_expression_t* lval,
+soul_ast_expression_t* soul__ast_assign_expression(soul_ast_expression_t* lval,
 	soul_ast_expression_t* rval, uint32_t line)
 {
 	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_ASSIGN, line);
@@ -234,13 +239,19 @@ soul_ast_expression_t* soul__ast_unary_expression(soul_ast_expression_t* expr,
 	return e;
 }
 
-soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_type_t type,
-	soul_value_t value, uint32_t line)
+soul_ast_expression_t* soul__ast_variable_literal_expression(const char* start,
+	size_t length, uint32_t line)
+{
+	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_VAR_LITERAL, line);
+	e->as.var_literal_expr.id = soul__ast_new_identifier(start, length);
+	return e;
+}
+
+soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_t value,
+	uint32_t line)
 {
 	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_NUMBER_LITERAL, line);
-	e->as.number_literal_expr.type = type;
 	e->as.number_literal_expr.val = value;
-
 	return e;
 }
 
@@ -277,6 +288,9 @@ void soul__ast_free_expression(soul_ast_expression_t* expression)
 			break;
 		case AST_EXPR_UNARY:
 			soul__ast_free_expression(expression->as.unary_expr.expr);
+			break;
+		case AST_EXPR_VAR_LITERAL:
+			soul__ast_free_identifier(expression->as.var_literal_expr.id);
 			break;
 		case AST_EXPR_BOOL_LITERAL:
 			break;

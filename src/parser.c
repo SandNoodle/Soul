@@ -6,7 +6,6 @@
 #include "token.h"
 
 // @TEMP @DEBUG
-#define DEBUG() printf("[DEBUG] %s:%d: %s\n", __FILE__, __LINE__, __func__); fflush(stdout);
 #define DEBUG_TOKEN() printf("[DEBUG] PEEK: '%s'\n", soul_token_to_string(p->current_token.type)); fflush(stdout);
 
 // Forward declare
@@ -402,19 +401,55 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 // Expressions
 //
 
+static soul_value_t soul__parser_parse_number(soul_parser_t* p)
+{
+	soul_token_t token = p->current_token;
+	// Peek backwards to figure out type declared.
+	soul_token_t decl_type = p->tokens->data[p->tokens_index - 2];
+	soul_value_t value;
+#if 0
+	switch(soul__parser_token_to_value_type(decl_type))
+	{
+		case : value.type = VAL_U8;  value.as.u8  = (uint8_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = VAL_U16; value.as.u16 = (uint16_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = VAL_U32; value.as.u32 = (uint32_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = VAL_U64; value.as.u64 = (uint64_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = VAL_I8;  value.as.i8  = (int8_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = VAL_I16; value.as.i16 = (int16_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = VAL_I32; value.as.i32 = (int32_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = VAL_I64; value.as.i64 = (int64_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = VAL_F32; value.as.f32 = strtof(token.start, NULL); return value;
+		case : value.type = VAL_F64; value.as.f64 = strtod(token.start, NULL); return value;
+		default:
+			break;
+	}
+
+	soul__parser_error(p, "Expected numeric primitive type, but got: '%s'",
+		soul_token_to_string(p->current_token.type));
+	value.type = VAL_U64; value.as.u64 = 0;
+#endif
+
+	// @TODO Temp
+	value.type = VAL_I64;
+	value.as.i64 = (int64_t)strtoll(token.start, NULL, 0);
+	return value;
+}
+
 static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
 {
 	soul_token_t token = p->current_token;
 	switch(token.type)
 	{
+		case TOKEN_IDENTIFIER:
+			{
+				soul_ast_expression_t* e = soul__ast_variable_literal_expression(token.start, token.length, token.line);
+				soul__parser_advance(p);
+				return e;
+			}
 		case TOKEN_NUMBER:
 			{
-				// @TODO Currenlty parse as I64.
-				soul_value_type_t type = VAL_I64;
-				soul_value_t value;
-				value.as.i64 = 420; // @TODO
-				//
-				soul_ast_expression_t* e = soul__ast_number_literal_expression(type, value, token.line);
+				soul_value_t v = soul__parser_parse_number(p);
+				soul_ast_expression_t* e = soul__ast_number_literal_expression(v, token.line);
 				soul__parser_advance(p);
 				return e;
 			}

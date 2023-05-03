@@ -238,7 +238,7 @@ static void soul__compiler_compile_statement(soul_compiler_t* c,
 // Public API
 //
 
-SOUL_API soul_chunk_t soul_compile(soul_ast_t ast)
+SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast)
 {
 	// @TEMP SUPRESS WARNINGS IN THIS FILE
 	SOUL_UNUSED(soul__compiler_error);
@@ -250,7 +250,7 @@ SOUL_API soul_chunk_t soul_compile(soul_ast_t ast)
 	SOUL_UNUSED(soul__compiler_compile_expression);
 	//
 
-	if(!ast.valid) return soul__invalid_chunk;
+	if(!ast) return soul__invalid_chunk;
 
 	// Prepare compiler
 	soul_compiler_t compiler;

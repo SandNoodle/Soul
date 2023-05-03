@@ -17,6 +17,7 @@ typedef enum {
 	AST_EXPR_ASSIGN,
 	AST_EXPR_BINARY,
 	AST_EXPR_UNARY,
+	AST_EXPR_VAR_LITERAL,
 	AST_EXPR_BOOL_LITERAL,
 	AST_EXPR_NUMBER_LITERAL,
 	AST_EXPR_STRING_LITERAL,
@@ -40,7 +41,9 @@ struct soul_ast_expression_t {
 			soul_ast_expression_t* expr;
 		} unary_expr;
 		struct {
-			soul_value_type_t type;
+			soul_ast_identifier_t* id;
+		} var_literal_expr;
+		struct {
 			soul_value_t val;
 		} number_literal_expr;
 		struct {
@@ -151,7 +154,7 @@ void soul__ast_free_expression(soul_ast_expression_t* expression);
 soul_ast_expression_t* soul__ast_new_expression(soul_ast_expression_type_t type,
 	uint32_t line);
 
-soul_ast_expression_t* soul__ast_assgin_expression(soul_ast_expression_t* lval,
+soul_ast_expression_t* soul__ast_assign_expression(soul_ast_expression_t* lval,
 	soul_ast_expression_t* rval, uint32_t line);
 
 soul_ast_expression_t* soul__ast_binary_expression(soul_ast_expression_t* left,
@@ -160,8 +163,11 @@ soul_ast_expression_t* soul__ast_binary_expression(soul_ast_expression_t* left,
 soul_ast_expression_t* soul__ast_unary_expression(soul_ast_expression_t* expr,
 	soul_token_type_t op, uint32_t line);
 
-soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_type_t type,
-	soul_value_t value, uint32_t line);
+soul_ast_expression_t* soul__ast_variable_literal_expression(const char* start,
+	size_t length, uint32_t line);
+
+soul_ast_expression_t* soul__ast_number_literal_expression( soul_value_t value,
+	uint32_t line);
 
 soul_ast_expression_t* soul__ast_bool_literal_expression(bool value, uint32_t line);
 

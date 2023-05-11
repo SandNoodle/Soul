@@ -38,8 +38,28 @@ static void soul__ast_print_expression(soul_ast_expression_t* e)
 	switch(e->type)
 	{
 		case AST_EXPR_ASSIGN:
+			{
+				soul_ast_expression_t* l = e->as.assign_expr.lval;
+				soul_ast_expression_t* r = e->as.assign_expr.rval;
+				printf("[ASSIGN, ");
+				soul__ast_print_expression(l);
+				printf(" = ");
+				soul__ast_print_expression(r);
+				printf("]");
+			}
+			break;
 		case AST_EXPR_BINARY:
+			soul_ast_expression_t* l = e->as.binary_expr.lval;
+			soul_ast_expression_t* r = e->as.binary_expr.rval;
+			soul_token_type_t op = e->as.binary_expr.op;
+			printf("[BINARY, ");
+			soul__ast_print_expression(l);
+			printf(" %s ", soul_token_to_string(op));
+			soul__ast_print_expression(r);
+			printf("]");
+			break;
 		case AST_EXPR_UNARY:
+			break;
 		case AST_EXPR_VAR_LITERAL:
 			{
 				printf("[VAR_LIT, '%.*s']", (int)e->as.var_literal_expr.id->length, e->as.var_literal_expr.id->name);
@@ -154,6 +174,11 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 				printf("[DEFINE_DECL, '%.*s' = '%lld']\n", (int)id->length, id->name, val);
 			}
 			break;
+		case AST_STMT_EXPRESSION:
+			{
+				soul__ast_print_expression(s->as.expression_stmt.expr);
+			}
+			break;
 	}
 }
 
@@ -216,7 +241,7 @@ soul_ast_expression_t* soul__ast_assign_expression(soul_ast_expression_t* lval,
 {
 	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_ASSIGN, line);
 	e->as.assign_expr.lval = lval;
-	e->as.assign_expr.lval = rval;
+	e->as.assign_expr.rval = rval;
 	return e;
 }
 
@@ -224,8 +249,8 @@ soul_ast_expression_t* soul__ast_binary_expression(soul_ast_expression_t* left,
 	soul_ast_expression_t* right, soul_token_type_t op, uint32_t line)
 {
 	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_BINARY, line);
-	e->as.binary_expr.left = left;
-	e->as.binary_expr.right = right;
+	e->as.binary_expr.lval= left;
+	e->as.binary_expr.rval = right;
 	e->as.binary_expr.op = op;
 	return e;
 }
@@ -283,8 +308,8 @@ void soul__ast_free_expression(soul_ast_expression_t* expression)
 			soul__ast_free_expression(expression->as.assign_expr.rval);
 			break;
 		case AST_EXPR_BINARY:
-			soul__ast_free_expression(expression->as.binary_expr.left);
-			soul__ast_free_expression(expression->as.binary_expr.right);
+			soul__ast_free_expression(expression->as.binary_expr.lval);
+			soul__ast_free_expression(expression->as.binary_expr.rval);
 			break;
 		case AST_EXPR_UNARY:
 			soul__ast_free_expression(expression->as.unary_expr.expr);
@@ -393,6 +418,14 @@ soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stm
 	return s;
 }
 
+soul_ast_statement_t* soul__ast_expression_statement(soul_ast_expression_t* expr,
+	uint32_t line)
+{
+	soul_ast_statement_t* s = soul__ast_new_statement(AST_STMT_EXPRESSION, line);
+	s->as.expression_stmt.expr = expr;
+	return s;
+}
+
 // @TODO REMOVE MALLOC FOR USER DEFINED DEALLOCATOR
 // @TODO !!!!
 void soul__ast_free_statement(soul_ast_statement_t* s)
@@ -444,6 +477,9 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 		case AST_STMT_DEFINE_DECL:
 			soul__ast_free_identifier(s->as.decl_stmt.define_decl.id);
 			soul__ast_free_expression(s->as.decl_stmt.define_decl.val);
+			break;
+		case AST_STMT_EXPRESSION:
+			soul__ast_free_expression(s->as.expression_stmt.expr);
 			break;
 	}
 

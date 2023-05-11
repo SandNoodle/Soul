@@ -33,8 +33,8 @@ struct soul_ast_expression_t {
 		} assign_expr;
 		struct {
 			soul_token_type_t op;
-			soul_ast_expression_t* left;
-			soul_ast_expression_t* right;
+			soul_ast_expression_t* lval;
+			soul_ast_expression_t* rval;
 		} binary_expr;
 		struct {
 			soul_token_type_t op;
@@ -68,6 +68,7 @@ typedef enum {
 	AST_STMT_FUNCTION_DECL,
 	AST_STMT_NATIVE_DECL,
 	AST_STMT_DEFINE_DECL,
+	AST_STMT_EXPRESSION,
 } soul_ast_statement_type_t;
 
 struct soul_ast_statement_t {
@@ -124,6 +125,9 @@ struct soul_ast_statement_t {
 		struct {
 			// @TODO
 		} import_stmt;
+		struct {
+			soul_ast_expression_t* expr;
+		} expression_stmt;
 	} as;
 };
 
@@ -166,13 +170,14 @@ soul_ast_expression_t* soul__ast_unary_expression(soul_ast_expression_t* expr,
 soul_ast_expression_t* soul__ast_variable_literal_expression(const char* start,
 	size_t length, uint32_t line);
 
-soul_ast_expression_t* soul__ast_number_literal_expression( soul_value_t value,
+soul_ast_expression_t* soul__ast_number_literal_expression(soul_value_t value,
 	uint32_t line);
 
 soul_ast_expression_t* soul__ast_bool_literal_expression(bool value, uint32_t line);
 
 soul_ast_expression_t* soul__ast_string_literal_expression(const char* str, size_t size,
 	uint32_t line);
+
 //
 // Statements
 //
@@ -205,4 +210,7 @@ soul_ast_statement_t* soul__ast_while_statement(soul_ast_expression_t* condition
 	soul_ast_statement_t* body, uint32_t line);
 
 soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stmts,
+	uint32_t line);
+
+soul_ast_statement_t* soul__ast_expression_statement(soul_ast_expression_t* expr,
 	uint32_t line);

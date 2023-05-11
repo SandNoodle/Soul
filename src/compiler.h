@@ -10,9 +10,9 @@ typedef struct {
 } soul_chunk_constants_t;
 
 struct soul_chunk_t {
-	uint32_t count;
+	uint32_t size;
 	uint32_t capacity;
-	uint8_t* code;
+	uint8_t* data;
 
 	soul_chunk_constants_t constants;
 

@@ -19,12 +19,16 @@
 // Includes
 // ----------------------------------------------------------------------------
 
+#include "soul_config.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 
 typedef bool soul_valid_t;
+
+#define SOUL_ARRAY_SIZE(array) sizeof(array) / sizeof(array[0])
 
 // @TODO @TEMP
 #include <assert.h>
@@ -169,6 +173,7 @@ typedef void (*soul_message_callback_t)(const char* file, uint32_t line, const c
 //
 
 typedef struct soul_vm_t soul_vm_t;
+typedef struct soul_chunk_t soul_chunk_t;
 
 // This struct contains configuration options for a runtime enviroment.
 typedef struct {
@@ -183,6 +188,8 @@ SOUL_API soul_config_t soul_get_defualt_config(void);
 
 SOUL_API void soul_vm_init(soul_vm_t* vm);
 SOUL_API void soul_vm_free(soul_vm_t* vm);
+
+SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk);
 
 //
 // Scanning
@@ -225,8 +232,6 @@ typedef struct {
 } soul_compiler_config_t;
 
 SOUL_API soul_compiler_config_t soul_get_defualt_compiler_config(void);
-
-typedef struct soul_chunk_t soul_chunk_t;
 
 SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast);
 

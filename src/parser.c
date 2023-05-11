@@ -6,11 +6,14 @@
 #include "token.h"
 
 // @TEMP @DEBUG
-#define DEBUG_TOKEN() printf("[DEBUG] PEEK: '%s'\n", soul_token_to_string(p->current_token.type)); fflush(stdout);
+#define DEBUG_HERE() printf("[DEBUG] %s:%d\n", __func__, __LINE__); fflush(stdout);
+#define DEBUG_TOKEN(x) printf("[DEBUG] TOKEN: '%s'\n", soul_token_to_string((x).type)); fflush(stdout);
 
 // Forward declare
-static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p);
-static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p);
+static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t*);
+static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t*);
+static soul_ast_expression_t* soul__parser_parse_precedence_expression(soul_parser_t*, soul_precedence_t);
+static soul_precedence_rule_t soul__parser_get_precedence_rule(soul_token_type_t);
 
 static const soul_ast_t soul__invalid_ast = {
 	.root = NULL,
@@ -78,12 +81,64 @@ static soul_token_t soul__parser_require(soul_parser_t* p, soul_token_type_t typ
 	soul__parser_error(p, "Expected token type: '%s', but found: '%s'",
 		soul_token_to_string(type), soul_token_to_string(p->current_token.type));
 
-	return (soul_token_t){TOKEN_ERROR, NULL, 0, 0}; // @TODO Line
+	return (soul_token_t){TOKEN_ERROR, NULL, 0, p->current_token.line};
+}
+
+static soul_token_t soul__parser_require_any(soul_parser_t* p, soul_token_type_t* types, size_t length)
+{
+	for(size_t i = 0; i < length; ++i)
+	{
+		if(p->current_token.type == types[i])
+		{
+			soul_token_t current_token = p->current_token;
+			soul__parser_advance(p);
+			return current_token;
+		}
+	}
+
+	// @TODO: LIST TOKENS
+	soul__parser_error(p, "Expected tokens were not found.");
+	return (soul_token_t){TOKEN_ERROR, NULL, 0, p->current_token.line};
 }
 
 static bool soul__parser_match(soul_parser_t* p, soul_token_type_t type)
 {
 	return p->current_token.type == type;
+}
+
+static bool soul__parser_match_any(soul_parser_t* p, soul_token_type_t* types, size_t length)
+{
+	for(size_t i = 0; i < length; ++i)
+	{
+		if(soul__parser_match(p, types[i])) return true;
+	}
+	return false;
+}
+
+static soul_token_t soul__parser_peek(soul_parser_t* p)
+{
+	return p->tokens->data[p->tokens_index];
+}
+
+static soul_token_t soul__parser_peek_next(soul_parser_t* p)
+{
+	if(p->tokens_index + 1 > p->tokens->size)
+	{
+		soul__parser_error(p, "Cannot peek the next token - parser is at the end of token list.");
+		return p->tokens->data[p->tokens->size - 1];
+	}
+
+	return p->tokens->data[p->tokens_index + 1];
+}
+static soul_token_t soul__parser_peek_prev(soul_parser_t* p)
+{
+	if(p->tokens_index == 0)
+	{
+		soul__parser_error(p, "Cannot peek the previous token - parser is at the start of token list.");
+		return p->tokens->data[0];
+	}
+
+	return p->tokens->data[p->tokens_index - 1];
 }
 
 static bool soul__parser_is_declaration(soul_token_type_t type)
@@ -108,6 +163,24 @@ static bool soul__parser_is_assigment(soul_token_type_t type)
 static bool soul__parser_is_compound_assigment(soul_token_type_t type)
 {
 	return type != TOKEN_EQUAL && soul__parser_is_assigment(type);
+}
+
+static bool soul__parser_is_literal(soul_token_type_t type)
+{
+	return type == TOKEN_IDENTIFIER
+		|| type == TOKEN_NUMBER
+		|| type == TOKEN_TRUE
+		|| type == TOKEN_FALSE
+		|| type == TOKEN_STRING;
+}
+
+static bool soul__parser_is_binary_operand(soul_token_type_t type)
+{
+	// @TODO: Binary operands.
+	return type == TOKEN_PLUS
+		|| type == TOKEN_MINUS
+		|| type == TOKEN_STAR
+		|| type == TOKEN_SLASH;
 }
 
 static bool soul__parser_is_synchronization(soul_token_type_t type)
@@ -361,6 +434,59 @@ static soul_ast_statement_t* soul__parser_parse_while_statement(soul_parser_t* p
 
 	return soul__ast_while_statement(cond, body, line);
 }
+
+// @TODO
+#if 0
+static soul_ast_statement_t* soul__parser_parse_compound_assigment_expr_statement(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	soul__parser_advance(p);
+
+	// Consume assigment operator
+	soul__parser_advance(p);
+
+	// Parse RVALUE.
+	soul_ast_expression_t* right = soul__parser_parse_expression(p);
+
+	return soul__ast_expression_statement(NULL, line); // @TODO
+}
+#endif
+
+static soul_ast_statement_t* soul__parser_parse_assigment_expr_statement(soul_parser_t* p)
+{
+	const uint32_t line = p->current_token.line;
+
+	// @TODO get what type of expression we are looking at - CURRENTLY HARDCODED
+	soul_ast_expression_t* left = soul__parser_parse_expression(p);
+
+	// Consume assigment operator
+	soul__parser_advance(p);
+
+	// Parse RVALUE.
+	soul_ast_expression_t* right = soul__parser_parse_expression(p);
+
+	soul_ast_expression_t* expr = soul__ast_assign_expression(left, right, line);
+
+	return soul__ast_expression_statement(expr, line);
+}
+
+static soul_ast_statement_t* soul__parser_parse_expression_statement(soul_parser_t* p)
+{
+	soul_token_type_t next_type = soul__parser_peek_next(p).type;
+
+#if 0
+	if(soul__parser_is_compound_assigment(next_type))
+		return soul__parser_parse_compound_assigment_expr_statement(p);
+#endif
+
+	if(soul__parser_is_assigment(next_type))
+		return soul__parser_parse_assigment_expr_statement(p);
+
+	soul_ast_expression_t* e = soul__parser_parse_expression(p);
+	return soul__ast_expression_statement(e, p->current_token.line);
+}
+
 static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 {
 	switch(p->current_token.type)
@@ -388,13 +514,12 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 		case TOKEN_BRACE_LEFT:
 			return soul__parser_parse_body(p);
 		default:
-			soul__parser_error(p, "Expected statement.");
-			soul__parser_advance(p);
 			break;
 	}
 
-	// @TODO UNREACHABLE
-	return NULL;
+	soul_ast_statement_t* statement = soul__parser_parse_expression_statement(p);
+	soul__parser_require(p, TOKEN_SEMICOLON);
+	return statement;
 }
 
 //
@@ -403,11 +528,12 @@ static soul_ast_statement_t* soul__parser_parse_statement(soul_parser_t* p)
 
 static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 {
-	soul_token_t token = p->current_token;
-	// Peek backwards to figure out type declared.
-	soul_token_t decl_type = p->tokens->data[p->tokens_index - 2];
+	soul_token_t token = soul__parser_peek_prev(p);
 	soul_value_t value;
 #if 0
+	// Peek backwards to figure out type declared.
+	soul_token_t decl_type = p->tokens->data[p->tokens_index - 2];
+
 	switch(soul__parser_token_to_value_type(decl_type))
 	{
 		case : value.type = VAL_U8;  value.as.u8  = (uint8_t)strtoull(token.start, NULL, 0); return value;
@@ -432,53 +558,103 @@ static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 	// @TODO Temp
 	value.type = VAL_I64;
 	value.as.i64 = (int64_t)strtoll(token.start, NULL, 0);
+
 	return value;
 }
 
-static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
+static soul_ast_expression_t* soul__parser_parse_literal(soul_parser_t* p)
 {
-	soul_token_t token = p->current_token;
+	soul_token_t token = soul__parser_peek_prev(p);
 	switch(token.type)
 	{
 		case TOKEN_IDENTIFIER:
 			{
-				soul_ast_expression_t* e = soul__ast_variable_literal_expression(token.start, token.length, token.line);
-				soul__parser_advance(p);
-				return e;
+				return soul__ast_variable_literal_expression(token.start, token.length, token.line);
 			}
 		case TOKEN_NUMBER:
 			{
 				soul_value_t v = soul__parser_parse_number(p);
-				soul_ast_expression_t* e = soul__ast_number_literal_expression(v, token.line);
-				soul__parser_advance(p);
-				return e;
+				return soul__ast_number_literal_expression(v, token.line);
 			}
 		case TOKEN_TRUE:
 			{
-				soul_ast_expression_t* e = soul__ast_bool_literal_expression(true, token.line);
-				soul__parser_advance(p);
-				return e;
+				return  soul__ast_bool_literal_expression(true, token.line);
 			}
 		case TOKEN_FALSE:
 			{
-				soul_ast_expression_t* e = soul__ast_bool_literal_expression(false, token.line);
-				soul__parser_advance(p);
-				return e;
+				return soul__ast_bool_literal_expression(false, token.line);
 			}
 		case TOKEN_STRING:
 			{
-				soul_ast_expression_t* e = soul__ast_string_literal_expression(token.start, token.length, token.line);
-				soul__parser_advance(p);
-				return e;
+				return soul__ast_string_literal_expression(token.start, token.length, token.line);
 			}
 		default:
-			soul__parser_error(p, "Expected expression.");
-			soul__parser_advance(p);
+			soul__parser_error(p, "Expected literal token, but got '%s'.", soul_token_to_string(token.type));
 			break;
 	}
 
-	// @TODO UNREACHABLE
+	// NOTE: UNREACHABLE due to language not supporting NULL values. @TODO?
 	return NULL;
+}
+
+static soul_ast_expression_t* soul__parser_parse_binary_expression(
+	soul_parser_t* p, soul_ast_expression_t* l)
+{
+	soul_token_t op = soul__parser_peek_prev(p);
+	soul_precedence_rule_t rule = soul__parser_get_precedence_rule(op.type);
+	soul_ast_expression_t* r = soul__parser_parse_precedence_expression(p, (soul_precedence_t)(rule.precedence + 1));
+
+	return soul__ast_binary_expression(l, r, op.type, op.line);
+}
+
+static soul_precedence_rule_t soul__parser_get_precedence_rule(soul_token_type_t type)
+{
+	if(soul__parser_is_literal(type))
+		return (soul_precedence_rule_t) { soul__parser_parse_literal, NULL, SOUL_PREC_NONE };
+
+	switch(type)
+	{
+		case TOKEN_MINUS:
+			return (soul_precedence_rule_t) { NULL, soul__parser_parse_binary_expression, SOUL_PREC_ADDITIVE }; // @TODO UNARY (prefix)
+		case TOKEN_PLUS:
+			return (soul_precedence_rule_t) { NULL, soul__parser_parse_binary_expression, SOUL_PREC_ADDITIVE };
+		case TOKEN_STAR:
+		case TOKEN_SLASH:
+			return (soul_precedence_rule_t) { NULL, soul__parser_parse_binary_expression, SOUL_PREC_MULTIPLICATIVE };
+		default:
+			break;
+	}
+
+	// NOTE: No Precedence.
+	return (soul_precedence_rule_t) { NULL, NULL, SOUL_PREC_NONE };
+}
+
+static soul_ast_expression_t* soul__parser_parse_precedence_expression(
+	soul_parser_t* p, soul_precedence_t precedence)
+{
+	soul__parser_advance(p);
+	soul_prefix_precedence_fn prefix_rule = soul__parser_get_precedence_rule(soul__parser_peek_prev(p).type).prefix;
+	if(!prefix_rule)
+	{
+		soul__parser_error(p, "Expected prefix expression.");
+		return NULL;
+	}
+	soul_ast_expression_t* prefix_expr = prefix_rule(p);
+
+	while(precedence <= soul__parser_get_precedence_rule(p->current_token.type).precedence)
+	{
+		soul__parser_advance(p);
+		soul_infix_precedence_fn infix_rule = soul__parser_get_precedence_rule(soul__parser_peek_prev(p).type).infix;
+		prefix_expr = infix_rule(p, prefix_expr);
+	}
+
+	return prefix_expr;
+}
+
+static soul_ast_expression_t* soul__parser_parse_expression(soul_parser_t* p)
+{
+	// NOTE: Starting precedence has to be at least 1 higher than no precedence.
+	return soul__parser_parse_precedence_expression(p, (soul_precedence_t)(SOUL_PREC_NONE + 1));
 }
 
 static soul_ast_t* soul__parser_parse_program(soul_parser_t* p)
@@ -511,7 +687,6 @@ SOUL_API soul_ast_t* soul_parse(soul_token_vector_t array)
 {
 	// @TEMP SUPRESS WARNING IN THIS FILE
 	SOUL_UNUSED(soul__parser_is_declaration);
-	SOUL_UNUSED(soul__parser_parse_function);
 	//
 
 	/* if(!array.valid) { return soul__invalid_ast; } */ // @TODO

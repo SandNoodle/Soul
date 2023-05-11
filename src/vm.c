@@ -1,6 +1,31 @@
 #include "vm.h"
 
+#include <stdio.h> // @TEMP
+#include <stdarg.h>
 #include <assert.h>
+
+static void soul__vm_error(soul_vm_t* vm, const char* message, ...)
+{
+	if(vm->had_panic) return;
+	vm->had_panic = true;
+	vm->had_error = true;
+
+#if 0 // @TODO CRASHES!
+	if(parser->error_callback)
+	{
+		const soul_token_t token = parser->current_token;
+		parser->error_callback("TEST", token.line, message, strlen(message));
+	}
+#else
+	// @TEMP @TODO error_callback!
+	va_list varg;
+	va_start(varg, message);
+	printf("[ERROR] VM: ");
+	vprintf(message, varg);
+	printf("\n");
+	va_end(varg);
+#endif
+}
 
 static void soul__vm_stack_init(soul_stack_t* stack)
 {
@@ -54,10 +79,10 @@ SOUL_API void soul_vm_init(soul_vm_t* vm)
 	vm->ip = 0;
 	vm->sp = 0;
 
-	soul__vm_stack_init(&vm->stack);
+	vm->had_panic = false;
+	vm->had_error = false;
 
-	// Clear registers
-	memset(vm->registers, 0, VM_REGISTER_COUNT * sizeof(soul_register_t));
+	soul__vm_stack_init(&vm->stack);
 }
 
 SOUL_API void soul_vm_free(soul_vm_t* vm)
@@ -73,5 +98,32 @@ SOUL_API void soul_vm_free(soul_vm_t* vm)
 	SOUL_UNUSED(soul__vm_stack_grow);
 	SOUL_UNUSED(soul__vm_stack_peek);
 	//
+}
+
+static soul_result_t soul__vm_interpret_instruction(soul_vm_t* vm, soul_chunk_t* chunk)
+{
+	const uint8_t opcode = chunk->data[vm->ip];
+	switch(opcode)
+	{
+		default:
+			soul__vm_error(vm, "Unknown OPCODE: %d.", opcode);
+			return SOUL_RUNTIME_ERROR;
+	}
+}
+
+SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
+{
+	if(!vm) { return SOUL_COMPILE_ERROR; }
+	if(!chunk) { return SOUL_COMPILE_ERROR; }
+
+	vm->ip = 0;
+	vm->sp = 0;
+
+	while(vm->ip < chunk->size)
+	{
+
+	}
+
+	return SOUL_SUCCESS;
 }
 

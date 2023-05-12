@@ -49,16 +49,26 @@ static void soul__ast_print_expression(soul_ast_expression_t* e)
 			}
 			break;
 		case AST_EXPR_BINARY:
-			soul_ast_expression_t* l = e->as.binary_expr.lval;
-			soul_ast_expression_t* r = e->as.binary_expr.rval;
-			soul_token_type_t op = e->as.binary_expr.op;
-			printf("[BINARY, ");
-			soul__ast_print_expression(l);
-			printf(" %s ", soul_token_to_string(op));
-			soul__ast_print_expression(r);
-			printf("]");
+			{
+				soul_ast_expression_t* l = e->as.binary_expr.lval;
+				soul_ast_expression_t* r = e->as.binary_expr.rval;
+				soul_token_type_t op = e->as.binary_expr.op;
+				printf("[BINARY, ");
+				soul__ast_print_expression(l);
+				printf(" %s ", soul_token_to_string(op));
+				soul__ast_print_expression(r);
+				printf("]");
+			}
 			break;
 		case AST_EXPR_UNARY:
+			{
+				soul_ast_expression_t* l = e->as.unary_expr.expr;
+				soul_token_type_t op = e->as.unary_expr.op;
+				printf("[UNARY, ");
+				soul__ast_print_expression(l);
+				printf(", %s]", soul_token_to_string(op));
+
+			}
 			break;
 		case AST_EXPR_VAR_LITERAL:
 			{
@@ -258,7 +268,7 @@ soul_ast_expression_t* soul__ast_binary_expression(soul_ast_expression_t* left,
 soul_ast_expression_t* soul__ast_unary_expression(soul_ast_expression_t* expr,
 	soul_token_type_t op, uint32_t line)
 {
-	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_BINARY, line);
+	soul_ast_expression_t* e = soul__ast_new_expression(AST_EXPR_UNARY, line);
 	e->as.unary_expr.expr = expr;
 	e->as.unary_expr.op = op;
 	return e;

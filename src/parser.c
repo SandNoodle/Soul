@@ -607,6 +607,14 @@ static soul_ast_expression_t* soul__parser_parse_binary_expression(
 	return soul__ast_binary_expression(l, r, op.type, op.line);
 }
 
+static soul_ast_expression_t* soul__parser_parse_unary_expression(soul_parser_t* p)
+{
+	soul_token_t op = soul__parser_peek_prev(p);
+	soul__parser_advance(p);
+	soul_ast_expression_t* l = soul__parser_parse_literal(p);
+	return soul__ast_unary_expression(l, op.type, op.line);
+}
+
 static soul_precedence_rule_t soul__parser_get_precedence_rule(soul_token_type_t type)
 {
 	if(soul__parser_is_literal(type))
@@ -615,7 +623,10 @@ static soul_precedence_rule_t soul__parser_get_precedence_rule(soul_token_type_t
 	switch(type)
 	{
 		case TOKEN_MINUS:
-			return (soul_precedence_rule_t) { NULL, soul__parser_parse_binary_expression, SOUL_PREC_ADDITIVE }; // @TODO UNARY (prefix)
+			return (soul_precedence_rule_t) {
+				soul__parser_parse_unary_expression,
+				soul__parser_parse_binary_expression,
+				SOUL_PREC_ADDITIVE };
 		case TOKEN_PLUS:
 			return (soul_precedence_rule_t) { NULL, soul__parser_parse_binary_expression, SOUL_PREC_ADDITIVE };
 		case TOKEN_STAR:

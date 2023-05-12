@@ -89,7 +89,7 @@ static soul_token_t soul__scanner_make_token(soul_scanner_t* scanner, soul_token
 	const soul_token_t token = {
 		.type = type,
 		.start = scanner->start,
-		.length = (scanner->current - scanner->start),
+		.length = (size_t)(scanner->current - scanner->start),
 		.line = scanner->line,
 	};
 

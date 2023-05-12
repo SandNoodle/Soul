@@ -586,7 +586,7 @@ static soul_ast_expression_t* soul__parser_parse_literal(soul_parser_t* p)
 			}
 		case TOKEN_STRING:
 			{
-				return soul__ast_string_literal_expression(token.start, token.length, token.line);
+				return soul__ast_string_literal_expression(token.start + 1, token.length - 2, token.line);
 			}
 		default:
 			soul__parser_error(p, "Expected literal token, but got '%s'.", soul_token_to_string(token.type));
@@ -672,7 +672,7 @@ static soul_ast_t* soul__parser_parse_program(soul_parser_t* p)
 {
 	/* if(!p->tokens->valid) return soul__invalid_ast; */ // @TODO
 
-	soul_ast_statement_vector_t* stmts = malloc(sizeof(*stmts));
+	soul_ast_statement_vector_t* stmts = (soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
 	soul__new_ast_statement_vector(stmts);
 	while(p->current_token.type != TOKEN_EOF)
 	{

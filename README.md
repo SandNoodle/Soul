@@ -23,7 +23,7 @@ fn main :: void
   your own, or just replacing syntax altogether. The sky is the limit.
 * **Cross-Platform**. Soul works out-of-the-box on all major platforms without any additional setup.
 * **Statically typed**. While you have to be strongly explicit with the types, it gives you a peace of mind in the long run.
-* **Single header**. Are you tired of build systems just like I am? To include Soul in your project include the header file, `#define
+* **Single header**. (TODO) Are you tired of build systems just like I am? To include Soul in your project include the header file, `#define
   SOUL_IMPLEMENTATION` in a single `.c/cpp` file beforehand and you are done.
 
 ## Getting started

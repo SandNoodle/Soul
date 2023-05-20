@@ -18,7 +18,7 @@ static void soul__compiler_init(soul_compiler_t* compiler)
 	compiler->had_error = false;
 }
 
-static void soul__compiler_error(soul_compiler_t* compiler, const char* message)
+static void soul__compiler_error(soul_compiler_t* compiler, const char* message, ...)
 {
 	if(compiler->had_panic) return;
 	compiler->had_panic = true;

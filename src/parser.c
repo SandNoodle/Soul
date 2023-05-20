@@ -84,6 +84,7 @@ static soul_token_t soul__parser_require(soul_parser_t* p, soul_token_type_t typ
 	return (soul_token_t){TOKEN_ERROR, NULL, 0, p->current_token.line};
 }
 
+#if 0
 static soul_token_t soul__parser_require_any(soul_parser_t* p, soul_token_type_t* types, size_t length)
 {
 	for(size_t i = 0; i < length; ++i)
@@ -100,12 +101,14 @@ static soul_token_t soul__parser_require_any(soul_parser_t* p, soul_token_type_t
 	soul__parser_error(p, "Expected tokens were not found.");
 	return (soul_token_t){TOKEN_ERROR, NULL, 0, p->current_token.line};
 }
+#endif
 
 static bool soul__parser_match(soul_parser_t* p, soul_token_type_t type)
 {
 	return p->current_token.type == type;
 }
 
+#if 0
 static bool soul__parser_match_any(soul_parser_t* p, soul_token_type_t* types, size_t length)
 {
 	for(size_t i = 0; i < length; ++i)
@@ -114,11 +117,14 @@ static bool soul__parser_match_any(soul_parser_t* p, soul_token_type_t* types, s
 	}
 	return false;
 }
+#endif
 
+#if 0
 static soul_token_t soul__parser_peek(soul_parser_t* p)
 {
 	return p->tokens->data[p->tokens_index];
 }
+#endif
 
 static soul_token_t soul__parser_peek_next(soul_parser_t* p)
 {
@@ -160,10 +166,12 @@ static bool soul__parser_is_assigment(soul_token_type_t type)
 		|| type == TOKEN_SLASH_EQUAL;
 }
 
+#if 0
 static bool soul__parser_is_compound_assigment(soul_token_type_t type)
 {
 	return type != TOKEN_EQUAL && soul__parser_is_assigment(type);
 }
+#endif
 
 static bool soul__parser_is_literal(soul_token_type_t type)
 {
@@ -172,15 +180,6 @@ static bool soul__parser_is_literal(soul_token_type_t type)
 		|| type == TOKEN_TRUE
 		|| type == TOKEN_FALSE
 		|| type == TOKEN_STRING;
-}
-
-static bool soul__parser_is_binary_operand(soul_token_type_t type)
-{
-	// @TODO: Binary operands.
-	return type == TOKEN_PLUS
-		|| type == TOKEN_MINUS
-		|| type == TOKEN_STAR
-		|| type == TOKEN_SLASH;
 }
 
 static bool soul__parser_is_synchronization(soul_token_type_t type)

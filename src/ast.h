@@ -86,6 +86,7 @@ struct soul_ast_statement_t {
 			struct {
 				soul_ast_identifier_t* id;
 				soul_ast_statement_vector_t* params;
+				soul_ast_identifier_t* return_type;
 				soul_ast_statement_t* body;
 			} fun_decl;
 			struct {
@@ -194,7 +195,8 @@ soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 	soul_ast_identifier_t* type, soul_ast_expression_t* init, bool is_mut, uint32_t line);
 
 soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
-	soul_ast_statement_vector_t* params, soul_ast_statement_t* body, uint32_t line);
+	soul_ast_statement_vector_t* params, soul_ast_identifier_t* return_type,
+	soul_ast_statement_t* body, uint32_t line);
 
 soul_ast_statement_t* soul__ast_define_declaration(soul_ast_identifier_t* id,
 	soul_ast_expression_t* val, uint32_t line);

@@ -170,7 +170,10 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_FUNCTION_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.fun_decl.id;
-				printf("[FUNC_DECL, '%.*s']\n", (int)id->length, id->name);
+				soul_ast_identifier_t* type = s->as.decl_stmt.fun_decl.return_type;
+				printf("[FUNC_DECL, '%.*s' :: '%.*s']\n",
+					(int)id->length, id->name,
+					(int)type->length, type->name);
 				printf("[BODY]\n");
 				soul__ast_print_statement(s->as.decl_stmt.fun_decl.body);
 			}
@@ -370,11 +373,13 @@ soul_ast_statement_t* soul__ast_variable_declaration(soul_ast_identifier_t* id,
 }
 
 soul_ast_statement_t* soul__ast_function_declaration(soul_ast_identifier_t* id,
-	soul_ast_statement_vector_t* params, soul_ast_statement_t* body, uint32_t line)
+	soul_ast_statement_vector_t* params, soul_ast_identifier_t* return_type,
+	soul_ast_statement_t* body, uint32_t line)
 {
 	soul_ast_statement_t* d = soul__ast_new_declaration(AST_STMT_FUNCTION_DECL, line);
 	d->as.decl_stmt.fun_decl.id = id;
 	d->as.decl_stmt.fun_decl.params = params;
+	d->as.decl_stmt.fun_decl.return_type = return_type;
 	d->as.decl_stmt.fun_decl.body = body;
 	return d;
 }

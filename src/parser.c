@@ -311,13 +311,13 @@ static soul_ast_statement_t* soul__parser_parse_function(soul_parser_t* p)
 	soul__parser_require(p, TOKEN_DOUBLE_COLON);
 
 	// Return type
-	// @TODO Return type
-	soul__parser_advance(p);
+	soul_token_t return_token = soul__parser_require(p, TOKEN_IDENTIFIER);
+	soul_ast_identifier_t* return_type = soul__ast_new_identifier(return_token.start, return_token.length);
 
 	// Function body
 	soul_ast_statement_t* body = soul__parser_parse_body(p);
 
-	return soul__ast_function_declaration(identifier, params, body, line);
+	return soul__ast_function_declaration(identifier, params, return_type, body, line);
 }
 
 static soul_ast_statement_t* soul__parser_parse_define(soul_parser_t* p)

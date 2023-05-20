@@ -433,6 +433,14 @@ soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stm
 	return s;
 }
 
+soul_ast_statement_t* soul__ast_return_statement(soul_ast_expression_t* expr,
+	uint32_t line)
+{
+	soul_ast_statement_t* s = soul__ast_new_statement(AST_STMT_RETURN, line);
+	s->as.return_stmt.return_expression = expr;
+	return s;
+}
+
 soul_ast_statement_t* soul__ast_expression_statement(soul_ast_expression_t* expr,
 	uint32_t line)
 {

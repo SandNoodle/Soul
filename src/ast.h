@@ -214,5 +214,8 @@ soul_ast_statement_t* soul__ast_while_statement(soul_ast_expression_t* condition
 soul_ast_statement_t* soul__ast_block_statement(soul_ast_statement_vector_t* stmts,
 	uint32_t line);
 
+soul_ast_statement_t* soul__ast_return_statement(soul_ast_expression_t* expr,
+	uint32_t line);
+
 soul_ast_statement_t* soul__ast_expression_statement(soul_ast_expression_t* expr,
 	uint32_t line);

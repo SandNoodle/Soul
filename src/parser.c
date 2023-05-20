@@ -536,16 +536,16 @@ static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 
 	switch(soul__parser_token_to_value_type(decl_type))
 	{
-		case : value.type = VAL_U8;  value.as.u8  = (uint8_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = VAL_U16; value.as.u16 = (uint16_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = VAL_U32; value.as.u32 = (uint32_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = VAL_U64; value.as.u64 = (uint64_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = VAL_I8;  value.as.i8  = (int8_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = VAL_I16; value.as.i16 = (int16_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = VAL_I32; value.as.i32 = (int32_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = VAL_I64; value.as.i64 = (int64_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = VAL_F32; value.as.f32 = strtof(token.start, NULL); return value;
-		case : value.type = VAL_F64; value.as.f64 = strtod(token.start, NULL); return value;
+		case : value.type = SOUL_VAL_U8;  value.as.u8  = (uint8_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_U16; value.as.u16 = (uint16_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_U32; value.as.u32 = (uint32_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_U64; value.as.u64 = (uint64_t)strtoull(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_I8;  value.as.i8  = (int8_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_I16; value.as.i16 = (int16_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_I32; value.as.i32 = (int32_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_I64; value.as.i64 = (int64_t)strtoll(token.start, NULL, 0); return value;
+		case : value.type = SOUL_VAL_F32; value.as.f32 = strtof(token.start, NULL); return value;
+		case : value.type = SOUL_VAL_F64; value.as.f64 = strtod(token.start, NULL); return value;
 		default:
 			break;
 	}
@@ -556,7 +556,7 @@ static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 #endif
 
 	// @TODO Temp
-	value.type = VAL_I64;
+	value.type = SOUL_VAL_I64;
 	value.as.i64 = (int64_t)strtoll(token.start, NULL, 0);
 
 	return value;

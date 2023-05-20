@@ -13,16 +13,16 @@ static void soul__ast_print_number_literal(soul_ast_expression_t* e)
 	soul_value_type_t type = e->as.number_literal_expr.val.type;
 	switch(type)
 	{
-		case VAL_U8:
-		case VAL_U16:
-		case VAL_U32:
-		case VAL_U64:
+		case SOUL_VAL_U8:
+		case SOUL_VAL_U16:
+		case SOUL_VAL_U32:
+		case SOUL_VAL_U64:
 			printf("%llu", e->as.number_literal_expr.val.as.u64);
 			break;
-		case VAL_I8:
-		case VAL_I16:
-		case VAL_I32:
-		case VAL_I64:
+		case SOUL_VAL_I8:
+		case SOUL_VAL_I16:
+		case SOUL_VAL_I32:
+		case SOUL_VAL_I64:
 			printf("%lld", e->as.number_literal_expr.val.as.i64);
 			break;
 		default:

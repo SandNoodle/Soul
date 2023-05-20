@@ -70,20 +70,36 @@ typedef bool soul_valid_t;
 #define SOUL_API
 
 // ----------------------------------------------------------------------------
+// Forward Declarations
+// ----------------------------------------------------------------------------
+
+typedef void* (*soul_allocate_fn)(void* memory, size_t new_size, void* user_data);
+
+typedef void (*soul_message_callback_t)(const char* file, uint32_t line, const char* message, size_t length);
+
+typedef struct soul_vm_t soul_vm_t;
+
+typedef struct soul_chunk_t soul_chunk_t;
+
+typedef struct soul_token_t soul_token_t;
+
+typedef struct soul_ast_t soul_ast_t;
+
+// ----------------------------------------------------------------------------
 // Declarations
 // ----------------------------------------------------------------------------
 
-// @TODO PREFIX SOUL
+// @TODO STRING AND CHAR
 typedef enum {
-	VAL_B8,
-	VAL_U8,  VAL_I8,
-	VAL_U16, VAL_I16,
-	VAL_U32, VAL_I32,
-	VAL_U64, VAL_I64,
-	VAL_F32, VAL_F64,
-	// @TODO STRING AND CHAR
+	SOUL_VAL_B8,
+	SOUL_VAL_U8,  SOUL_VAL_I8,
+	SOUL_VAL_U16, SOUL_VAL_I16,
+	SOUL_VAL_U32, SOUL_VAL_I32,
+	SOUL_VAL_U64, SOUL_VAL_I64,
+	SOUL_VAL_F32, SOUL_VAL_F64,
 } soul_value_type_t;
 
+// @TODO STRING AND CHAR
 typedef struct{
 	soul_value_type_t type;
 	union {

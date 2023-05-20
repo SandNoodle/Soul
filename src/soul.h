@@ -20,6 +20,7 @@
 // ----------------------------------------------------------------------------
 
 #include "soul_config.h"
+#include "soul_containers.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -114,56 +115,8 @@ typedef struct{
 		int64_t  i64;
 		float    f32;
 		double   f64;
-	// @TODO STRING AND CHAR
 	} as;
 } soul_value_t;
-
-typedef soul_value_t soul_register_t;
-
-// @TODO Poor man's vector inspired by Wren implementation.
-//       Replace realloc with user provided allocator.
-#define SOUL_GROW_CAPACITY(capacity) ((capacity) < 8 ? 8 : (capacity) * 2)
-#define SOUL_GROW_ARRAY(type, ptr, capacity) (type*)realloc((ptr), (capacity) * sizeof(type))
-
-#define SOUL_VECTOR_DEFINE(name, type)                                   \
-	typedef struct {                                                     \
-		type* data;                                                      \
-		size_t size;                                                     \
-		size_t capacity;                                                 \
-		soul_valid_t valid;                                              \
-	} soul_##name##_vector_t;                                            \
-                                                                         \
-	void soul__new_##name##_vector(soul_##name##_vector_t* vector);      \
-	void soul__free_##name##_vector(soul_##name##_vector_t* vector);     \
-	void soul__##name##_vector_push(soul_##name##_vector_t* v, type t);
-
-#define SOUL_VECTOR_DECLARE(name, type)                                  \
-	void soul__new_##name##_vector(soul_##name##_vector_t* v)            \
-	{                                                                    \
-		v->size = 0;                                                     \
-		v->capacity = SOUL_GROW_CAPACITY(0);                             \
-		v->data = SOUL_GROW_ARRAY(type, NULL, v->capacity);              \
-		v->valid = true;                                                 \
-	}                                                                    \
-                                                                         \
-	void soul__free_##name##_vector(soul_##name##_vector_t* v)           \
-	{                                                                    \
-		free(v->data);                                                   \
-		v->data = NULL;                                                  \
-		v->size = 0;                                                     \
-		v->capacity = 0;                                                 \
-		v->valid = false;                                                \
-	}                                                                    \
-                                                                         \
-	void soul__##name##_vector_push(soul_##name##_vector_t* v, type t)   \
-	{                                                                    \
-		if(v->size + 1 > v->capacity)                                    \
-		{                                                                \
-			v->capacity = SOUL_GROW_CAPACITY(v->capacity);               \
-			v->data = SOUL_GROW_ARRAY(type, v->data, v->capacity);       \
-		}                                                                \
-		v->data[v->size++] = t;                                          \
-	}
 
 // ----------------------------------------------------------------------------
 // PUBLIC API

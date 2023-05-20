@@ -224,7 +224,7 @@ SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size)
 	soul__scanner_init(&scanner, buffer);
 
 	soul_token_vector_t tokens;
-	soul__new_token_vector(&tokens);
+	soul__token_vector_new(&tokens);
 
 	for(;;)
 	{

@@ -102,7 +102,7 @@ SOUL_API void soul_vm_free(soul_vm_t* vm)
 
 static soul_result_t soul__vm_interpret_instruction(soul_vm_t* vm, soul_chunk_t* chunk)
 {
-	const uint8_t opcode = chunk->data[vm->ip];
+	const uint8_t opcode = chunk->code.data[vm->ip];
 	switch(opcode)
 	{
 		default:

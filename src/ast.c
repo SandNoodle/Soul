@@ -467,7 +467,7 @@ void soul__ast_free_statement(soul_ast_statement_t* s)
 			{
 				soul__ast_free_statement(s->as.block_stmt.stmts->data[i]);
 			}
-			soul__free_ast_statement_vector(s->as.block_stmt.stmts);
+			soul__ast_statement_vector_free(s->as.block_stmt.stmts);
 			break;
 		case AST_STMT_RETURN:
 			soul__ast_free_expression(s->as.return_stmt.return_expression);

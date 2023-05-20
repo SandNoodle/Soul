@@ -2,6 +2,12 @@
 
 #include "opcode.h"
 
+#include <stdio.h> // @TEMP
+#include <stdarg.h>
+
+SOUL_VECTOR_DECLARE(chunk_constants, soul_value_t)
+SOUL_VECTOR_DECLARE(chunk_data, uint8_t)
+
 static const soul_chunk_t soul__invalid_chunk = {
 	.valid = false,
 };
@@ -26,36 +32,25 @@ static void soul__compiler_error(soul_compiler_t* compiler, const char* message)
 	}
 #else
 	// @TEMP @nocheckin
-	(void)(message);
+	va_list varg;
+	va_start(varg, message);
+	printf("[ERROR] PARSER: ");
+	vprintf(message, varg);
+	printf("\n");
+	va_end(varg);
 #endif
 }
 
 static size_t soul__compiler_chunk_write_byte(soul_chunk_t* chunk, uint8_t byte)
 {
-	if(chunk->size == chunk->capacity - 1)
-	{
-		uint32_t new_capacity = chunk->capacity * 2.0f;
-		chunk->data = (uint8_t*)realloc(chunk->data, new_capacity);
-		chunk->capacity = new_capacity;
-	}
-
-	chunk->data[chunk->size] = byte;
-	return chunk->size++;
+	soul__chunk_data_vector_push(&chunk->code, byte);
+	return chunk->code.size;
 }
 
 static uint32_t soul__compiler_chunk_add_constant(soul_chunk_t* chunk, soul_value_t value)
 {
-	soul_chunk_constants_t* c = &chunk->constants;
-	if(c->count == c->capacity - 1) // @TODO Dynamic array support
-	{
-		uint32_t new_capacity = c->capacity * 2.0f;
-		c->values = (soul_value_t*)realloc(c->values, new_capacity);
-		c->capacity = new_capacity;
-	}
-
-	size_t index = c->count;
-	c->values[index] = value;
-	c->count++;
+	size_t index = chunk->constants.size;
+	soul__chunk_constants_vector_push(&chunk->constants, value);
 	return index;
 }
 

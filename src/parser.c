@@ -259,7 +259,7 @@ static soul_ast_statement_t* soul__parser_parse_body(soul_parser_t* p)
 
 	soul_ast_statement_vector_t* stmts =
 		(soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
-	soul__new_ast_statement_vector(stmts);
+	soul__ast_statement_vector_new(stmts);
 	while(p->current_token.type != TOKEN_BRACE_RIGHT)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);
@@ -673,7 +673,7 @@ static soul_ast_t* soul__parser_parse_program(soul_parser_t* p)
 	/* if(!p->tokens->valid) return soul__invalid_ast; */ // @TODO
 
 	soul_ast_statement_vector_t* stmts = (soul_ast_statement_vector_t*)malloc(sizeof(soul_ast_statement_vector_t));
-	soul__new_ast_statement_vector(stmts);
+	soul__ast_statement_vector_new(stmts);
 	while(p->current_token.type != TOKEN_EOF)
 	{
 		soul_ast_statement_t* s = soul__parser_parse_statement(p);

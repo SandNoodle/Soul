@@ -127,22 +127,15 @@ typedef struct{
 //       Benchmark first!
 
 typedef enum {
-	SOUL_SUCCESS,       // Runtime success.
+	SOUL_SUCCESS,       // Generic success.
 	SOUL_PARSE_ERROR,   // Error while parsing the script.
 	SOUL_COMPILE_ERROR, // Error while compiling the script.
 	SOUL_RUNTIME_ERROR, // Error while running the script.
 } soul_result_t;
 
-typedef void* (*soul_allocate_fn)(void* memory, size_t new_size, void* user_data);
-
-typedef void (*soul_message_callback_t)(const char* file, uint32_t line, const char* message, size_t length);
-
 //
 // Runtime
 //
-
-typedef struct soul_vm_t soul_vm_t;
-typedef struct soul_chunk_t soul_chunk_t;
 
 // This struct contains configuration options for a runtime enviroment.
 typedef struct {
@@ -168,8 +161,6 @@ typedef struct {
 	soul_message_callback_t error_callback; // Can be null.
 } soul_scanner_config_t;
 
-typedef struct soul_token_t soul_token_t;
-
 SOUL_VECTOR_DEFINE(token, soul_token_t);
 
 SOUL_API soul_scanner_config_t soul_get_defualt_scanner_config(void);
@@ -184,8 +175,6 @@ typedef struct {
 	soul_message_callback_t warn_callback;  // Can be null.
 	soul_message_callback_t error_callback; // Can be null.
 } soul_parser_config_t;
-
-typedef struct soul_ast_t soul_ast_t;
 
 SOUL_API soul_parser_config_t soul_get_defualt_parser_config(void);
 

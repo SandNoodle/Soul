@@ -19,6 +19,7 @@
 // Includes
 // ----------------------------------------------------------------------------
 
+#include "soul_fwd.h"
 #include "soul_config.h"
 #include "soul_containers.h"
 
@@ -26,8 +27,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-
-typedef bool soul_valid_t;
 
 #define SOUL_ARRAY_SIZE(array) sizeof(array) / sizeof(array[0])
 
@@ -71,52 +70,16 @@ typedef bool soul_valid_t;
 #define SOUL_API
 
 // ----------------------------------------------------------------------------
-// Forward Declarations
+// Defines
 // ----------------------------------------------------------------------------
 
 typedef void* (*soul_allocate_fn)(void* memory, size_t new_size, void* user_data);
 
 typedef void (*soul_message_callback_t)(const char* file, uint32_t line, const char* message, size_t length);
 
-typedef struct soul_vm_t soul_vm_t;
-
-typedef struct soul_chunk_t soul_chunk_t;
-
-typedef struct soul_token_t soul_token_t;
-
-typedef struct soul_ast_t soul_ast_t;
-
-// ----------------------------------------------------------------------------
-// Declarations
-// ----------------------------------------------------------------------------
-
-// @TODO STRING AND CHAR
-typedef enum {
-	SOUL_VAL_B8,
-	SOUL_VAL_U8,  SOUL_VAL_I8,
-	SOUL_VAL_U16, SOUL_VAL_I16,
-	SOUL_VAL_U32, SOUL_VAL_I32,
-	SOUL_VAL_U64, SOUL_VAL_I64,
-	SOUL_VAL_F32, SOUL_VAL_F64,
-} soul_value_type_t;
-
-// @TODO STRING AND CHAR
-typedef struct{
-	soul_value_type_t type;
-	union {
-		uint8_t  b8;
-		uint8_t  u8;
-		uint16_t u16;
-		uint32_t u32;
-		uint64_t u64;
-		int8_t   i8;
-		int16_t  i16;
-		int32_t  i32;
-		int64_t  i64;
-		float    f32;
-		double   f64;
-	} as;
-} soul_value_t;
+SOUL_VECTOR_DEFINE(chunk_constants, soul_value_t)
+SOUL_VECTOR_DEFINE(chunk_data, uint8_t)
+SOUL_VECTOR_DEFINE(token, soul_token_t)
 
 // ----------------------------------------------------------------------------
 // PUBLIC API
@@ -133,18 +96,26 @@ typedef enum {
 	SOUL_RUNTIME_ERROR, // Error while running the script.
 } soul_result_t;
 
+// @TODO MOVE OUT!
+struct soul_chunk_t {
+	soul_chunk_data_vector_t code;
+	soul_chunk_constants_vector_t constants;
+	bool valid;
+};
+
 //
 // Runtime
 //
 
 // This struct contains configuration options for a runtime enviroment.
-typedef struct {
+// @TODO MOVE OUT!
+struct soul_config_t {
 	size_t vm_stack_size_initial;
 	size_t vm_stack_size_max;               // If 0, then maximum size will be unboud.
 
 	soul_message_callback_t warn_callback;  // Can be null.
 	soul_message_callback_t error_callback; // Can be null.
-} soul_config_t;
+};
 
 SOUL_API soul_config_t soul_get_defualt_config(void);
 
@@ -156,12 +127,13 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk);
 //
 // Scanning
 //
-typedef struct {
+
+// @TODO MOVE OUT!
+struct soul_scanner_config_t {
 	soul_message_callback_t warn_callback;  // Can be null.
 	soul_message_callback_t error_callback; // Can be null.
-} soul_scanner_config_t;
+};
 
-SOUL_VECTOR_DEFINE(token, soul_token_t);
 
 SOUL_API soul_scanner_config_t soul_get_defualt_scanner_config(void);
 
@@ -171,10 +143,11 @@ SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size);
 // Parsing
 //
 
-typedef struct {
+// @TODO MOVE OUT!
+struct soul_parser_config_t {
 	soul_message_callback_t warn_callback;  // Can be null.
 	soul_message_callback_t error_callback; // Can be null.
-} soul_parser_config_t;
+};
 
 SOUL_API soul_parser_config_t soul_get_defualt_parser_config(void);
 
@@ -185,9 +158,6 @@ SOUL_API void soul_free_ast(soul_ast_t* ast);
 //
 // Compiling
 //
-typedef struct {
-
-} soul_compiler_config_t;
 
 SOUL_API soul_compiler_config_t soul_get_defualt_compiler_config(void);
 
@@ -198,6 +168,7 @@ SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast);
 //
 
 SOUL_API soul_chunk_t soul_deserialize(const char* path);
-SOUL_API soul_valid_t soul_serialize(soul_chunk_t chunk, const char* path);
+
+SOUL_API bool soul_serialize(soul_chunk_t chunk, const char* path);
 
 #endif // SOUL_H

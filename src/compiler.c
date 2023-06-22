@@ -8,14 +8,19 @@
 SOUL_VECTOR_DECLARE(chunk_constants, soul_value_t)
 SOUL_VECTOR_DECLARE(chunk_data, uint8_t)
 
+static void soul__compiler_compile_statement(soul_compiler_t* c, soul_ast_statement_t* s);
+static void soul__compiler_compile_expression(soul_compiler_t* c, soul_ast_expression_t* e);
+
 static const soul_chunk_t soul__invalid_chunk = {
 	.valid = false,
 };
 
-static void soul__compiler_init(soul_compiler_t* compiler)
+static void soul__compiler_init(soul_compiler_t* compiler, soul_chunk_t* chunk)
 {
 	compiler->had_panic = false;
 	compiler->had_error = false;
+	compiler->current_chunk = chunk;
+	compiler->current_depth = 0;
 }
 
 static void soul__compiler_error(soul_compiler_t* compiler, const char* message, ...)
@@ -39,6 +44,13 @@ static void soul__compiler_error(soul_compiler_t* compiler, const char* message,
 	printf("\n");
 	va_end(varg);
 #endif
+}
+
+static void soul__compiler_chunk_init(soul_chunk_t* c)
+{
+	soul__chunk_data_vector_new(&c->code);
+	soul__chunk_constants_vector_new(&c->constants);
+	c->valid = true;
 }
 
 static size_t soul__compiler_chunk_write_byte(soul_chunk_t* chunk, uint8_t byte)
@@ -70,9 +82,22 @@ static void soul__compiler_emit_short(soul_chunk_t* chunk, uint16_t s)
 	soul__compiler_chunk_write_byte(chunk, (s >> 0) & 0xff);
 }
 
+static void soul__compiler_enter_scope(soul_compiler_t* c)
+{
+	c->current_depth++;
+}
+
+static void soul__compiler_exit_scope(soul_compiler_t* c)
+{
+	/* SOUL_UNUSED(c); */
+	/* SOUL_UNIMPLEMENTED(); */
+	c->current_depth--; // @TEMP
+}
+
 //
 // Expressions
 //
+
 static void soul__compiler_compile_assign_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
 	SOUL_UNUSED(c);
@@ -82,9 +107,26 @@ static void soul__compiler_compile_assign_expression(soul_compiler_t* c, soul_as
 
 static void soul__compiler_compile_binary_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(e);
-	SOUL_UNIMPLEMENTED();
+	soul__compiler_compile_expression(c, e->as.binary_expr.rval);
+	soul__compiler_compile_expression(c, e->as.binary_expr.lval);
+	switch(e->as.binary_expr.op)
+	{
+		case TOKEN_PLUS:
+			soul__compiler_emit_opcode(c->current_chunk, OP_ADDI); // @TODO OP based on type.
+			break;
+		case TOKEN_MINUS:
+			soul__compiler_emit_opcode(c->current_chunk, OP_SUBI); // @TODO OP based on type.
+			break;
+		case TOKEN_STAR:
+			soul__compiler_emit_opcode(c->current_chunk, OP_MULI); // @TODO OP based on type.
+			break;
+		case TOKEN_SLASH:
+			soul__compiler_emit_opcode(c->current_chunk, OP_DIVI); // @TODO OP based on type.
+			break;
+		default:
+			SOUL_UNIMPLEMENTED();
+			break;
+	}
 }
 
 static void soul__compiler_compile_unary_expression(soul_compiler_t* c, soul_ast_expression_t* e)
@@ -96,16 +138,15 @@ static void soul__compiler_compile_unary_expression(soul_compiler_t* c, soul_ast
 
 static void soul__compiler_compile_bool_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(e);
-	SOUL_UNIMPLEMENTED();
+	soul__compiler_emit_opcode(c->current_chunk, OP_PUSH_CONST);
+	soul__compiler_emit_byte(c->current_chunk, e->as.bool_literal_expr.val);
 }
 
 static void soul__compiler_compile_number_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(e);
-	SOUL_UNIMPLEMENTED();
+	uint32_t index = soul__compiler_chunk_add_constant(c->current_chunk, e->as.number_literal_expr.val);
+	soul__compiler_emit_opcode(c->current_chunk, OP_PUSH_CONST);
+	soul__compiler_emit_byte(c->current_chunk, index); // @TODO index is 32 bit, but we accept only 8 bit at max!
 }
 
 static void soul__compiler_compile_string_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
@@ -172,9 +213,13 @@ static void soul__compiler_compile_while_statement(soul_compiler_t* c, soul_ast_
 
 static void soul__compiler_compile_block_statement(soul_compiler_t* c, soul_ast_statement_t* s)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(s);
-	SOUL_UNIMPLEMENTED();
+	soul__compiler_enter_scope(c);
+	soul_ast_statement_vector_t* stmts = s->as.block_stmt.stmts;
+	for(size_t i = 0; i < stmts->size; ++i)
+	{
+		soul__compiler_compile_statement(c, stmts->data[i]);
+	}
+	soul__compiler_exit_scope(c);
 }
 
 static void soul__compiler_compile_return_statement(soul_compiler_t* c, soul_ast_statement_t* s)
@@ -194,8 +239,17 @@ static void soul__compiler_compile_import_statement(soul_compiler_t* c, soul_ast
 static void soul__compiler_compile_variable_declaration_statement(soul_compiler_t* c, soul_ast_statement_t* s)
 {
 	SOUL_UNUSED(c);
-	SOUL_UNUSED(s);
-	SOUL_UNIMPLEMENTED();
+
+	if(!s->as.decl_stmt.var_decl.is_mut)
+	{
+		// [Defualt] Immutable variables (aka constants).
+		soul__compiler_compile_expression(c, s->as.decl_stmt.var_decl.val);
+	}
+	else
+	{
+		// Mutable variables.
+		SOUL_UNIMPLEMENTED();
+	}
 }
 
 static void soul__compiler_compile_function_declaration_statement(soul_compiler_t* c, soul_ast_statement_t* s)
@@ -246,28 +300,82 @@ static void soul__compiler_compile_statement(soul_compiler_t* c,
 	}
 }
 
+void soul__disassemble_instruction(soul_chunk_t* c, size_t* index)
+{
+	printf("%04llu: ", *index);
+	const char* op = opcode_to_string(c->code.data[*index]);
+	switch(c->code.data[*index])
+	{
+		case OP_PUSH_CONST:
+			*index += 1;
+			printf("%s %d\n", op, c->code.data[*index]);
+			break;
+		default:
+			printf("%s\n", op);
+			break;
+	}
+}
+
 //
 // Public API
 //
 
+void soul__disassemble_chunk(soul_chunk_t* c)
+{
+	printf("=== CHUNK ===\n");
+	printf("* CODE:\n");
+	for(size_t i = 0; i < c->code.size; ++i)
+	{
+		soul__disassemble_instruction(c, &i);
+	}
+
+	printf("* CONSTANTS:\n");
+	for(size_t i = 0; i < c->constants.size; ++i)
+	{
+		printf("%04lld: ", i);
+		soul_value_t v = c->constants.data[i];
+		switch(v.type)
+		{
+			case SOUL_TYPE_BOOL:
+				printf("%s\n", v.as.type_bool ? "true" : "false");
+				break;
+			case SOUL_TYPE_INT:
+				printf("%lld\n", v.as.type_int);
+				break;
+			case SOUL_TYPE_REAL:
+				printf("%f\n", v.as.type_real);
+				break;
+			default:
+				printf("[UNKNOWN TYPE]");
+				break;
+		}
+	}
+	printf("=== ----- ===\n");
+}
+
 SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast)
 {
-	// @TEMP SUPRESS WARNINGS IN THIS FILE
-	SOUL_UNUSED(soul__compiler_error);
-	SOUL_UNUSED(soul__compiler_chunk_add_constant);
-	SOUL_UNUSED(soul__compiler_emit_opcode);
-	SOUL_UNUSED(soul__compiler_emit_byte);
+	if(!ast) return soul__invalid_chunk;
+
+	// @TEMP Supress warning for unused functions
 	SOUL_UNUSED(soul__compiler_emit_short);
-	SOUL_UNUSED(soul__compiler_compile_statement);
-	SOUL_UNUSED(soul__compiler_compile_expression);
+	SOUL_UNUSED(soul__compiler_error);
 	//
 
-	if(!ast) return soul__invalid_chunk;
+	// Prepare chunk
+	soul_chunk_t chunk;
+	soul__compiler_chunk_init(&chunk);
 
 	// Prepare compiler
 	soul_compiler_t compiler;
-	soul__compiler_init(&compiler);
+	soul__compiler_init(&compiler, &chunk);
 
-	// @TODO @nocheckin NOT IMPLEMENTED.
-	return soul__invalid_chunk;
+	soul__compiler_compile_statement(&compiler, ast->root);
+
+	// @TODO @TEMP Emit print for debugging.
+	soul__compiler_emit_opcode(&chunk, OP_PRINT);
+
+	soul__disassemble_chunk(&chunk);
+
+	return chunk;
 }

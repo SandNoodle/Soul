@@ -29,89 +29,36 @@ static void soul__vm_error(soul_vm_t* vm, const char* message, ...)
 #endif
 }
 
-static void soul__vm_stack_init(soul_stack_t* stack)
-{
-	stack->data = (soul_value_t*)malloc(VM_STACK_MIN_SIZE * sizeof(soul_value_t));
-	stack->capacity = VM_STACK_MIN_SIZE;
-	stack->size = 0;
-}
-
-static void soul__vm_stack_free(soul_stack_t* stack)
-{
-	free(stack->data);
-	stack->capacity = 0;
-	stack->size = 0;
-}
-
-static void soul__vm_stack_grow(soul_stack_t* stack)
-{
-	uint32_t new_capacity = stack->capacity * 2.0f;
-	stack->data = (soul_value_t*)realloc(stack->data, new_capacity);
-	stack->capacity = new_capacity;
-}
-
-static soul_value_t soul__vm_stack_peek(soul_stack_t* stack)
-{
-	return stack->data[stack->size];
-}
-
-static void soul__vm_stack_push(soul_stack_t* stack, soul_value_t value)
-{
-	if(stack->size == stack->capacity - 1)
-	{
-		soul__vm_stack_grow(stack);
-	}
-
-	stack->size++;
-	stack->data[stack->size] = value;
-}
-
-static soul_value_t soul__vm_stack_pop(soul_stack_t* stack)
-{
-	assert(stack->size == 0 && "VM's stack underflow.");
-
-	soul_value_t value = stack->data[stack->size];
-	stack->size--;
-
-	return value;
-}
+//
+// Public API
+//
 
 SOUL_API void soul_vm_init(soul_vm_t* vm)
 {
 	vm->ip = 0;
-	vm->sp = 0;
 
 	vm->had_panic = false;
 	vm->had_error = false;
 
-	soul__vm_stack_init(&vm->stack);
+	soul__value_stack_new(&vm->stack);
 }
 
 SOUL_API void soul_vm_free(soul_vm_t* vm)
 {
-	soul__vm_stack_free(&vm->stack);
-	free(vm);
-
-	// @TODO SUPRESS WARNINGS IN THIS FILE
-	SOUL_UNUSED(soul__vm_stack_push);
-	SOUL_UNUSED(soul__vm_stack_pop);
-	SOUL_UNUSED(soul__vm_stack_init);
-	SOUL_UNUSED(soul__vm_stack_free);
-	SOUL_UNUSED(soul__vm_stack_grow);
-	SOUL_UNUSED(soul__vm_stack_peek);
-	//
+	soul__value_stack_free(&vm->stack);
 }
 
-static soul_result_t soul__vm_interpret_instruction(soul_vm_t* vm, soul_chunk_t* chunk)
-{
-	const uint8_t opcode = chunk->code.data[vm->ip];
-	switch(opcode)
-	{
-		default:
-			soul__vm_error(vm, "Unknown OPCODE: %d.", opcode);
-			return SOUL_RUNTIME_ERROR;
-	}
-}
+#define SOUL_BINARY_OP(val_type, as_type, op)               \
+	do {                                                    \
+		soul_value_t a = soul__value_stack_pop(&vm->stack); \
+		soul_value_t b = soul__value_stack_pop(&vm->stack); \
+		soul_value_t c = {                                  \
+			.type = val_type,                               \
+			.as.as_type = a.as.as_type op b.as.as_type,     \
+		};                                                  \
+		soul__value_stack_push(&vm->stack, c);              \
+	} while(0);
+
 
 SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 {
@@ -119,13 +66,64 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 	if(!chunk) { return SOUL_COMPILE_ERROR; }
 
 	vm->ip = 0;
-	vm->sp = 0;
 
-	while(vm->ip < chunk->size)
+	while(vm->ip < chunk->code.size)
 	{
+		uint8_t opcode = chunk->code.data[vm->ip];
+		switch(opcode)
+		{
+			case OP_NOOP:
+				break; // Do nothing.
+			case OP_PUSH_CONST:
+				{
+					uint8_t index = chunk->code.data[++vm->ip];
+					soul_value_t v = chunk->constants.data[index];
+					soul__value_stack_push(&vm->stack, v);
+				}
+				break;
+			case OP_POP:
+				{
+					soul__value_stack_pop(&vm->stack);
+				}
+				break;
+			case OP_ADDI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, +); break;
+			case OP_SUBI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, -); break;
+			case OP_MULI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, *); break;
+			case OP_DIVI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, /); break;
+			case OP_ADDF: SOUL_BINARY_OP(SOUL_TYPE_REAL, type_real, +); break;
+			case OP_SUBF: SOUL_BINARY_OP(SOUL_TYPE_REAL, type_real, -); break;
+			case OP_MULF: SOUL_BINARY_OP(SOUL_TYPE_REAL, type_real, *); break;
+			case OP_DIVF: SOUL_BINARY_OP(SOUL_TYPE_REAL, type_real, /); break;
+			case OP_PRINT: // @Temp
+				{
+					soul_value_t a = soul__value_stack_pop(&vm->stack);
+					switch(a.type)
+					{
+						case SOUL_TYPE_INT:
+							printf("%lld\n", a.as.type_int);
+							break;
+						case SOUL_TYPE_REAL:
+							printf("%f\n", a.as.type_real);
+							break;
+						case SOUL_TYPE_BOOL:
+							printf("%s\n", a.as.type_bool != 0 ? "true" : "false");
+							break;
+						default:
+							soul__vm_error(vm, "OP_PRINTL Unknown type.");
+							break;
+					}
+				}
+				break;
+			default:
+				soul__vm_error(vm, "Unknown OPCODE: %d.", opcode);
+				return SOUL_RUNTIME_ERROR;
+		}
 
+		// NOTE: Point at the next opcode.
+		vm->ip++;
 	}
 
 	return SOUL_SUCCESS;
 }
 
+#undef SOUL_BINARY_OP

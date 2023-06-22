@@ -529,32 +529,16 @@ static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 {
 	soul_token_t token = soul__parser_peek_prev(p);
 	soul_value_t value;
+
 #if 0
-	// Peek backwards to figure out type declared.
-	soul_token_t decl_type = p->tokens->data[p->tokens_index - 2];
-
-	switch(soul__parser_token_to_value_type(decl_type))
-	{
-		case : value.type = SOUL_VAL_U8;  value.as.u8  = (uint8_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_U16; value.as.u16 = (uint16_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_U32; value.as.u32 = (uint32_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_U64; value.as.u64 = (uint64_t)strtoull(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_I8;  value.as.i8  = (int8_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_I16; value.as.i16 = (int16_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_I32; value.as.i32 = (int32_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_I64; value.as.i64 = (int64_t)strtoll(token.start, NULL, 0); return value;
-		case : value.type = SOUL_VAL_F32; value.as.f32 = strtof(token.start, NULL); return value;
-		case : value.type = SOUL_VAL_F64; value.as.f64 = strtod(token.start, NULL); return value;
-		default:
-			break;
-	}
-
 	soul__parser_error(p, "Expected numeric primitive type, but got: '%s'",
 		soul_token_to_string(p->current_token.type));
-	value.type = VAL_U64; value.as.u64 = 0;
 #endif
 
-	// @TODO Temp
+	// @TODO Parsing all the numbers.
+	//       Currently we assume that we parse integers, but Soul supports
+	//       real numbers too! Figure a way to detect both of them and then
+	//       parse them as such.
 	value.type = SOUL_TYPE_INT;
 	value.as.type_int = (int64_t)strtoll(token.start, NULL, 0);
 

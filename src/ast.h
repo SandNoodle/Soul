@@ -11,7 +11,7 @@ typedef struct {
 	size_t length;
 } soul_ast_identifier_t;
 
-SOUL_VECTOR_DEFINE(ast_statement, soul_ast_statement_t*);
+SOUL_VECTOR_DEFINE(ast_statement, soul_ast_statement_t*)
 
 typedef enum {
 	AST_EXPR_ASSIGN,
@@ -134,7 +134,7 @@ struct soul_ast_statement_t {
 
 struct soul_ast_t {
 	soul_ast_statement_t* root;
-	soul_valid_t valid;
+	bool valid;
 };
 
 

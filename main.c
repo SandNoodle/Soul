@@ -2,6 +2,8 @@
 
 #include "src/soul.h"
 
+#include "src/soul_containers.c"
+#include "src/object.c"
 #include "src/token.c"
 #include "src/scanner.c"
 #include "src/parser.c"

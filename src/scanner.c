@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-SOUL_VECTOR_DECLARE(token, soul_token_t);
+SOUL_VECTOR_DECLARE(token, soul_token_t)
 
 #define SCANNER_PEEK() *scanner->current
 

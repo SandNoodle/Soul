@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <assert.h>
 
+SOUL_STACK_DECLARE(value, soul_value_t)
+
 static void soul__vm_error(soul_vm_t* vm, const char* message, ...)
 {
 	if(vm->had_panic) return;

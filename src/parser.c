@@ -67,7 +67,7 @@ static void soul__parser_advance(soul_parser_t* p)
 	{
 		soul__parser_error(p, "Invalid token.");
 	}
-};
+}
 
 static soul_token_t soul__parser_require(soul_parser_t* p, soul_token_type_t type)
 {

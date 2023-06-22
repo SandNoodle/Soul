@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-SOUL_VECTOR_DECLARE(ast_statement, soul_ast_statement_t*);
+SOUL_VECTOR_DECLARE(ast_statement, soul_ast_statement_t*)
 
 //
 // Misc

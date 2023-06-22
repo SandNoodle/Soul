@@ -13,17 +13,11 @@ static void soul__ast_print_number_literal(soul_ast_expression_t* e)
 	soul_value_type_t type = e->as.number_literal_expr.val.type;
 	switch(type)
 	{
-		case SOUL_VAL_U8:
-		case SOUL_VAL_U16:
-		case SOUL_VAL_U32:
-		case SOUL_VAL_U64:
-			printf("%llu", e->as.number_literal_expr.val.as.u64);
+		case SOUL_TYPE_INT:
+			printf("%lld", e->as.number_literal_expr.val.as.type_int);
 			break;
-		case SOUL_VAL_I8:
-		case SOUL_VAL_I16:
-		case SOUL_VAL_I32:
-		case SOUL_VAL_I64:
-			printf("%lld", e->as.number_literal_expr.val.as.i64);
+		case SOUL_TYPE_REAL:
+			printf("%f", e->as.number_literal_expr.val.as.type_real);
 			break;
 		default:
 			printf("[UNKNOWN TYPE]");
@@ -183,7 +177,7 @@ static void soul__ast_print_statement(soul_ast_statement_t* s)
 		case AST_STMT_DEFINE_DECL:
 			{
 				soul_ast_identifier_t* id = s->as.decl_stmt.define_decl.id;
-				int64_t val = s->as.decl_stmt.define_decl.val->as.number_literal_expr.val.as.i64; // @TODO
+				int64_t val = s->as.decl_stmt.define_decl.val->as.number_literal_expr.val.as.type_int;
 				printf("[DEFINE_DECL, '%.*s' = '%lld']\n", (int)id->length, id->name, val);
 			}
 			break;

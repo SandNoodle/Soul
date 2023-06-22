@@ -2,6 +2,7 @@
 
 #include "soul.h"
 #include "token.h"
+#include "value.h"
 
 typedef struct soul_ast_expression_t soul_ast_expression_t;
 typedef struct soul_ast_statement_t soul_ast_statement_t;

@@ -555,8 +555,8 @@ static soul_value_t soul__parser_parse_number(soul_parser_t* p)
 #endif
 
 	// @TODO Temp
-	value.type = SOUL_VAL_I64;
-	value.as.i64 = (int64_t)strtoll(token.start, NULL, 0);
+	value.type = SOUL_TYPE_INT;
+	value.as.type_int = (int64_t)strtoll(token.start, NULL, 0);
 
 	return value;
 }

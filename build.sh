@@ -4,7 +4,7 @@
 EXECUTABLE_NAME="main"
 COMPILER="gcc"
 STANDARD="std=c99"
-COMPILER_FLAGS=($STANDARD "Wall" "Wextra")
+COMPILER_FLAGS=($STANDARD "Wall" "Wextra" "Wpedantic")
 DEFINE_FLAGS=()
 LINKER_FLAGS=()
 BUILD_TYPE="Debug"

@@ -1,9 +1,6 @@
 #ifndef SOUL_H
 #define SOUL_H
 
-// @TEMP @DEBUG
-#define DEBUG() printf("[DEBUG] %s:%d: %s\n", __FILE__, __LINE__, __func__); fflush(stdout);
-
 #define SOUL_VERSION_MAJOR 0
 #define SOUL_VERSION_MINOR 0
 #define SOUL_VERSION_PATCH 0
@@ -27,8 +24,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-
-#define SOUL_ARRAY_SIZE(array) sizeof(array) / sizeof(array[0])
 
 // @TODO @TEMP
 #include <assert.h>
@@ -85,10 +80,6 @@ SOUL_VECTOR_DEFINE(token, soul_token_t)
 // PUBLIC API
 // ----------------------------------------------------------------------------
 
-// @TODO Dont pass by value to functions.
-//       Might be slow and memory consuming.
-//       Benchmark first!
-
 typedef enum {
 	SOUL_SUCCESS,       // Generic success.
 	SOUL_PARSE_ERROR,   // Error while parsing the script.
@@ -96,26 +87,9 @@ typedef enum {
 	SOUL_RUNTIME_ERROR, // Error while running the script.
 } soul_result_t;
 
-// @TODO MOVE OUT!
-struct soul_chunk_t {
-	soul_chunk_data_vector_t code;
-	soul_chunk_constants_vector_t constants;
-	bool valid;
-};
-
 //
 // Runtime
 //
-
-// This struct contains configuration options for a runtime enviroment.
-// @TODO MOVE OUT!
-struct soul_config_t {
-	size_t vm_stack_size_initial;
-	size_t vm_stack_size_max;               // If 0, then maximum size will be unboud.
-
-	soul_message_callback_t warn_callback;  // Can be null.
-	soul_message_callback_t error_callback; // Can be null.
-};
 
 SOUL_API soul_config_t soul_get_defualt_config(void);
 
@@ -128,13 +102,6 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk);
 // Scanning
 //
 
-// @TODO MOVE OUT!
-struct soul_scanner_config_t {
-	soul_message_callback_t warn_callback;  // Can be null.
-	soul_message_callback_t error_callback; // Can be null.
-};
-
-
 SOUL_API soul_scanner_config_t soul_get_defualt_scanner_config(void);
 
 SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size);
@@ -142,12 +109,6 @@ SOUL_API soul_token_vector_t soul_scan(const char* buffer, size_t size);
 //
 // Parsing
 //
-
-// @TODO MOVE OUT!
-struct soul_parser_config_t {
-	soul_message_callback_t warn_callback;  // Can be null.
-	soul_message_callback_t error_callback; // Can be null.
-};
 
 SOUL_API soul_parser_config_t soul_get_defualt_parser_config(void);
 
@@ -161,14 +122,14 @@ SOUL_API void soul_free_ast(soul_ast_t* ast);
 
 SOUL_API soul_compiler_config_t soul_get_defualt_compiler_config(void);
 
-SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast);
+SOUL_API soul_chunk_t* soul_compile(soul_ast_t* ast);
 
 //
 // Serialization
 //
 
-SOUL_API soul_chunk_t soul_deserialize(const char* path);
+SOUL_API soul_chunk_t* soul_deserialize(const char* path);
 
-SOUL_API bool soul_serialize(soul_chunk_t chunk, const char* path);
+SOUL_API bool soul_serialize(soul_chunk_t* chunk, const char* path);
 
 #endif // SOUL_H

@@ -123,7 +123,7 @@ static void soul__hashtable__grow_capacity(soul_hashtable_t* h, size_t capacity)
 	for(size_t index = 0; index < h->capacity; ++index)
 	{
 		new_entries[index].key = NULL;
-		new_entries[index].value = (soul_value_t){ SOUL_TYPE_NULL };
+		new_entries[index].value = (soul_value_t){ SOUL_TYPE_NULL, .as.type_bool = false };
 	}
 
 	h->size = 0;

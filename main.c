@@ -14,8 +14,6 @@
 
 // @TODO Currently working on parsing variable declarations.
 //       Parse based on type. Currently hardcoded I64.
-// @TODO Currently working on swaping all return types
-//       to pointers instead of return by value.
 
 int main()
 {
@@ -54,8 +52,8 @@ int main()
 
 	soul__ast_print(ast);
 
-	soul_chunk_t chunk = soul_compile(ast);
-	if(!chunk.valid)
+	soul_chunk_t* chunk = soul_compile(ast);
+	if(!chunk->valid)
 	{
 		printf("[ERROR] Invalid Chunk!");
 		return 1;
@@ -64,7 +62,7 @@ int main()
 	soul_vm_t vm;
 	soul_vm_init(&vm);
 
-	soul_result_t runtime_result = soul_vm_interpret(&vm, &chunk);
+	soul_result_t runtime_result = soul_vm_interpret(&vm, chunk);
 	if(runtime_result != SOUL_SUCCESS)
 	{
 		printf("[ERROR] Runtime error!");

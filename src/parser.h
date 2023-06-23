@@ -19,6 +19,11 @@ typedef struct
 	soul_message_callback_t warn_callback;
 } soul_parser_t;
 
+struct soul_parser_config_t {
+	soul_message_callback_t warn_callback;  // Can be null.
+	soul_message_callback_t error_callback; // Can be null.
+};
+
 typedef enum {
 	SOUL_PREC_NONE,
 	SOUL_PREC_ASSIGN,         // =

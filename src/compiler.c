@@ -1,6 +1,7 @@
 #include "compiler.h"
 
 #include "opcode.h"
+#include "vm.h"
 
 #include <stdio.h> // @TEMP
 #include <stdarg.h>
@@ -10,10 +11,6 @@ SOUL_VECTOR_DECLARE(chunk_data, uint8_t)
 
 static void soul__compiler_compile_statement(soul_compiler_t* c, soul_ast_statement_t* s);
 static void soul__compiler_compile_expression(soul_compiler_t* c, soul_ast_expression_t* e);
-
-static const soul_chunk_t soul__invalid_chunk = {
-	.valid = false,
-};
 
 static void soul__compiler_init(soul_compiler_t* compiler, soul_chunk_t* chunk)
 {
@@ -89,8 +86,6 @@ static void soul__compiler_enter_scope(soul_compiler_t* c)
 
 static void soul__compiler_exit_scope(soul_compiler_t* c)
 {
-	/* SOUL_UNUSED(c); */
-	/* SOUL_UNIMPLEMENTED(); */
 	c->current_depth--; // @TEMP
 }
 
@@ -353,29 +348,27 @@ void soul__disassemble_chunk(soul_chunk_t* c)
 	printf("=== ----- ===\n");
 }
 
-SOUL_API soul_chunk_t soul_compile(soul_ast_t* ast)
+SOUL_API soul_chunk_t* soul_compile(soul_ast_t* ast)
 {
-	if(!ast) return soul__invalid_chunk;
-
 	// @TEMP Supress warning for unused functions
 	SOUL_UNUSED(soul__compiler_emit_short);
 	SOUL_UNUSED(soul__compiler_error);
 	//
 
 	// Prepare chunk
-	soul_chunk_t chunk;
-	soul__compiler_chunk_init(&chunk);
+	soul_chunk_t* chunk = (soul_chunk_t*)malloc(sizeof(soul_chunk_t));
+	soul__compiler_chunk_init(chunk);
 
 	// Prepare compiler
 	soul_compiler_t compiler;
-	soul__compiler_init(&compiler, &chunk);
+	soul__compiler_init(&compiler, chunk);
 
 	soul__compiler_compile_statement(&compiler, ast->root);
 
 	// @TODO @TEMP Emit print for debugging.
-	soul__compiler_emit_opcode(&chunk, OP_PRINT);
+	soul__compiler_emit_opcode(chunk, OP_PRINT);
 
-	soul__disassemble_chunk(&chunk);
+	soul__disassemble_chunk(chunk);
 
 	return chunk;
 }

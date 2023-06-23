@@ -683,7 +683,7 @@ SOUL_API soul_ast_t* soul_parse(soul_token_vector_t array)
 	SOUL_UNUSED(soul__parser_is_declaration);
 	//
 
-	/* if(!array.valid) { return soul__invalid_ast; } */ // @TODO
+	/* if(!array.valid) { return soul__invalid_ast; } */
 
 	soul_parser_t parser;
 	soul__parser_init(&parser, &array);

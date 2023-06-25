@@ -223,7 +223,7 @@ void soul__ast_free_identifier(soul_ast_identifier_t* i)
 	free(i);
 }
 
-static bool soul__ast_are_identifiers_equal(soul_ast_identifier_t* l, soul_ast_identifier_t* r)
+bool soul__ast_are_identifiers_equal(soul_ast_identifier_t* l, soul_ast_identifier_t* r)
 {
 	return (l->length == r->length)                    // Same size
 		&& (memcmp(l->name, r->name, l->length)) == 0; // Same string

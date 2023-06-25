@@ -6,8 +6,14 @@
 #include <stdio.h> // @TEMP
 #include <stdarg.h>
 
+struct soul_variable_t {
+	soul_ast_identifier_t* id;
+	int32_t depth;
+};
+
 SOUL_VECTOR_DECLARE(chunk_constants, soul_value_t)
 SOUL_VECTOR_DECLARE(chunk_data, uint8_t)
+SOUL_STACK_DECLARE(variable, soul_variable_t)
 
 static void soul__compiler_compile_statement(soul_compiler_t* c, soul_ast_statement_t* s);
 static void soul__compiler_compile_expression(soul_compiler_t* c, soul_ast_expression_t* e);
@@ -18,6 +24,13 @@ static void soul__compiler_init(soul_compiler_t* compiler, soul_chunk_t* chunk)
 	compiler->had_error = false;
 	compiler->current_chunk = chunk;
 	compiler->current_depth = 0;
+
+	soul__variable_stack_new(&compiler->locals);
+}
+
+static void soul__compiler_free(soul_compiler_t* compiler)
+{
+	soul__variable_stack_free(&compiler->locals);
 }
 
 static void soul__compiler_error(soul_compiler_t* compiler, const char* message, ...)
@@ -79,6 +92,28 @@ static void soul__compiler_emit_short(soul_chunk_t* chunk, uint16_t s)
 	soul__compiler_chunk_write_byte(chunk, (s >> 0) & 0xff);
 }
 
+// Discard all scopes higher than a current scope.
+static size_t soul__compiler_discard_scopes(soul_compiler_t* c)
+{
+	size_t to_discard = 0;
+	for(size_t index = c->locals.size - 1; index < c->locals.size; --index)
+	{
+		if(c->locals.data[index].depth == c->current_depth)
+		{
+			to_discard = c->locals.size - index + 1;
+			break;
+		}
+	}
+
+	if(to_discard > 1)
+	{
+		soul__compiler_emit_opcode(c->current_chunk, OP_POP);
+		soul__compiler_emit_byte(c->current_chunk, to_discard);
+	}
+
+	return to_discard;
+}
+
 static void soul__compiler_enter_scope(soul_compiler_t* c)
 {
 	c->current_depth++;
@@ -86,7 +121,9 @@ static void soul__compiler_enter_scope(soul_compiler_t* c)
 
 static void soul__compiler_exit_scope(soul_compiler_t* c)
 {
-	c->current_depth--; // @TEMP
+	c->current_depth--;
+	size_t to_discard = soul__compiler_discard_scopes(c);
+	soul__variable_stack_popn(&c->locals, to_discard);
 }
 
 //
@@ -133,14 +170,14 @@ static void soul__compiler_compile_unary_expression(soul_compiler_t* c, soul_ast
 
 static void soul__compiler_compile_bool_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	soul__compiler_emit_opcode(c->current_chunk, OP_PUSH_CONST);
+	soul__compiler_emit_opcode(c->current_chunk, OP_GET_CONST);
 	soul__compiler_emit_byte(c->current_chunk, e->as.bool_literal_expr.val);
 }
 
 static void soul__compiler_compile_number_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
 	uint32_t index = soul__compiler_chunk_add_constant(c->current_chunk, e->as.number_literal_expr.val);
-	soul__compiler_emit_opcode(c->current_chunk, OP_PUSH_CONST);
+	soul__compiler_emit_opcode(c->current_chunk, OP_GET_CONST);
 	soul__compiler_emit_byte(c->current_chunk, index); // @TODO index is 32 bit, but we accept only 8 bit at max!
 }
 
@@ -151,11 +188,26 @@ static void soul__compiler_compile_string_literal_expression(soul_compiler_t* c,
 	SOUL_UNIMPLEMENTED();
 }
 
+static int32_t soul__compiler_resolve_variable(soul_compiler_t* c, soul_ast_identifier_t* id)
+{
+	for(size_t index = c->locals.size - 1; index < c->locals.size; --index)
+	{
+		if(soul__ast_are_identifiers_equal(c->locals.data[index].id, id))
+			return index;
+	}
+
+	return -1;
+}
 static void soul__compiler_compile_variable_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(e);
-	SOUL_UNIMPLEMENTED();
+	soul_ast_identifier_t* id = e->as.var_literal_expr.id;
+	int32_t variable_index = soul__compiler_resolve_variable(c, id);
+	if(variable_index == -1)
+		soul__compiler_error(c, "Variable '%.*s' was not defined in this scope!",
+			(int)id->length, id->name);
+
+	soul__compiler_emit_opcode(c->current_chunk, OP_GET_LOCAL);
+	soul__compiler_emit_byte(c->current_chunk, variable_index);
 }
 
 
@@ -231,20 +283,46 @@ static void soul__compiler_compile_import_statement(soul_compiler_t* c, soul_ast
 	SOUL_UNIMPLEMENTED();
 }
 
+static int32_t soul__compiler_add_local_variable(soul_compiler_t* c, soul_ast_identifier_t* id)
+{
+	soul_variable_t var;
+	var.id = id;
+	var.depth = c->current_depth;
+	soul__variable_stack_push(&c->locals, var);
+	return c->locals.size - 1; // Return index.
+}
+
 static void soul__compiler_compile_variable_declaration_statement(soul_compiler_t* c, soul_ast_statement_t* s)
 {
-	SOUL_UNUSED(c);
+	if(c->current_depth < 1)
+	{
+		soul__compiler_error(c, "Declaration of global variables is NOT supported!");
+		return;
+	}
 
-	if(!s->as.decl_stmt.var_decl.is_mut)
+	if(c->locals.size >= SOUL_MAX_LOCAL_VARIABLES)
 	{
-		// [Defualt] Immutable variables (aka constants).
-		soul__compiler_compile_expression(c, s->as.decl_stmt.var_decl.val);
+		// @TODO Current function name.
+		soul__compiler_error(c, "Function '%s' has too many local variables (Limit %d)!",
+			"@TODO", SOUL_MAX_LOCAL_VARIABLES);
+		return;
 	}
-	else
-	{
-		// Mutable variables.
-		SOUL_UNIMPLEMENTED();
-	}
+
+	soul_ast_identifier_t* id = s->as.decl_stmt.var_decl.id;
+
+	// @TODO DISALLOW SHADOWING OF VARIABLES REGARDLESS OF SCOPE
+
+	// Declare variable.
+	int32_t variable_index = soul__compiler_add_local_variable(c, id);
+
+	// NOTE: Soul requires all of its variables to be defined as they are
+	//       declared. So we can compile its r-value expression just before
+	//       we emit OP_SET_LOCAL - no further steps required!.
+	soul__compiler_compile_expression(c, s->as.decl_stmt.var_decl.val);
+
+	// Declare variable.
+	soul__compiler_emit_opcode(c->current_chunk, OP_SET_LOCAL);
+	soul__compiler_emit_byte(c->current_chunk, variable_index);
 }
 
 static void soul__compiler_compile_function_declaration_statement(soul_compiler_t* c, soul_ast_statement_t* s)
@@ -301,7 +379,9 @@ void soul__disassemble_instruction(soul_chunk_t* c, size_t* index)
 	const char* op = opcode_to_string(c->code.data[*index]);
 	switch(c->code.data[*index])
 	{
-		case OP_PUSH_CONST:
+		case OP_GET_CONST:
+		case OP_GET_LOCAL:
+		case OP_SET_LOCAL:
 			*index += 1;
 			printf("%s %d\n", op, c->code.data[*index]);
 			break;
@@ -369,6 +449,8 @@ SOUL_API soul_chunk_t* soul_compile(soul_ast_t* ast)
 	soul__compiler_emit_opcode(chunk, OP_PRINT);
 
 	soul__disassemble_chunk(chunk);
+
+	soul__compiler_free(&compiler);
 
 	return chunk;
 }

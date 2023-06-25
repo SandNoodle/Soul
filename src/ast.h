@@ -151,6 +151,8 @@ void soul__ast_free_identifier(soul_ast_identifier_t* i);
 
 soul_ast_identifier_t* soul__ast_new_identifier(const char* name, size_t length);
 
+bool soul__ast_are_identifiers_equal(soul_ast_identifier_t*, soul_ast_identifier_t*);
+
 //
 // Expressions
 //

@@ -1,6 +1,7 @@
 #ifndef SOUL_FWD_H
 #define SOUL_FWD_H
 
+#include <stdint.h>
 #include <stdbool.h>
 
 //
@@ -18,6 +19,8 @@ typedef struct soul_compiler_config_t soul_compiler_config_t;
 typedef struct soul_value_t soul_value_t;
 
 typedef struct soul_vm_t soul_vm_t;
+
+typedef struct soul_compiler_t soul_compiler_t;
 
 typedef struct soul_chunk_t soul_chunk_t;
 

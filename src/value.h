@@ -1,7 +1,7 @@
 #ifndef SOUL_VALUE_H
 #define SOUL_VALUE_H
 
-#include "soul.h"
+#include "soul_fwd.h"
 
 typedef enum {
 	SOUL_TYPE_BOOL,

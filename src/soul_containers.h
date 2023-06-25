@@ -2,6 +2,7 @@
 #define SOUL_SOUL_CONTAINERS_H
 
 #include "soul_fwd.h"
+#include "value.h"
 
 // @TODO Replace malloc/realloc/free with user provided allocator.
 // @TODO Current implementation is heavily using preprocessor macros,
@@ -66,11 +67,13 @@
 		size_t capacity;                                                  \
 	} soul_##name##_stack_t;                                              \
                                                                           \
-	void soul__##name##_stack_new(soul_##name##_stack_t* stack);          \
-	void soul__##name##_stack_free(soul_##name##_stack_t* stack);         \
-	void soul__##name##_stack_push(soul_##name##_stack_t* stack, type t); \
-	type soul__##name##_stack_pop(soul_##name##_stack_t* stack);          \
-	type soul__##name##_stack_peek(soul_##name##_stack_t* stack);
+	void soul__##name##_stack_new(soul_##name##_stack_t* s);              \
+	void soul__##name##_stack_free(soul_##name##_stack_t* s);             \
+	void soul__##name##_stack_push(soul_##name##_stack_t* s, type t);     \
+	type soul__##name##_stack_pop(soul_##name##_stack_t* s);              \
+	void soul__##name##_stack_popn(soul_##name##_stack_t* s, size_t);     \
+	type soul__##name##_stack_peek(soul_##name##_stack_t* s);             \
+	type soul__##name##_stack_peek_at(soul_##name##_stack_t* s, size_t);
 
 #define SOUL_STACK_DECLARE(name, type)                                    \
 	void soul__##name##_stack_new(soul_##name##_stack_t* s)               \
@@ -110,14 +113,43 @@
 		return t;                                                         \
 	}                                                                     \
                                                                           \
+	void soul__##name##_stack_popn(soul_##name##_stack_t* s, size_t n)    \
+	{                                                                     \
+		if(s->size < n)                                                   \
+		{                                                                 \
+			/* @TODO Error!*/                                             \
+		}                                                                 \
+		s->size -= n;                                                     \
+	}                                                                     \
+                                                                          \
 	type soul__##name##_stack_peek(soul_##name##_stack_t* s)              \
 	{                                                                     \
 		return s->data[s->size];                                          \
+	}                                                                     \
+                                                                          \
+	type soul__##name##_stack_peek_at(soul_##name##_stack_t* s, size_t n) \
+	{                                                                     \
+		if(n > s->size - 1)                                               \
+		{                                                                 \
+			/* @TODO Error!*/                                             \
+		}                                                                 \
+		return s->data[n];                                                \
 	}
 
 //
 // Hash Table
 //
+
+struct soul_hashtable_entry_t {
+	soul_string_obj_t* key;
+	soul_value_t value;
+};
+
+struct soul_hashtable_t {
+	soul_hashtable_entry_t* entries;
+	size_t size;
+	size_t capacity;
+};
 
 // Initializes the new hashtable.
 void soul__hashtable_new(soul_hashtable_t*);

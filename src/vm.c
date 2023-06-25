@@ -67,6 +67,8 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 
 	vm->ip = 0;
 
+	#define NEXT_BYTE() chunk->code.data[++vm->ip]
+
 	while(vm->ip < chunk->code.size)
 	{
 		uint8_t opcode = chunk->code.data[vm->ip];
@@ -74,18 +76,28 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 		{
 			case OP_NOOP:
 				break; // Do nothing.
-			case OP_PUSH_CONST:
+			case OP_GET_CONST:
 				{
-					uint8_t index = chunk->code.data[++vm->ip];
+					uint8_t index = NEXT_BYTE();
 					soul_value_t v = chunk->constants.data[index];
 					soul__value_stack_push(&vm->stack, v);
 				}
 				break;
-			case OP_POP:
+			case OP_GET_LOCAL:
 				{
-					soul__value_stack_pop(&vm->stack);
+					uint8_t slot = NEXT_BYTE();
+					soul_value_t v = soul__value_stack_peek_at(&vm->stack, slot);
+					soul__value_stack_push(&vm->stack, v);
 				}
 				break;
+			case OP_SET_LOCAL:
+				{
+					uint8_t slot = NEXT_BYTE();
+					soul_value_t v = soul__value_stack_peek_at(&vm->stack, slot);
+					vm->stack.data[slot] = v;
+				}
+				break;
+			case OP_POP: soul__value_stack_popn(&vm->stack, NEXT_BYTE()); break;
 			case OP_ADDI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, +); break;
 			case OP_SUBI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, -); break;
 			case OP_MULI: SOUL_BINARY_OP(SOUL_TYPE_INT,  type_int, *); break;

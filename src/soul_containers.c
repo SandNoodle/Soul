@@ -15,17 +15,6 @@
 #define SOUL_HASHTABLE_IS_TOMBSTONE(x) \
 	((x).type == SOUL_TYPE_BOOL && (x).as.type_bool == true)
 
-struct soul_hashtable_entry_t {
-	soul_string_obj_t* key;
-	soul_value_t value;
-};
-
-struct soul_hashtable_t {
-	soul_hashtable_entry_t* entries;
-	size_t size;
-	size_t capacity;
-};
-
 static soul_hashtable_entry_t* soul__hashtable__find_entry(soul_hashtable_t*, soul_string_obj_t*);
 static void soul__hashtable__grow_capacity(soul_hashtable_t*, size_t);
 

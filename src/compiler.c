@@ -130,11 +130,22 @@ static void soul__compiler_exit_scope(soul_compiler_t* c)
 // Expressions
 //
 
+static void soul__compiler_compile_variable_literal_expression(soul_compiler_t*, soul_ast_expression_t*, bool);
+
 static void soul__compiler_compile_assign_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(e);
-	SOUL_UNIMPLEMENTED();
+	switch(e->as.assign_expr.lval->type)
+	{
+		case AST_EXPR_VAR_LITERAL:
+			bool is_setter = true;
+			soul__compiler_compile_expression(c, e->as.assign_expr.rval);
+			soul__compiler_compile_variable_literal_expression(c, e->as.assign_expr.lval, is_setter);
+			break;
+		default:
+			soul__compiler_error(c, "Expression of type '%d', cannot be used as a L-Value.",
+				e->as.assign_expr.lval->type); // @TODO Stringify TYPE
+			break;
+	}
 }
 
 static void soul__compiler_compile_binary_expression(soul_compiler_t* c, soul_ast_expression_t* e)
@@ -198,7 +209,8 @@ static int32_t soul__compiler_resolve_variable(soul_compiler_t* c, soul_ast_iden
 
 	return -1;
 }
-static void soul__compiler_compile_variable_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
+
+static void soul__compiler_compile_variable_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e, bool is_setter)
 {
 	soul_ast_identifier_t* id = e->as.var_literal_expr.id;
 	int32_t variable_index = soul__compiler_resolve_variable(c, id);
@@ -206,7 +218,7 @@ static void soul__compiler_compile_variable_literal_expression(soul_compiler_t* 
 		soul__compiler_error(c, "Variable '%.*s' was not defined in this scope!",
 			(int)id->length, id->name);
 
-	soul__compiler_emit_opcode(c->current_chunk, OP_GET_LOCAL);
+	soul__compiler_emit_opcode(c->current_chunk, is_setter ? OP_SET_LOCAL : OP_GET_LOCAL);
 	soul__compiler_emit_byte(c->current_chunk, variable_index);
 }
 
@@ -222,7 +234,10 @@ static void soul__compiler_compile_expression(soul_compiler_t* c,
 		case AST_EXPR_BOOL_LITERAL:   soul__compiler_compile_bool_literal_expression(c, e); break;
 		case AST_EXPR_NUMBER_LITERAL: soul__compiler_compile_number_literal_expression(c, e); break;
 		case AST_EXPR_STRING_LITERAL: soul__compiler_compile_string_literal_expression(c, e); break;
-		case AST_EXPR_VAR_LITERAL:    soul__compiler_compile_variable_literal_expression(c, e); break;
+		case AST_EXPR_VAR_LITERAL:
+			bool is_setter = false;
+			soul__compiler_compile_variable_literal_expression(c, e, is_setter);
+			break;
 	}
 }
 
@@ -346,13 +361,6 @@ static void soul__compiler_compile_define_declaration_statement(soul_compiler_t*
 	SOUL_UNIMPLEMENTED();
 }
 
-static void soul__compiler_compile_expression_statement(soul_compiler_t* c, soul_ast_statement_t* s)
-{
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(s);
-	SOUL_UNIMPLEMENTED();
-}
-
 static void soul__compiler_compile_statement(soul_compiler_t* c,
 	soul_ast_statement_t* s)
 {
@@ -369,7 +377,7 @@ static void soul__compiler_compile_statement(soul_compiler_t* c,
 		case AST_STMT_FUNCTION_DECL:   soul__compiler_compile_function_declaration_statement(c, s); break;
 		case AST_STMT_NATIVE_DECL:     soul__compiler_compile_native_declaration_statement(c, s); break;
 		case AST_STMT_DEFINE_DECL:     soul__compiler_compile_define_declaration_statement(c, s); break;
-		case AST_STMT_EXPRESSION:      soul__compiler_compile_expression_statement(c, s);
+		case AST_STMT_EXPRESSION:      soul__compiler_compile_expression(c, s->as.expression_stmt.expr); break;
 	}
 }
 

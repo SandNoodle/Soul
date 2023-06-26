@@ -121,7 +121,7 @@ SOUL_API soul_result_t soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 							printf("%s\n", a.as.type_bool != 0 ? "true" : "false");
 							break;
 						default:
-							soul__vm_error(vm, "OP_PRINTL Unknown type.");
+							soul__vm_error(vm, "OP_PRINT Unknown type.");
 							break;
 					}
 				}

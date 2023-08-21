@@ -7,7 +7,8 @@ OPCODE(OP_SET_LOCAL)
 OPCODE(OP_GET_CONST)
 
 // Control flow
-OPCODE(OP_JMP) OPCODE(OP_JMP_LONG) // Unconditional jumps
+OPCODE(OP_JUMP) // Unconditional jumps
+OPCODE(OP_JUMP_FALSE) OPCODE(OP_JUMP_TRUE) // Conditional jumps
 
 // Arythmetic opcodes
 OPCODE(OP_ADDI) OPCODE(OP_SUBI) OPCODE(OP_MULI) OPCODE(OP_DIVI)

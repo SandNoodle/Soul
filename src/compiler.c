@@ -66,7 +66,7 @@ static void soul__compiler_chunk_init(soul_chunk_t* c)
 static size_t soul__compiler_chunk_write_byte(soul_chunk_t* chunk, uint8_t byte)
 {
 	soul__chunk_data_vector_push(&chunk->code, byte);
-	return chunk->code.size;
+	return chunk->code.size - 1;
 }
 
 static uint32_t soul__compiler_chunk_add_constant(soul_chunk_t* chunk, soul_value_t value)
@@ -76,9 +76,9 @@ static uint32_t soul__compiler_chunk_add_constant(soul_chunk_t* chunk, soul_valu
 	return index;
 }
 
-static void soul__compiler_emit_opcode(soul_chunk_t* chunk, opcode_t op)
+static size_t soul__compiler_emit_opcode(soul_chunk_t* chunk, opcode_t op)
 {
-	soul__compiler_chunk_write_byte(chunk, op);
+	return soul__compiler_chunk_write_byte(chunk, op);
 }
 
 static void soul__compiler_emit_byte(soul_chunk_t* chunk, uint8_t b)
@@ -95,17 +95,14 @@ static void soul__compiler_emit_short(soul_chunk_t* chunk, uint16_t s)
 // Discard all scopes higher than a current scope.
 static size_t soul__compiler_discard_scopes(soul_compiler_t* c)
 {
-	size_t to_discard = 0;
-	for(size_t index = c->locals.size - 1; index < c->locals.size; --index)
+	size_t count = c->locals.size;
+	while(count > 0 && c->locals.data[count - 1].depth > c->current_depth)
 	{
-		if(c->locals.data[index].depth == c->current_depth)
-		{
-			to_discard = c->locals.size - index + 1;
-			break;
-		}
+		count--;
 	}
 
-	if(to_discard > 1)
+	size_t to_discard = c->locals.size - count;
+	if(to_discard > 0)
 	{
 		soul__compiler_emit_opcode(c->current_chunk, OP_POP);
 		soul__compiler_emit_byte(c->current_chunk, to_discard);
@@ -122,8 +119,21 @@ static void soul__compiler_enter_scope(soul_compiler_t* c)
 static void soul__compiler_exit_scope(soul_compiler_t* c)
 {
 	c->current_depth--;
+	size_t locals = c->locals.size;
 	size_t to_discard = soul__compiler_discard_scopes(c);
 	soul__variable_stack_popn(&c->locals, to_discard);
+}
+
+static size_t soul__compiler_get_address(soul_compiler_t* c)
+{
+	return c->current_chunk->code.size;
+}
+
+static bool soul__compiler_is_jump_opcode(opcode_t op)
+{
+	return op == OP_JUMP
+		|| op == OP_JUMP_FALSE
+		|| op == OP_JUMP_TRUE;
 }
 
 //
@@ -179,10 +189,18 @@ static void soul__compiler_compile_unary_expression(soul_compiler_t* c, soul_ast
 	SOUL_UNIMPLEMENTED();
 }
 
+// @TODO Cleanup this code. (This require to adjust parsing so we don't construct a bool soul_value_t here).
 static void soul__compiler_compile_bool_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
+
+	uint32_t index = soul__compiler_chunk_add_constant(c->current_chunk,
+		(soul_value_t)
+		{
+			.type = SOUL_TYPE_BOOL,
+			.as.type_bool = e->as.bool_literal_expr.val
+		});
 	soul__compiler_emit_opcode(c->current_chunk, OP_GET_CONST);
-	soul__compiler_emit_byte(c->current_chunk, e->as.bool_literal_expr.val);
+	soul__compiler_emit_byte(c->current_chunk, index); // @TODO index is 32 bit, but we accept only 8 bit at max!
 }
 
 static void soul__compiler_compile_number_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
@@ -191,6 +209,7 @@ static void soul__compiler_compile_number_literal_expression(soul_compiler_t* c,
 	soul__compiler_emit_opcode(c->current_chunk, OP_GET_CONST);
 	soul__compiler_emit_byte(c->current_chunk, index); // @TODO index is 32 bit, but we accept only 8 bit at max!
 }
+//
 
 static void soul__compiler_compile_string_literal_expression(soul_compiler_t* c, soul_ast_expression_t* e)
 {
@@ -245,11 +264,58 @@ static void soul__compiler_compile_expression(soul_compiler_t* c,
 // Statements
 //
 
+static void soul__compiler_set_jump_address(soul_compiler_t* c, size_t jump_addr, size_t target)
+{
+	soul_chunk_data_vector_t* code = &c->current_chunk->code;
+	opcode_t jump_opcode = code->data[jump_addr];
+	if(!soul__compiler_is_jump_opcode(jump_opcode))
+	{
+		soul__compiler_error(c, "Opcode at address '%zu' is not a valid jump opcode!", jump_addr);
+		return;
+	}
+
+	// NOTE: Jump offset points after the jump opcode (1 byte) and its target address (2 bytes)
+	int32_t jump_offset = target - (jump_addr + 3);
+	if(jump_offset > INT16_MAX || jump_offset < INT16_MIN)
+	{
+		soul__compiler_error(c, "Jump at address '%zu', would result in a jump that is out of range ('%zu')!", jump_addr, target);
+		return;
+	}
+
+	code->data[jump_addr + 1] = ((int16_t)jump_offset >> 8) & 0xFF;
+	code->data[jump_addr + 2] = ((int16_t)jump_offset >> 0) & 0xFF;
+}
+
 static void soul__compiler_compile_if_statement(soul_compiler_t* c, soul_ast_statement_t* s)
 {
-	SOUL_UNUSED(c);
-	SOUL_UNUSED(s);
-	SOUL_UNIMPLEMENTED();
+	// Compile condition expression
+	soul__compiler_compile_expression(c, s->as.if_stmt.condition);
+
+	// Emit jumping point
+	size_t jump_addr = soul__compiler_emit_opcode(c->current_chunk, OP_JUMP_FALSE);
+	soul__compiler_emit_short(c->current_chunk, 0);
+
+	// Compile main branch
+	soul__compiler_compile_statement(c, s->as.if_stmt.then_stmt);
+
+	// Prepare jump for else branch (if exists).
+	size_t exit_addr = 0;
+	if(s->as.if_stmt.else_stmt)
+	{
+		exit_addr = soul__compiler_emit_opcode(c->current_chunk, OP_JUMP);
+		soul__compiler_emit_short(c->current_chunk, 0);
+	}
+
+	// Patch the main branch jump
+	soul__compiler_set_jump_address(c, jump_addr, soul__compiler_get_address(c));
+
+	// Compile else branch.
+	if(s->as.if_stmt.else_stmt)
+	{
+		size_t current_addr = soul__compiler_get_address(c);
+		soul__compiler_compile_statement(c, s->as.if_stmt.else_stmt);
+		soul__compiler_set_jump_address(c, exit_addr, soul__compiler_get_address(c));
+	}
 }
 
 static void soul__compiler_compile_for_statement(soul_compiler_t* c, soul_ast_statement_t* s)
@@ -387,11 +453,19 @@ void soul__disassemble_instruction(soul_chunk_t* c, size_t* index)
 	const char* op = opcode_to_string(c->code.data[*index]);
 	switch(c->code.data[*index])
 	{
+		case OP_POP:
 		case OP_GET_CONST:
 		case OP_GET_LOCAL:
 		case OP_SET_LOCAL:
 			*index += 1;
 			printf("%s %d\n", op, c->code.data[*index]);
+			break;
+		case OP_JUMP:
+		case OP_JUMP_FALSE:
+		case OP_JUMP_TRUE:
+			*index += 2;
+			int16_t offset = (c->code.data[*index - 1] << 8) | c->code.data[*index]; // Read short.
+			printf("%s %d (ADDR: %zu)\n", op, offset, *index + offset + 1);
 			break;
 		default:
 			printf("%s\n", op);
@@ -438,26 +512,14 @@ void soul__disassemble_chunk(soul_chunk_t* c)
 
 SOUL_API soul_chunk_t* soul_compile(soul_ast_t* ast)
 {
-	// @TEMP Supress warning for unused functions
-	SOUL_UNUSED(soul__compiler_emit_short);
-	SOUL_UNUSED(soul__compiler_error);
-	//
-
-	// Prepare chunk
 	soul_chunk_t* chunk = (soul_chunk_t*)malloc(sizeof(soul_chunk_t));
 	soul__compiler_chunk_init(chunk);
 
-	// Prepare compiler
 	soul_compiler_t compiler;
 	soul__compiler_init(&compiler, chunk);
 
 	soul__compiler_compile_statement(&compiler, ast->root);
-
-	// @TODO @TEMP Emit print for debugging.
-	soul__compiler_emit_opcode(chunk, OP_PRINT);
-
 	soul__disassemble_chunk(chunk);
-
 	soul__compiler_free(&compiler);
 
 	return chunk;

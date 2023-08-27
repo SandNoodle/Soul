@@ -28,4 +28,7 @@
 *_LOCAL_*.txt
 *_REMOTE_*.txt
 
+# CUSTOM
+compile_commands.json
+
 # End of https://www.toptal.com/developers/gitignore/api/git,executable

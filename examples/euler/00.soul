@@ -1,0 +1,13 @@
+fn main :: void
+{
+	let mut sum : u64 = 0;
+	for(i : u64 in 0..1000)
+	{
+		if((i % 3 == 0) || (i % 5 == 0))
+		{
+			sum += i;
+		}
+	}
+
+	std::print(sum);
+}

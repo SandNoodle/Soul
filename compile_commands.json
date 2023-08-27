@@ -1,0 +1,7 @@
+[
+{
+  "directory": "G:/FunProjects/05. C/Script/new/build",
+  "command": "C:\\msys64\\mingw64\\bin\\clang++.exe -I../src -I../src/ast -I../src/lexer -I../src/util -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles\\SoulLang.dir\\src\\lexer\\lexer.cpp.obj -c \"G:\\FunProjects\\05. C\\Script\\new\\src\\lexer\\lexer.cpp\"",
+  "file": "G:/FunProjects/05. C/Script/new/src/lexer/lexer.cpp"
+}
+]

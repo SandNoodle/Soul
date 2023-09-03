@@ -20,9 +20,9 @@ namespace soul
 			 * Exectues target bytecode chunk.
 			 *
 			 * @params chunk Compiled bytecode chunk.
-			 * @return @TODO !!!Return type!!!
+			 * @return error_code Execution status.
 			 */
-			void execute(const chunk& chunk);
+			error_code execute(const chunk& chunk);
 
 		private:
 	};

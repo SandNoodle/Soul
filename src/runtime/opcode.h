@@ -14,7 +14,8 @@ namespace soul
 		op_get_local,
 		op_set_local,
 		op_get_const,
-
+		op_push_true,  // Pushes 'true' bool literal
+		op_push_false, // Pushes 'false' bool literal
 
 		// Control flow
 		op_jump,       // Unconditional jump

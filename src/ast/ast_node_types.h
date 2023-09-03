@@ -50,7 +50,7 @@ namespace soul
 		{
 			integer, real
 		} type;
-		union
+		union underlying_value
 		{
 			int64_t int_val;
 			double  real_val;

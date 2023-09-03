@@ -10,6 +10,7 @@ namespace soul
 {
 	enum class error_code : uint32_t
 	{
+		error_none,
 		error_unknown, // This error should be used if no error code exists,
 		               // in which case it should be created ASAP!
 
@@ -22,6 +23,8 @@ namespace soul
 		error_parser_unexpected_token,
 
 		// Compiler errors
+		error_compiler_unknown_node_type,
+		error_compiler_not_implemented,
 		error_compiler_not_defined_variable,
 
 		// Runtime errors
@@ -40,6 +43,8 @@ namespace soul
 		{ error_code::error_parser_unexpected_token, "unexcpected token" },
 
 		// Compiler errors
+		{ error_code::error_compiler_unknown_node_type, "unknown ast node type" },
+		{ error_code::error_compiler_not_implemented, "not implemented yet" },
 		{ error_code::error_compiler_not_defined_variable, "undefined variable" },
 
 		// Runtime errors

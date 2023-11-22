@@ -19,10 +19,9 @@ fn main :: void
 * **Fast**. Compiled bytecode is a lot faster and quicker to execute than other scripting languages at the cost of initial compilation time. (TODO:
   See [benchmarks]().)
 * **Small**. Whole language and it's standard library is implemented in less than **TODO** LoC and compiles to just under **TODO** kB!
-* **Extensible**. Created with modularity in mind, nothing stops you from writing custom optimization passes, swapping default VM with
-  your own, or just replacing syntax altogether. The sky is the limit.
+* **Extensible**. Created with modularity in mind, nothing stops you from writing custom optimization passes, providing custom allocators, etc.
 * **Cross-Platform**. Soul works out-of-the-box on all major platforms without any additional setup.
-* **Statically typed**. While you have to be strongly explicit with the types, it gives you a peace of mind in the long run.
+* **Statically typed**.
 
 ## Getting started
 

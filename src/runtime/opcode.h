@@ -1,35 +1,31 @@
-#ifndef RUNTIME_OPCODE_H
-#define RUNTIME_OPCODE_H
+#ifndef SOUL_RUNTIME_OPCODE_H
+#define SOUL_RUNTIME_OPCODE_H
 
 #include <stdint.h>
 
-namespace soul
+enum soul_opcode
 {
-	enum class opcode : uint8_t
-	{
-		op_noop, // Does nothing.
+	soul_op_noop, // Does nothing.
 
-		// Stack operations
-		op_pop,
-		op_get_local,
-		op_set_local,
-		op_get_const,
-		op_push_true,  // Pushes 'true' bool literal
-		op_push_false, // Pushes 'false' bool literal
+	// Stack operations
+	soul_op_pop,
+	soul_op_get_local,
+	soul_op_set_local,
+	soul_op_get_const,
+	soul_op_push_true,  // Pushes 'true' bool literal
+	soul_op_push_false, // Pushes 'false' bool literal
 
-		// Control flow
-		op_jump,       // Unconditional jump
-		op_jump_false, // Conditional jump when false
-		op_jump_true,  // Conditional jump when true
+	// Control flow
+	soul_op_jump,       // Unconditional jump
+	soul_op_jump_false, // Conditional jump when false
+	soul_op_jump_true,  // Conditional jump when true
 
-		// Arithmetic
-		op_addi, op_subi, op_muli, op_divi, // Integer
-		op_addf, op_subf, op_mulf, op_divf, // Real
+	// Arithmetic
+	soul_op_addi, soul_op_subi, soul_op_muli, soul_op_divi, // Integer
+	soul_op_addf, soul_op_subf, soul_op_mulf, soul_op_divf, // Real
 
-		//
-		op_return,
-		op_halt,
-	};
-} // namespace soul
+	// Special opcodes.
+	soul_op_halt,
+};
 
-#endif // RUNTIME_OPCODE_H
+#endif // SOUL_RUNTIME_OPCODE_H

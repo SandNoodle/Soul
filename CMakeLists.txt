@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 # ----- [ Project ] -----
-project(SoulLang VERSION 0.1 LANGUAGES CXX)
+project(SoulLang VERSION 0.1 LANGUAGES C)
 
 # ----- [ Globals ] -----
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED True)
 
 # ----- [ Build Types ] -----
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo")
@@ -24,7 +24,7 @@ endif()
 
 # ----- [ Files ] -----
 # TODO Think about giving each directory its own CMakeLists.txt
-file (GLOB_RECURSE ${PROJECT_NAME}_SOURCES LIST_DIRECTORIES true CONFIGURE_DEPENDS "src/*.cpp")
+file (GLOB_RECURSE ${PROJECT_NAME}_SOURCES LIST_DIRECTORIES true CONFIGURE_DEPENDS "src/*.c")
 file (GLOB_RECURSE ${PROJECT_NAME}_HEADERS LIST_DIRECTORIES true CONFIGURE_DEPENDS "src/*.h")
 
 set (INCLUDE_DIRS "")

@@ -2,10 +2,170 @@
 
 #include "ast/ast.h"
 #include "lexer/token.h"
-#include "util/error_code.h"
 
-namespace soul
+#include <stdlib.h>
+#include <string.h>
+
+static struct soul_ast_node_t* soul_parser_parse_statement(soul_parser_t*);
+static struct soul_ast_node_t* soul_parser_parse_expression(soul_parser_t*);
+static void parser_advance(soul_parser_t*);
+static void parser_synchronize(soul_parser_t*);
+static bool parser_match(soul_parser_t*, soul_token_type_t);
+static soul_token_t parser_peek(soul_parser_t*);
+static soul_token_t parser_peek_prev(soul_parser_t*);
+static soul_token_t parser_require(soul_parser_t*, soul_token_type_t);
+static bool is_sync_token(soul_token_type_t);
+
+typedef struct soul_ast_node_t* (*soul_prefix_precedence_fn)(void);
+typedef struct soul_ast_node_t* (*soul_infix_precedence_fn)(soul_ast_node_t*);
+
+struct soul_parser_t
 {
+	soul_token_array_t* tokens;
+	size_t current_token;
+
+	bool had_panic;
+	bool had_error;
+};
+
+typedef enum soul_precedence_t : uint8_t {
+	soul_prec_none = 0,
+	soul_prec_assign,         // =
+	soul_prec_or,             // ||
+	soul_prec_and,            // &&
+	soul_prec_equal,          // == !=
+	soul_prec_compare,        // < > <= =>
+	soul_prec_additive,       // + -
+	soul_prec_multiplicative, // * /
+	soul_prec_unary,          // ! -
+	soul_prec_call,           // @TODO
+	soul_prec_primary,
+} soul_precedence_t;
+
+typedef struct soul_precedence_rule_t soul_precedence_rule_t;
+struct soul_precedence_rule_t {
+	soul_precedence_t precedence;
+	soul_prefix_precedence_fn prefix;
+	soul_infix_precedence_fn infix;
+};
+
+soul_parser_t* soul_parser_create(void)
+{
+	soul_parser_t* p = (soul_parser_t*)malloc(sizeof(soul_parser_t));
+	p->tokens = NULL;
+	p->current_token = 0;
+	p->had_panic = 0;
+	p->had_error = 0;
+	return p;
+}
+
+void soul_parser_destroy(soul_parser_t* parser)
+{
+	if(!parser) return;
+	free(parser);
+}
+
+soul_ast_node_t* soul_parser_parse(soul_parser_t* parser, soul_token_array_t* tokens)
+{
+	if(!parser || !tokens) return NULL;
+
+	parser->tokens = tokens;
+	soul_ast_node_array_t* statements = soul_ast_node_array_create();
+	while(soul_token_array_type_at(tokens, parser->current_token) != soul_token_eof)
+	{
+		soul_ast_node_t* node = soul_parser_parse_statement(parser);
+		soul_ast_node_array_append(statements, node);
+		if(parser->had_panic) parser_synchronize(parser);
+	}
+
+	soul_ast_node_t* root = NULL; // @TODO
+
+	return root;
+}
+
+//
+// Private
+//
+
+static struct soul_ast_node_t* soul_parser_parse_statement(soul_parser_t* parser)
+{
+	return NULL;
+}
+
+static struct soul_ast_node_t* soul_parser_parse_expression(soul_parser_t* parser)
+{
+	return NULL;
+}
+
+static void parser_advance(soul_parser_t* parser)
+{
+}
+
+static void parser_synchronize(soul_parser_t* parser)
+{
+	parser->had_panic = false;
+
+	while(parser_match(parser, soul_token_eof))
+	{
+		if(!is_sync_token(soul_token_array_type_at(parser->tokens, parser->current_token)))
+		{
+			parser_advance(parser);
+		}
+		break; // Synchronized!
+	}
+}
+
+static bool parser_match(soul_parser_t* parser, soul_token_type_t type)
+{
+	return soul_token_array_type_at(parser->tokens, parser->current_token) == type;
+}
+
+static soul_token_t parser_peek(soul_parser_t* parser)
+{
+	return soul_token_array_at(parser->tokens, parser->current_token);
+}
+
+static soul_token_t parser_peek_prev(soul_parser_t* parser)
+{
+#ifdef NDEBUG
+	if (parser->current_token < 1)
+	{
+		const char* error_string = "cannot peek at negative index"; // @TODO better erorr message
+		soul_token_t error = {
+			.type = soul_token_error,
+			.start = error_string,
+			.size = strlen(error_string),
+		};
+		return error;
+	}
+#endif
+	return soul_token_array_at(parser->tokens, parser->current_token - 1);
+}
+
+static soul_token_t parser_require(soul_parser_t* parser, soul_token_type_t type)
+{
+	if(parser_peek(parser).type != type)
+	{
+		const char* error_string = "required token is missing";
+		soul_token_t error = {
+			.type = soul_token_error,
+			.start = error_string,
+			.size = strlen(error_string),
+		};
+		return error;
+	}
+	parser_advance(parser);
+	return parser_peek_prev(parser);
+}
+
+static bool is_sync_token(soul_token_type_t type)
+{
+	// @TODO
+	return type == soul_token_semicolon
+		|| type == soul_token_brace_right;
+}
+
+#if 0
 	ast_node* parser::parse(const std::vector<token>& t)
 	{
 		tokens = t;
@@ -493,4 +653,4 @@ namespace soul
 	{
 		return tokens.at(current_token - 1);
 	}
-} // namespace soul
+#endif

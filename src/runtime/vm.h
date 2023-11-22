@@ -1,31 +1,13 @@
-#ifndef RUNTIME_VM_H
-#define RUNTIME_VM_H
+#ifndef SOUL_RUNTIME_VM_H
+#define SOUL_RUNTIME_VM_H
 
-#include <stdint.h>
+struct soul_chunk_t;
+typedef struct soul_vm_t soul_vm_t;
 
-namespace soul
-{
-	struct chunk;
-	enum class error_code : uint32_t;
+/** Creates a Soul's virtual machine ready to execute given code chunks. */
+soul_vm_t* soul_vm_create(void);
 
-	class vm
-	{
-		public:
-			vm() = delete;
-			vm(const vm&) = delete;
-			vm(vm&&) = delete;
-			~vm() = delete;
+/** Destroys given Soul's virtual machine. */
+void soul_vm_destroy(soul_vm_t*);
 
-			/**
-			 * Exectues target bytecode chunk.
-			 *
-			 * @params chunk Compiled bytecode chunk.
-			 * @return error_code Execution status.
-			 */
-			error_code execute(const chunk& chunk);
-
-		private:
-	};
-} // namespace soul
-
-#endif // RUNTIME_VM_H
+#endif // SOUL_RUNTIME_VM_H

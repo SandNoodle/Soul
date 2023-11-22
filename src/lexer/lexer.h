@@ -1,56 +1,25 @@
-#ifndef LEXER_LEXER_H
-#define LEXER_LEXER_H
+#ifndef SOUL_LEXER_LEXER_H
+#define SOUL_LEXER_LEXER_H
 
 #include <stdint.h>
-#include <string>
-#include <vector>
 
-namespace soul
-{
-	enum class error_code : uint32_t;
-	enum class token_type : uint8_t;
-	struct token;
+struct soul_token_array_t;
+typedef struct soul_lexer_t soul_lexer_t;
 
-	class lexer
-	{
-		public:
-			lexer() = delete;
-			lexer(const lexer&) = delete;
-			lexer(lexer&&) = delete;
-			~lexer() = delete;
+/** Creates a lexer ready for scanning. */
+soul_lexer_t* soul_lexer_create(void);
 
-			/**
-			 * @TODO
-			 *
-			 * @param buffer @TODO
-			 * @param size @TODO
-			 * @return std::vector<token> @TODO
-			 */
-			std::vector<token> scan(const char* buffer, size_t size);
+/** Destroys given lexer. */
+void soul_lexer_destroy(soul_lexer_t* lexer);
 
-		private:
-			token scan_token();
+/**
+ * @brief Scans given string and converts it into a array of tokens.
+ *
+ * @param lexer lexer to use for scanning.
+ * @param str string to scan.
+ * @param size size of the string.
+ * @return array of scanned tokens if successful, or nullptr otherwise.
+ */
+struct soul_token_array_t* soul_lexer_scan(soul_lexer_t* lexer, const char* str, size_t size);
 
-			token create_token(token_type type);
-			token create_identifier_token();
-			token create_number_token();
-			token create_string_token();
-			token create_error_token(error_code error);
-
-			void skip_whitespace();
-			char advance();
-			char peek() const;
-			bool match_next(char expected);
-
-			bool is_digit(char c);
-			bool is_alpha(char c);
-			bool is_eof(char c);
-
-		private:
-			const char* token_start;
-			const char* current_char;
-			size_t      current_line;
-	};
-} // namespace soul
-
-#endif // LEXER_LEXER_H
+#endif // SOUL_LEXER_LEXER_H

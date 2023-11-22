@@ -1,105 +1,161 @@
 #ifndef SOUL_AST_AST_H
 #define SOUL_AST_AST_H
 
-#include "ast/ast_node_types.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-#include <vector>
+typedef struct soul_ast_node_t soul_ast_node_t;
 
-namespace soul
+typedef struct soul_ast_node_identifier_t soul_ast_node_identifier_t;
+struct soul_ast_node_identifier_t
 {
-	enum class token_type : uint8_t;
+	const char* str;
+	uint32_t length;
+};
 
-	/**
-	 * Represents operator used with unary, binary, ... nodes.
-	 */
-	enum class ast_node_operator : uint8_t
-	{
-		op_none, // No operator.
+/**
+ * Represents operator used with unary, binary, ... nodes.
+ */
+typedef enum soul_ast_node_operator_t : uint8_t
+{
+	soul_ast_op_none, // No operator.
 
-		// Arithmetic
-		op_add, // Addition
-		op_sub, // Subtraction
-		op_mul, // Multiplication
-		op_div, // Division
-		op_mod, // Modulo
-		/* op_inc, // Increment */
-		/* op_dec, // Decrement */
-		op_pow, // Power
+	// Arithmetic
+	soul_ast_op_add, // Addition
+	soul_ast_op_sub, // Subtraction
+	soul_ast_op_mul, // Multiplication
+	soul_ast_op_div, // Division
+	soul_ast_op_mod, // Modulo
+	soul_ast_op_inc, // Increment
+	soul_ast_op_dec, // Decrement
+	soul_ast_op_pow, // Power
 
-		// Comparison
-		op_equal,         // Equal
-		op_not_equal,     // Not equal
-		op_greater,       // Greater
-		op_greater_equal, // Greater or equal
-		op_less,          // Less
-		op_less_equal,    // Less or equal
+	// Comparison
+	soul_ast_op_equal,         // Equal
+	soul_ast_op_not_equal,     // Not equal
+	soul_ast_op_greater,       // Greater
+	soul_ast_op_greater_equal, // Greater or equal
+	soul_ast_op_less,          // Less
+	soul_ast_op_less_equal,    // Less or equal
 
-		// Logical
-		op_logic_not, // Negation
-		op_logic_and, // And
-		op_logic_or,  // Or
-	};
+	// Logical
+	soul_ast_op_logic_not, // Negation
+	soul_ast_op_logic_and, // And
+	soul_ast_op_logic_or,  // Or
+} soul_ast_node_operator_t;
 
-	/**
-	 * Represents underlying type of an AST Node.
-	 */
-	enum class ast_node_type : uint8_t
-	{
+/**
+ * Represents underlying type of an AST Node.
+ */
+typedef enum soul_ast_node_type_t : uint8_t
+{
+	// Expressions
+	soul_ast_expr_assign,
+	soul_ast_expr_unary,
+	soul_ast_expr_binary,
+	soul_ast_expr_var_literal,
+	soul_ast_expr_bool_literal,
+	soul_ast_expr_number_literal,
+	soul_ast_expr_string_literal,
+	soul_ast_expr_stmt,
+
+	// Statements
+	soul_ast_stmt_if,
+	soul_ast_stmt_for,
+	soul_ast_stmt_while,
+	soul_ast_stmt_block,
+	soul_ast_stmt_return,
+	soul_ast_stmt_variable_decl,
+	soul_ast_stmt_function_decl,
+	soul_ast_stmt_native_decl,
+} soul_ast_node_type_t;
+
+/**
+ * Represents a single Node in an AST.
+ *
+ */
+struct soul_ast_node_t {
+	soul_ast_node_type_t type;
+	union {
 		// Expressions
-		ast_expr_assign,
-		ast_expr_binary,
-		ast_expr_unary,
-		ast_expr_var_literal,
-		ast_expr_bool_literal,
-		ast_expr_number_literal,
-		ast_expr_string_literal,
-		ast_expr_stmt,
+		struct {
+			soul_ast_node_t* lhs;
+			soul_ast_node_t* rhs;
+		} expr_assign;
+		struct {
+			soul_ast_node_operator_t op;
+			soul_ast_node_t* expr;
+		} expr_unary;
+		struct {
+			soul_ast_node_operator_t op;
+			soul_ast_node_t* lhs;
+			soul_ast_node_t* rhs;
+		} expr_binary;
+		struct {
+			soul_ast_node_identifier_t id;
+		} expr_literal_variable;
+		struct {
+			bool val;
+		} expr_literal_bool;
+		struct {
+
+		} expr_literal_number;
+		struct {
+			soul_ast_node_identifier_t val;
+		} expr_literal_string;
+		struct {
+			soul_ast_node_t* stmt;
+		} expr_stmt;
 
 		// Statements
-		ast_stmt_if,
-		ast_stmt_for,
-		ast_stmt_foreach,
-		ast_stmt_while,
-		ast_stmt_block,
-		ast_stmt_return,
-		ast_stmt_import,
-		ast_stmt_variable_decl,
-		ast_stmt_function_decl,
-		ast_stmt_native_decl,
-		ast_stmt_define_decl,
-	};
+		struct {
+			soul_ast_node_identifier_t id;
+			soul_ast_node_identifier_t type;
+			soul_ast_node_t* expr;
+		} stmt_variable_decl;
+		struct {
+			soul_ast_node_identifier_t id;
+			soul_ast_node_t* body;
+			soul_ast_node_t** params;
+			uint32_t param_count;
+		} stmt_function_decl;
+		struct {
+			soul_ast_node_t* condition;
+			soul_ast_node_t* then_body;
+			soul_ast_node_t* else_body; // Can be null.
+		} stmt_if;
+		struct {
+			soul_ast_node_t* intializer;     // Can be null.
+			soul_ast_node_t* condition;      // Can be null.
+			soul_ast_node_t* increment_stmt; // Can be null.
+		} stmt_for;
+		struct {
+			soul_ast_node_t* condition;
+			soul_ast_node_t* body;
+		} stmt_while;
+		struct {
+			soul_ast_node_t** statements;
+			uint32_t count;
+		} stmt_block;
+		struct {
+			soul_ast_node_t* expr; // Can be null.
+		} stmt_return;
+	} as;
+};
 
-	/**
-	 * Represents a single Node in an AST.
-	 *
-	 */
-	struct ast_node {
-		ast_node_type type;
-		union {
-			// Expressions
-			ast_node_assign         assign_expr;
-			ast_node_binary         binary_expr;
-			ast_node_unary          unary_expr;
-			ast_node_var_literal    var_lit_expr;
-			ast_node_bool_literal   bool_lit_expr;
-			ast_node_number_literal number_lit_expr;
-			ast_node_string_literal string_lit_expr;
-			ast_node_expr_stmt      expr_stmt;
+/** Creates new AST Node. */
+soul_ast_node_t* soul_ast_node_create();
 
-			// Statements
-			ast_node_decl_variable variable_decl_stmt;
-			ast_node_decl_function function_decl_stmt;
-			ast_node_decl_native   native_decl_stmt;
-			ast_node_decl_define   define_decl_stmt;
-			ast_node_if            if_stmt;
-			ast_node_for           for_stmt;
-			ast_node_while         while_stmt;
-			ast_node_block         block_stmt;
-			ast_node_return        return_stmt;
-		} as;
-	};
 
-	ast_node_operator to_node_operator(token_type type);
-} // namespace soul
+typedef struct soul_ast_node_array_t soul_ast_node_array_t;
+
+/** */
+soul_ast_node_array_t* soul_ast_node_array_create(void);
+
+/** */
+void soul_ast_node_array_destroy(soul_ast_node_array_t*);
+
+/** */
+void soul_ast_node_array_append(soul_ast_node_array_t*, soul_ast_node_t*);
 
 #endif // SOUL_AST_AST_H

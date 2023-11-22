@@ -2,99 +2,115 @@
 #define LEXER_TOKEN_H
 
 #include <stdint.h>
-#include <string>
-#include <array>
+#include <stdbool.h>
 
-namespace soul
+typedef enum soul_token_type_t : uint8_t
 {
-	enum class error_code : uint32_t;
+	soul_token_unknown, // Presence of an unknown token should convert into an error
+						// if we cannot resolve it (somehow).
 
-	enum class token_type : uint8_t
-	{
-		token_unknown, // Presence of an unknown token should convert into an error
-		               // if we cannot resolve it (somehow).
+	// Single character tokens
+	soul_token_semicolon, soul_token_question_mark,    // ;?
+	soul_token_percent, soul_token_caret,              // %^
+	soul_token_dot, soul_token_comma,                  // .,
+	soul_token_paren_left, soul_token_paren_right,     // ()
+	soul_token_brace_left, soul_token_brace_right,     // {}
+	soul_token_bracket_left, soul_token_bracket_right, // []
 
-		// Single character tokens
-		token_semicolon, token_question_mark,    // ;?
-		token_percent, token_caret,              // %^
-		token_dot, token_comma,                  // .,
-		token_paren_left, token_paren_right,     // ()
-		token_brace_left, token_brace_right,     // {}
-		token_bracket_left, token_bracket_right, // []
+	// One or two character tokens
+	soul_token_colon, soul_token_double_colon,         // : ::
+	soul_token_equal, soul_token_double_equal,         // = ==
+	soul_token_bang, soul_token_bang_equal,            // ! !=
+	soul_token_greater, soul_token_greater_equal,      // > >=
+	soul_token_less, soul_token_less_equal,            // < <=
+	soul_token_plus, soul_token_plus_equal,            // + +=
+	soul_token_minus, soul_token_minus_equal,          // - -=
+	soul_token_star, soul_token_star_equal,            // * *=
+	soul_token_slash, soul_token_slash_equal,          // / /=
+	soul_token_ampersand, soul_token_double_ampersand, // & &&
+	soul_token_pipe, soul_token_double_pipe,           // | ||
 
-		// One or two character tokens
-		token_colon, token_double_colon,         // : ::
-		token_equal, token_double_equal,         // = ==
-		token_bang, token_bang_equal,            // ! !=
-		token_greater, token_greater_equal,      // > >=
-		token_less, token_less_equal,            // < <=
-		token_plus, token_plus_equal,            // + +=
-		token_minus, token_minus_equal,          // - -=
-		token_star, token_star_equal,            // * *=
-		token_slash, token_slash_equal,          // / /=
-		token_ampersand, token_double_ampersand, // & &&
-		token_pipe, token_double_pipe,           // | ||
+	// Literals
+	soul_token_number,            // ex. 123, 3.14
+	soul_token_string,            // ex. "test_string", 'c'
+	soul_token_bool,              // ex. true, false
+	soul_token_identifier,        // ex. my_identifier
 
-		// Literals
-		token_number,            // ex. 123, 3.14
-		token_string,            // ex. "test_string", 'c'
-		token_identifier,        // ex. my_identifier
+	// Keywords
+	soul_token_native,                 // Native C function
+	soul_token_import,                 // File import
+	soul_token_define,                 // Define alias
+	soul_token_let, soul_token_mut,         // Variables
+	soul_token_if, soul_token_else,         // Flow control
+	soul_token_for, soul_token_while,       // Loops
+	soul_token_continue, soul_token_break,  // Loop keywords
+	soul_token_return, soul_token_fn,       // Function
+	soul_token_struct, soul_token_enum,     // Data types
+	soul_token_true, soul_token_false,      // Truthness literals
 
-		// Keywords
-		token_native,                 // Native C function
-		token_import,                 // File import
-		token_define,                 // Define alias
-		token_let, token_mut,         // Variables
-		token_if, token_else,         // Flow control
-		token_for, token_while,       // Loops
-		token_continue, token_break,  // Loop keywords
-		token_return, token_fn,       // Function
-		token_struct, token_enum,     // Data types
-		token_true, token_false,      // Truthness literals
+	// Special tokens
+	soul_token_error, // Token containing error message.
+	soul_token_eof,   // Token signaling End of File.
+} soul_token_type_t;
 
-		// Special tokens
-		token_error, // Token containing error message.
-		token_eof,   // Token signaling End of File.
-	};
+typedef struct soul_token_t soul_token_t;
+struct soul_token_t
+{
+	soul_token_type_t type;
+	const char* start;
+	size_t size;
+};
 
-	struct token
-	{
-		token_type  type;
-		const char* start;
-		size_t      size;
-		error_code  error_code; // It is used when type == token_type::token_error.
-	};
+typedef struct soul_token_array_t soul_token_array_t;
 
-	struct token_keyword
-	{
-		const char* start;
-		size_t      length;
-		token_type  type;
-	};
+/** Creates a dynamic array struct that can holds tokens. */
+soul_token_array_t* soul_token_array_create(void);
 
-	static const std::array<token_keyword, 16> keywords = {
-		token_keyword { "native",   6, token_type::token_native },
-		token_keyword { "import",   6, token_type::token_import },
-		token_keyword { "define",   6, token_type::token_define },
-		token_keyword { "fn",       2, token_type::token_fn },
-		token_keyword { "let",      3, token_type::token_let },
-		token_keyword { "mut",      3, token_type::token_mut },
-		token_keyword { "if",       2, token_type::token_if },
-		token_keyword { "else",     4, token_type::token_else },
-		token_keyword { "for",      3, token_type::token_for },
-		token_keyword { "while",    5, token_type::token_while },
-		token_keyword { "continue", 8, token_type::token_continue },
-		token_keyword { "break",    5, token_type::token_break },
-		token_keyword { "struct",   6, token_type::token_struct },
-		token_keyword { "enum",     4, token_type::token_enum },
-		token_keyword { "true",     4, token_type::token_true },
-		token_keyword { "false",    5, token_type::token_false },
-	};
+/** Destroys given soul token array */
+void soul_token_array_destroy(soul_token_array_t* array);
 
-	bool is_literal_token(token_type type);
-	bool is_assign_token(token_type type);
-	bool is_sync_token(token_type type);
+/** Appends the given token at the end of an array */
+bool soul_token_array_append(soul_token_array_t* array, soul_token_t token);
 
-} // namespace soul
+/** Returns token at an index. */
+soul_token_t soul_token_array_at(soul_token_array_t* tokens, size_t index);
+
+/** Returns type of a token at an index. */
+soul_token_type_t soul_token_array_type_at(soul_token_array_t* tokens, size_t index);
+
+/** Returns type of a token currently stored at the end of an array */
+soul_token_type_t soul_token_array_type_back(soul_token_array_t* array);
+
+typedef struct soul_token_keyword_t soul_token_keyword_t;
+struct soul_token_keyword_t
+{
+	soul_token_type_t type;
+	const char* start;
+	size_t      length;
+};
+
+#define soul_token_keywords_size 16
+static const soul_token_keyword_t soul_keywords[soul_token_keywords_size] = {
+	{ soul_token_native,   "native",   6 },
+	{ soul_token_import,   "import",   6 },
+	{ soul_token_define,   "define",   6 },
+	{ soul_token_fn,       "fn",       2 },
+	{ soul_token_let,      "let",      3 },
+	{ soul_token_mut,      "mut",      3 },
+	{ soul_token_if,       "if",       2 },
+	{ soul_token_else,     "else",     4 },
+	{ soul_token_for,      "for",      3 },
+	{ soul_token_while,    "while",    5 },
+	{ soul_token_continue, "continue", 8 },
+	{ soul_token_break,    "break",    5 },
+	{ soul_token_struct,   "struct",   6 },
+	{ soul_token_enum,     "enum",     4 },
+	{ soul_token_true,     "true",     4 },
+	{ soul_token_false,    "false",    5 },
+};
+
+bool soul_is_literal_token(soul_token_type_t type);
+bool soul_is_assign_token(soul_token_type_t type);
+bool soul_is_sync_token(soul_token_type_t type);
 
 #endif // LEXER_TOKEN_H

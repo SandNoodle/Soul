@@ -20,41 +20,28 @@ static bool is_alpha(char c);
 static bool is_digit(char c);
 static bool is_quotation(char c);
 
-struct soul_lexer_t
+soul_lexer_t soul_lexer_create(void)
 {
-	const char* token_start;
-	const char* current_char;
-	uint32_t current_line;
-};
-
-soul_lexer_t* soul_lexer_create(void)
-{
-	soul_lexer_t* l = (soul_lexer_t*)malloc(sizeof(soul_lexer_t));
-	l->token_start = NULL;
-	l->current_char = NULL;
-	l->current_line = 0;
-	return l;
+	soul_lexer_t lexer;
+	lexer.token_start = NULL;
+	lexer.current_char = NULL;
+	lexer.current_line = 0;
+	return lexer;
 }
 
-void soul_lexer_destroy(soul_lexer_t* lexer)
+soul_token_array_t soul_lexer_scan(soul_lexer_t* lexer, const char* str, size_t size)
 {
-	if(!lexer) return;
-	free(lexer);
-}
-
-soul_token_array_t* soul_lexer_scan(soul_lexer_t* lexer, const char* str, size_t size)
-{
-	if(!lexer) return NULL;
+	if(!lexer) return soul_token_array_create();
 
 	lexer->token_start = str;
 	lexer->current_char = str;
 
-	soul_token_array_t* array = soul_token_array_create();
+	soul_token_array_t array = soul_token_array_create();
 	for(;;)
 	{
 		soul_token_t token = lexer_scan_token(lexer);
-		soul_token_array_append(array, token);
-		if(soul_token_array_type_back(array) == soul_token_eof) break;
+		soul_token_array_append(&array, token);
+		if(soul_token_array_type_back(&array) == soul_token_eof) break;
 	}
 
 	return array;
@@ -116,7 +103,7 @@ static soul_token_t lexer_create_token(soul_lexer_t* lexer, soul_token_type_t ty
 	soul_token_t token = {
 		.type = type,
 		.start = lexer->token_start,
-		.size = (size_t)(lexer->current_char - lexer->token_start)
+		.length = (size_t)(lexer->current_char - lexer->token_start)
 	};
 	return token;
 }
@@ -126,7 +113,7 @@ static soul_token_t lexer_create_error_token(soul_lexer_t* lexer, const char* me
 	soul_token_t token = {
 		.type = soul_token_error,
 		.start = message,
-		.size = strlen(message),
+		.length = strlen(message),
 	};
 	return token;
 }

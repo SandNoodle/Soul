@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-enum soul_opcode
+typedef enum soul_opcode_t : uint8_t
 {
 	soul_op_noop, // Does nothing.
 
@@ -26,6 +26,6 @@ enum soul_opcode
 
 	// Special opcodes.
 	soul_op_halt,
-};
+} soul_opcode_t;
 
 #endif // SOUL_RUNTIME_OPCODE_H

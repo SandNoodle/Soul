@@ -18,17 +18,17 @@ typedef enum soul_token_type_t : uint8_t
 	soul_token_bracket_left, soul_token_bracket_right, // []
 
 	// One or two character tokens
-	soul_token_colon, soul_token_double_colon,         // : ::
-	soul_token_equal, soul_token_double_equal,         // = ==
-	soul_token_bang, soul_token_bang_equal,            // ! !=
-	soul_token_greater, soul_token_greater_equal,      // > >=
-	soul_token_less, soul_token_less_equal,            // < <=
-	soul_token_plus, soul_token_plus_equal,            // + +=
-	soul_token_minus, soul_token_minus_equal,          // - -=
-	soul_token_star, soul_token_star_equal,            // * *=
-	soul_token_slash, soul_token_slash_equal,          // / /=
-	soul_token_ampersand, soul_token_double_ampersand, // & &&
-	soul_token_pipe, soul_token_double_pipe,           // | ||
+	soul_token_colon, soul_token_double_colon,                         // : ::
+	soul_token_equal, soul_token_double_equal,                         // = ==
+	soul_token_bang, soul_token_bang_equal,                            // ! !=
+	soul_token_greater, soul_token_greater_equal,                      // > >=
+	soul_token_less, soul_token_less_equal,                            // < <=
+	soul_token_plus, soul_token_plus_equal, soul_token_double_plus,    // + += ++
+	soul_token_minus, soul_token_minus_equal, soul_token_double_minus, // - -= --
+	soul_token_star, soul_token_star_equal,                            // * *=
+	soul_token_slash, soul_token_slash_equal,                          // / /=
+	soul_token_ampersand, soul_token_double_ampersand,                 // & &&
+	soul_token_pipe, soul_token_double_pipe,                           // | ||
 
 	// Literals
 	soul_token_number,            // ex. 123, 3.14
@@ -58,13 +58,19 @@ struct soul_token_t
 {
 	soul_token_type_t type;
 	const char* start;
-	size_t size;
+	size_t length;
 };
 
 typedef struct soul_token_array_t soul_token_array_t;
+struct soul_token_array_t
+{
+	soul_token_t* tokens;
+	size_t size;
+	size_t capacity;
+};
 
 /** Creates a dynamic array struct that can holds tokens. */
-soul_token_array_t* soul_token_array_create(void);
+soul_token_array_t soul_token_array_create(void);
 
 /** Destroys given soul token array */
 void soul_token_array_destroy(soul_token_array_t* array);
@@ -76,7 +82,8 @@ bool soul_token_array_append(soul_token_array_t* array, soul_token_t token);
 soul_token_t soul_token_array_at(soul_token_array_t* tokens, size_t index);
 
 /** Returns type of a token at an index. */
-soul_token_type_t soul_token_array_type_at(soul_token_array_t* tokens, size_t index);
+soul_token_type_t soul_token_array_type_at(soul_token_array_t* tokens,
+										  size_t index);
 
 /** Returns type of a token currently stored at the end of an array */
 soul_token_type_t soul_token_array_type_back(soul_token_array_t* array);

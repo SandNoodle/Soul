@@ -2,19 +2,12 @@
 
 #include <stdlib.h>
 
-struct soul_token_array_t
+soul_token_array_t soul_token_array_create(void)
 {
-	soul_token_t* tokens;
-	size_t size;
-	size_t capacity;
-};
-
-soul_token_array_t* soul_token_array_create(void)
-{
-	soul_token_array_t* array = (soul_token_array_t*)malloc(sizeof(soul_token_array_t));
-	array->tokens = NULL;
-	array->size = 0;
-	array->capacity = 0;
+	soul_token_array_t array;
+	array.tokens = NULL;
+	array.size = 0;
+	array.capacity = 0;
 	return array;
 }
 
@@ -24,7 +17,6 @@ void soul_token_array_destroy(soul_token_array_t* array)
 	array->size = 0;
 	array->capacity = 0;
 	free(array->tokens);
-	free(array);
 }
 
 bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
@@ -39,6 +31,12 @@ bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
 
 	array->tokens[array->size++] = token;
 	return true;
+}
+
+soul_token_type_t soul_token_array_type_at(soul_token_array_t* array, size_t index)
+{
+	if(!array || index >= array->size) return soul_token_error;
+	return array->tokens[index].type;
 }
 
 soul_token_type_t soul_token_array_type_back(soul_token_array_t* array)

@@ -13,4 +13,6 @@ struct soul_vm_t
 /** Creates a Soul's virtual machine ready to execute given code chunks. */
 soul_vm_t soul_vm_create(void);
 
+void soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk);
+
 #endif // SOUL_RUNTIME_VM_H

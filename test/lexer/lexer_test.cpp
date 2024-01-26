@@ -152,28 +152,6 @@ namespace
 		}
 	}
 
-	TEST_F(LexerTest, Literals_Booleans)
-	{
-		const size_t expected_count = 2;
-		const char* str = "true false";
-		result_array = scan_string(str);
-
-		const char* expected_strings[expected_count] = {
-			"true", "false"
-		};
-		ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
-
-		for (size_t i = 0; i < expected_count; ++i)
-		{
-			const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
-			ASSERT_TRUE(actual_token.type, soul_token_bool);
-
-			const size_t expected_length = strlen(expected_strings[i]);
-			ASSERT_EQ(expected_length, actual_token.length);
-			ASSERT_EQ(expected_strings[i], actual_token.start);
-		}
-	}
-
 	TEST_F(LexerTest, Literals_Mix)
 	{
 		const char* str = "\"test string\" true 5.42 -3.14 false 0 \"true\"";

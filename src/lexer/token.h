@@ -33,7 +33,6 @@ typedef enum soul_token_type_t : uint8_t
 	// Literals
 	soul_token_number,            // ex. 123, 3.14
 	soul_token_string,            // ex. "test_string", 'c'
-	soul_token_bool,              // ex. true, false
 	soul_token_identifier,        // ex. my_identifier
 
 	// Keywords

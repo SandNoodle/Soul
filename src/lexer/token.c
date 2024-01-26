@@ -24,13 +24,29 @@ bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
 	if(!array) return false;
 	if(array->size + 1 > array->capacity)
 	{
-		const size_t new_capacity = array->capacity < 8 ? 8 : array->capacity * 2;
+		const size_t new_capacity = array->capacity < SOUL_ARRAY_MIN_CAPACITY
+			? SOUL_ARRAY_MIN_CAPACITY
+			: array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
 		array->tokens = (soul_token_t*)realloc(array->tokens, sizeof(soul_token_t) * new_capacity);
 		array->capacity = new_capacity;
 	}
 
 	array->tokens[array->size++] = token;
 	return true;
+}
+
+soul_token_t soul_token_array_at(soul_token_array_t* tokens, size_t index)
+{
+	if(!array || index >= array->size)
+	{
+		const char* error_message = "index out of range";
+		return (soul_token_t) {
+			.type = soul_token_error,
+			.start = error_message,
+			.length = strlen(error_message)
+		};
+	}
+	return array->tokens[index];
 }
 
 soul_token_type_t soul_token_array_type_at(soul_token_array_t* array, size_t index)

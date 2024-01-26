@@ -108,19 +108,18 @@ TEST_F(LexerTest, Literals_Numbers)
 
 	const char* expected_strings[expected_count]
 	    = { "52000", "9846435", "4.7", "0", "-0.1", "6", "-20", "-9840.8";
-}
-ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
+	ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
 
-for (size_t i = 0; i < expected_count; ++i)
-{
-	const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
-	ASSERT_TRUE(actual_token.type, soul_token_number);
+	for (size_t i = 0; i < expected_count; ++i)
+	{
+		const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
+		ASSERT_TRUE(actual_token.type, soul_token_number);
 
-	const size_t expected_length = strlen(expected_strings[i]);
-	ASSERT_EQ(expected_length, actual_token.length);
-	ASSERT_EQ(expected_strings[i], actual_token.start);
+		const size_t expected_length = strlen(expected_strings[i]);
+		ASSERT_EQ(expected_length, actual_token.length);
+		ASSERT_EQ(expected_strings[i], actual_token.start);
+	}
 }
-} // namespace soul::ut
 
 TEST_F(LexerTest, Literals_Strings)
 {
@@ -148,19 +147,18 @@ TEST_F(LexerTest, Literals_Mix)
 	result_array    = scan_string(str);
 
 	const char* expected_strings[expected_count] = {
-		"\"test string\"", "true", "5.42", "-3.14", "false", "0", "\"true\"";
-};
-ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
+	    "\"test string\"", "true", "5.42", "-3.14", "false", "0", "\"true\""};
+	ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
 
-for (size_t i = 0; i < expected_count; ++i)
-{
-	const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
-	ASSERT_TRUE(actual_token.type, soul_token_bool);
+	for (size_t i = 0; i < expected_count; ++i)
+	{
+		const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
+		ASSERT_TRUE(actual_token.type, soul_token_bool);
 
-	const size_t expected_length = strlen(expected_strings[i]);
-	ASSERT_EQ(expected_length, actual_token.length);
-	ASSERT_EQ(expected_strings[i], actual_token.start);
-}
+		const size_t expected_length = strlen(expected_strings[i]);
+		ASSERT_EQ(expected_length, actual_token.length);
+		ASSERT_EQ(expected_strings[i], actual_token.start);
+	}
 }
 
 TEST_F(LexerTest, Characters)
@@ -172,37 +170,36 @@ TEST_F(LexerTest, Characters)
 	ASSERT_NE(result_array.tokens, NULL);
 	ASSERT_EQ(result_array.size, expected_count);
 
-	const char* expected_strings[expected_count] = {
-		":", "::", "=", "==", "!", "!=", ">", ">=", "<", "<=", "+", "+=", "++",
-		"-", "-=", "--", "*", "*=", "/", "/=", "&", "&&", "|", "||";
-};
-ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
+	const char* expected_strings[expected_count]
+	    = {":",  "::", "=",  "==", "!", "!=", ">", ">=", "<", "<=", "+", "+=",
+	       "++", "-",  "-=", "--", "*", "*=", "/", "/=", "&", "&&", "|", "||"};
+	ASSERT_EQ(result_array.size, ARRAY_SIZE(expected_strings));
 
-const soul_token_type_t expected_types = {
-    soul_token_colon,       soul_token_double_colon,
-    soul_token_equal,       soul_token_double_equal,
-    soul_token_bang,        soul_token_bang_equal,
-    soul_token_greater,     soul_token_greater_equal,
-    soul_token_less,        soul_token_less_equal,
-    soul_token_plus,        soul_token_plus_equal,
-    soul_token_double_plus, soul_token_minus,
-    soul_token_minus_equal, soul_token_double_minus,
-    soul_token_star,        soul_token_star_equal,
-    soul_token_slash,       soul_token_slash_equal,
-    soul_token_ampersand,   soul_token_double_ampersand,
-    soul_token_pipe,        soul_token_double_pipe,
-};
+	const soul_token_type_t expected_types = {
+	    soul_token_colon,       soul_token_double_colon,
+	    soul_token_equal,       soul_token_double_equal,
+	    soul_token_bang,        soul_token_bang_equal,
+	    soul_token_greater,     soul_token_greater_equal,
+	    soul_token_less,        soul_token_less_equal,
+	    soul_token_plus,        soul_token_plus_equal,
+	    soul_token_double_plus, soul_token_minus,
+	    soul_token_minus_equal, soul_token_double_minus,
+	    soul_token_star,        soul_token_star_equal,
+	    soul_token_slash,       soul_token_slash_equal,
+	    soul_token_ampersand,   soul_token_double_ampersand,
+	    soul_token_pipe,        soul_token_double_pipe,
+	};
 
-ASSERT_EQ(ARRAY_SIZE(expected_types), ARRAY_SIZE(expected_strings));
+	ASSERT_EQ(ARRAY_SIZE(expected_types), ARRAY_SIZE(expected_strings));
 
-for (size_t i = 0; i < expected_count; ++i)
-{
-	const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
-	ASSERT_TRUE(actual_token.type, expected_types[i]);
+	for (size_t i = 0; i < expected_count; ++i)
+	{
+		const soul_token_t acutal_token = soul_token_array_at(&result_array, i);
+		ASSERT_TRUE(actual_token.type, expected_types[i]);
 
-	const size_t expected_length = strlen(expected_strings[i]);
-	ASSERT_EQ(expected_length, actual_token.length);
-	ASSERT_EQ(expected_strings[i], actual_token.start);
-}
+		const size_t expected_length = strlen(expected_strings[i]);
+		ASSERT_EQ(expected_length, actual_token.length);
+		ASSERT_EQ(expected_strings[i], actual_token.start);
+	}
 }
 }

@@ -6,6 +6,7 @@
 //       directory and verify if given case should fail or not given its suffix.
 namespace soul::mt
 {
+
 class LexerTest : public ::testing::TestWithParam<Case>
 {
   public:
@@ -16,4 +17,5 @@ class LexerTest : public ::testing::TestWithParam<Case>
 
 	void TearDown() override { soul_token_array_destroy(&array); }
 };
+
 } // namespace soul::mt

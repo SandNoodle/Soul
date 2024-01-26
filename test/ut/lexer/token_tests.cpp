@@ -7,13 +7,9 @@ namespace soul::ut
 class TokenArrayTest : public ::testing::Test
 {
   public:
-	soul_token_array_t array
+	soul_token_array_t array;
 
-	    void
-	    SetUp() override
-	{
-		array = soul_token_array_create();
-	}
+	void SetUp() override { array = soul_token_array_create(); }
 
 	void TearDown() override { soul_token_array_destroy(&array); }
 };

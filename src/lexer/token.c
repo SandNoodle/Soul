@@ -26,8 +26,8 @@ bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
 	{
 		const size_t new_capacity
 		    = array->capacity < SOUL_ARRAY_MIN_CAPACITY
-		          ? SOUL_ARRAY_MIN_CAPACITY
-		          : array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
+		        ? SOUL_ARRAY_MIN_CAPACITY
+		        : array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
 		array->tokens = (soul_token_t*)realloc(
 		    array->tokens, sizeof(soul_token_t) * new_capacity);
 		array->capacity = new_capacity;
@@ -64,23 +64,37 @@ soul_token_type_t soul_token_array_type_back(soul_token_array_t* array)
 
 bool soul_is_literal_token(soul_token_type_t type)
 {
-	return type == soul_token_identifier || type == soul_token_number
-	       || type == soul_token_true || type == soul_token_false
-	       || type == soul_token_string;
+	// clang-format off
+	return type == soul_token_identifier
+		|| type == soul_token_number
+	    || type == soul_token_true
+		|| type == soul_token_false
+	    || type == soul_token_string;
+	// clang-format on
 }
 
 bool soul_is_assign_token(soul_token_type_t type)
 {
-	return type == soul_token_equal || type == soul_token_plus_equal
-	       || type == soul_token_minus_equal || type == soul_token_star_equal
-	       || type == soul_token_slash_equal;
+	// clang-format off
+	return type == soul_token_equal
+		|| type == soul_token_plus_equal
+	    || type == soul_token_minus_equal
+		|| type == soul_token_star_equal
+	    || type == soul_token_slash_equal;
+	// clang-format on
 }
 
 bool soul_is_sync_token(soul_token_type_t type)
 {
-	return type == soul_token_fn || type == soul_token_let
-	       || type == soul_token_if || type == soul_token_for
-	       || type == soul_token_while || type == soul_token_return
-	       || type == soul_token_struct || type == soul_token_enum
-	       || type == soul_token_brace_left; // Blocks
+	// clang-format off
+	return type == soul_token_fn
+		|| type == soul_token_let
+	    || type == soul_token_if
+		|| type == soul_token_for
+	    || type == soul_token_while
+		|| type == soul_token_return
+	    || type == soul_token_struct
+		|| type == soul_token_enum
+	    || type == soul_token_brace_left; // Scopes
+	// clang-format on
 }

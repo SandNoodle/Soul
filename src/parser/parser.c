@@ -484,7 +484,7 @@ static void parser_synchronize(soul_parser_t* parser)
 static bool parser_match(soul_parser_t* parser, soul_token_type_t type)
 {
 	return soul_token_array_type_at(parser->token_array, parser->current_token)
-	       == type;
+	    == type;
 }
 
 static bool parser_match_any(soul_parser_t* parser, soul_token_type_t* types,

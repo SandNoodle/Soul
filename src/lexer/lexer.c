@@ -64,64 +64,38 @@ static soul_token_t lexer_scan_token(soul_lexer_t* lexer)
 
 	switch (c)
 	{
-// Single character tokens
-#define MAKE_SINGLE_CHAR_TOKEN(type) return lexer_create_token(lexer, (type))
-		case ';':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_semicolon);
-		case '?':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_question_mark);
-		case '%':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_percent);
-		case '.':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_dot);
-		case ',':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_comma);
-		case '(':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_paren_left);
-		case ')':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_paren_right);
-		case '{':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_brace_left);
-		case '}':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_brace_right);
-		case '[':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_bracket_left);
-		case ']':
-			MAKE_SINGLE_CHAR_TOKEN(soul_token_bracket_right);
+		// clang-format off
+		// Single character tokens
+		#define MAKE_SINGLE_CHAR_TOKEN(type) return lexer_create_token(lexer, (type))
+		case ';': MAKE_SINGLE_CHAR_TOKEN(soul_token_semicolon);
+		case '?': MAKE_SINGLE_CHAR_TOKEN(soul_token_question_mark);
+		case '%': MAKE_SINGLE_CHAR_TOKEN(soul_token_percent);
+		case '.': MAKE_SINGLE_CHAR_TOKEN(soul_token_dot);
+		case ',': MAKE_SINGLE_CHAR_TOKEN(soul_token_comma);
+		case '(': MAKE_SINGLE_CHAR_TOKEN(soul_token_paren_left);
+		case ')': MAKE_SINGLE_CHAR_TOKEN(soul_token_paren_right);
+		case '{': MAKE_SINGLE_CHAR_TOKEN(soul_token_brace_left);
+		case '}': MAKE_SINGLE_CHAR_TOKEN(soul_token_brace_right);
+		case '[': MAKE_SINGLE_CHAR_TOKEN(soul_token_bracket_left);
+		case ']': MAKE_SINGLE_CHAR_TOKEN(soul_token_bracket_right);
 
-// One or two character tokens
-#define MAKE_MULTI_CHAR_TOKEN(next_char, type_match, type_not_match)           \
-	return lexer_create_token(lexer, lexer_match_next(lexer, (next_char))      \
-	                                     ? (type_match)                        \
+		// One or two character tokens
+		#define MAKE_MULTI_CHAR_TOKEN(next_char, type_match, type_not_match)           \
+			return lexer_create_token(lexer, lexer_match_next(lexer, (next_char))      \
+	                                     ? (type_match)                                \
 	                                     : (type_not_match))
-		case ':':
-			MAKE_MULTI_CHAR_TOKEN(':', soul_token_double_colon,
-			                      soul_token_colon);
-		case '=':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_double_equal,
-			                      soul_token_equal);
-		case '!':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_bang_equal, soul_token_bang);
-		case '>':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_greater_equal,
-			                      soul_token_greater);
-		case '<':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_less_equal, soul_token_less);
-		case '+':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_plus_equal, soul_token_plus);
-		case '-':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_minus_equal,
-			                      soul_token_minus);
-		case '*':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_star_equal, soul_token_star);
-		case '/':
-			MAKE_MULTI_CHAR_TOKEN('=', soul_token_slash_equal,
-			                      soul_token_slash);
-		case '&':
-			MAKE_MULTI_CHAR_TOKEN('&', soul_token_double_ampersand,
-			                      soul_token_ampersand);
-		case '|':
-			MAKE_MULTI_CHAR_TOKEN('|', soul_token_double_pipe, soul_token_pipe);
+		case ':': MAKE_MULTI_CHAR_TOKEN(':', soul_token_double_colon, soul_token_colon);
+		case '=': MAKE_MULTI_CHAR_TOKEN('=', soul_token_double_equal, soul_token_equal);
+		case '!': MAKE_MULTI_CHAR_TOKEN('=', soul_token_bang_equal, soul_token_bang);
+		case '>': MAKE_MULTI_CHAR_TOKEN('=', soul_token_greater_equal, soul_token_greater);
+		case '<': MAKE_MULTI_CHAR_TOKEN('=', soul_token_less_equal, soul_token_less);
+		case '+': MAKE_MULTI_CHAR_TOKEN('=', soul_token_plus_equal, soul_token_plus);
+		case '-': MAKE_MULTI_CHAR_TOKEN('=', soul_token_minus_equal, soul_token_minus);
+		case '*': MAKE_MULTI_CHAR_TOKEN('=', soul_token_star_equal, soul_token_star);
+		case '/': MAKE_MULTI_CHAR_TOKEN('=', soul_token_slash_equal, soul_token_slash);
+		case '&': MAKE_MULTI_CHAR_TOKEN('&', soul_token_double_ampersand, soul_token_ampersand);
+		case '|': MAKE_MULTI_CHAR_TOKEN('|', soul_token_double_pipe, soul_token_pipe);
+		// clang-format on
 		default:
 			break;
 	}

@@ -9,7 +9,7 @@
 //       This way we don't have to maintain them manually.
 //       Signature:
 //          soul_string_array_t split_string(const char* str, size_t length);
-namespace
+namespace soul::ut
 {
 	#define ARRAY_SIZE(x) sizeof((x)) / sizeof((x)[0])
 

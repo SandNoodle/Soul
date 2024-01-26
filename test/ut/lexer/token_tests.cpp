@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-namespace 
+namespace soul::ut
 {
 	class TokenArrayTest : public ::testing::Test {
 		public:

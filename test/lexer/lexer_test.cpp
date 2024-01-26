@@ -29,7 +29,7 @@ namespace
 				soul_token_array_destroy(&array);
 			}
 
-			soul_token_array_t foo(const char* str)
+			soul_token_array_t scan_string(const char* str)
 			{
 				const size_t str_size = strlen(str);
 				return soul_lexer_scan(&lexer, str, str_size);
@@ -39,7 +39,7 @@ namespace
 	TEST_F(LexerTest, EmptyString)
 	{
 		const char* str = "";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		ASSERT_EQ(result_array.tokens, NULL);
 		ASSERT_EQ(result_array.size, 0);
@@ -49,7 +49,7 @@ namespace
 	TEST_F(LexerTest, EndOfFile)
 	{
 		const char* str = "\0";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		ASSERT_NE(result_array.tokens, NULL);
 		ASSERT_EQ(result_array.size, 1);
@@ -59,7 +59,7 @@ namespace
 	TEST_F(LexerTest, Comments)
 	{
 		const char* str = "# This is a comment and should be ignored.";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		ASSERT_EQ(result_array.tokens, NULL);
 		ASSERT_EQ(result_array.size, 0);
@@ -70,7 +70,7 @@ namespace
 	{
 		// This string below is not a valid token in this language.
 		const char* str = "$";
-		result_array = foo(str);
+		result_array = scan_string(str);
 		ASSERT_EQ(result_array.size, 1);
 
 		const char* error_message = "unrecognized token";
@@ -84,7 +84,7 @@ namespace
 	{
 		// String has to match with order the keywords specified in token.h
 		const char* str = "native import define fn let mut if else for while continue break struct enum true false";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		soul_token_type_t expected_types[soul_token_keywords_size] = {
 			soul_token_native,
@@ -112,7 +112,7 @@ namespace
 	{
 		const size_t expected_count = 8;
 		const char* str = "52000 9846435 4.7 0 -0.1 6 -20 -9840.8";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		const char* expected_strings[expected_count] = {
 			"52000", "9846435", "4.7", "0", "-0.1", "6", "-20", "-9840.8";
@@ -134,7 +134,7 @@ namespace
 	{
 		const size_t expected_count = 2;
 		const char* str = "\"test string\" \"\"";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		const char* expected_strings[expected_count] = {
 			"\"test string\"", ""
@@ -156,7 +156,7 @@ namespace
 	{
 		const size_t expected_count = 2;
 		const char* str = "true false";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		const char* expected_strings[expected_count] = {
 			"true", "false"
@@ -177,7 +177,7 @@ namespace
 	TEST_F(LexerTest, Literals_Mix)
 	{
 		const char* str = "\"test string\" true 5.42 -3.14 false 0 \"true\"";
-		result_array = foo(str);
+		result_array = scan_string(str);
 
 		const char* expected_strings[expected_count] = {
 			"\"test string\"", "true", "5.42", "-3.14", "false", "0", "\"true\"";
@@ -199,7 +199,7 @@ namespace
 	{
 		const size_t expected_count = 33;
 		const char* str = ": :: = == ! != > >= < <= + += ++ - -= -- * *= / /= & && | ||";
-		result_array = foo(str);
+		result_array = scan_string(str);
 		ASSERT_NE(result_array.tokens, NULL);
 		ASSERT_EQ(result_array.size, expected_count);
 

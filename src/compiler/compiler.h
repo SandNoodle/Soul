@@ -15,6 +15,7 @@ struct soul_compiler_t
 /** Creates compiler ready for compiling AST into a VM's bytecode. */
 soul_compiler_t soul_compiler_create(void);
 
-struct soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler, struct soul_ast_node_t* root);
+struct soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler,
+                                          struct soul_ast_node_t* root);
 
 #endif // SOUL_COMPILER_COMPILER_H

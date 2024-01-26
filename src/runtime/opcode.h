@@ -21,8 +21,14 @@ typedef enum soul_opcode_t : uint8_t
 	soul_op_jump_true,  // Conditional jump when true
 
 	// Arithmetic
-	soul_op_addi, soul_op_subi, soul_op_muli, soul_op_divi, // Integer
-	soul_op_addf, soul_op_subf, soul_op_mulf, soul_op_divf, // Real
+	soul_op_addi,
+	soul_op_subi,
+	soul_op_muli,
+	soul_op_divi, // Integer
+	soul_op_addf,
+	soul_op_subf,
+	soul_op_mulf,
+	soul_op_divf, // Real
 
 	// Special opcodes.
 	soul_op_halt,

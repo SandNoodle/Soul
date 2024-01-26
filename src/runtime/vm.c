@@ -11,9 +11,9 @@ soul_vm_t soul_vm_create(void)
 
 void soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 {
-	for(;;)
+	for (;;)
 	{
-		switch(chunk->code[vm->ip])
+		switch (chunk->code[vm->ip])
 		{
 			case soul_op_noop:
 				vm->ip++;

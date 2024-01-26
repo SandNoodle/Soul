@@ -1,19 +1,20 @@
 #include "ast.h"
 
+#include <stdio.h> // @TODO TEMP
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h> // @TODO TEMP
 
 #include "token.h"
 
 // @TODO: Move out into a config file.
 #define SOUL_AST_NODE_ARRAY_MIN_CAPACITY 8
 
-soul_ast_node_identifier_t soul_ast_node_identifier_create(const char* string, size_t size)
+soul_ast_node_identifier_t soul_ast_node_identifier_create(const char* string,
+                                                           size_t size)
 {
 	soul_ast_node_identifier_t id;
 	id.length = size;
-	id.str = (char*)malloc(sizeof(char) * id.length + 1);
+	id.str    = (char*)malloc(sizeof(char) * id.length + 1);
 	memcpy(id.str, string, id.length);
 	id.str[id.length] = '\0';
 	return id;
@@ -21,44 +22,48 @@ soul_ast_node_identifier_t soul_ast_node_identifier_create(const char* string, s
 
 void soul_ast_node_identifier_destroy(soul_ast_node_identifier_t* id)
 {
-	if(!id) return;
+	if (!id) return;
 	free(id->str);
 }
 
 void soul_ast_node_array_initialize(soul_ast_node_array_t* arr)
 {
-	if(!arr) return;
-	arr->size = 0;
+	if (!arr) return;
+	arr->size     = 0;
 	arr->capacity = SOUL_AST_NODE_ARRAY_MIN_CAPACITY;
-	arr->nodes = (soul_ast_node_t**)malloc(sizeof(soul_ast_node_t*) * arr->capacity);
+	arr->nodes
+	    = (soul_ast_node_t**)malloc(sizeof(soul_ast_node_t*) * arr->capacity);
 }
 
-void soul_ast_node_array_append(soul_ast_node_array_t* arr, soul_ast_node_t* node)
+void soul_ast_node_array_append(soul_ast_node_array_t* arr,
+                                soul_ast_node_t* node)
 {
-	if(!arr || !node) return;
-	if(arr->size + 1 > arr->capacity)
+	if (!arr || !node) return;
+	if (arr->size + 1 > arr->capacity)
 	{
 		const size_t new_capacity = arr->capacity >= 8 ? arr->capacity * 2 : 8;
-		arr->capacity = new_capacity;
-		arr->nodes = (soul_ast_node_t**)realloc(arr->nodes, sizeof(soul_ast_node_t*) * new_capacity);
+		arr->capacity             = new_capacity;
+		arr->nodes                = (soul_ast_node_t**)realloc(
+            arr->nodes, sizeof(soul_ast_node_t*) * new_capacity);
 	}
 	arr->nodes[arr->size++] = node;
 }
 
 void soul_ast_node_array_clear(soul_ast_node_array_t* arr)
 {
-	if(!arr) return;
-	for(size_t i = 0; i < arr->size; ++i)
+	if (!arr) return;
+	for (size_t i = 0; i < arr->size; ++i)
 	{
 		soul_ast_node_destroy(arr->nodes[i]);
 	}
 }
 
-soul_ast_node_operator_t soul_token_type_to_operator(enum soul_token_type_t type)
+soul_ast_node_operator_t soul_token_type_to_operator(
+    enum soul_token_type_t type)
 {
-	switch(type)
+	switch (type)
 	{
-		case soul_token_plus_equal: 
+		case soul_token_plus_equal:
 		case soul_token_plus:
 			return soul_ast_op_add;
 		case soul_token_minus:
@@ -103,15 +108,15 @@ soul_ast_node_operator_t soul_token_type_to_operator(enum soul_token_type_t type
 soul_ast_node_t* soul_ast_node_create(soul_ast_node_type_t type)
 {
 	soul_ast_node_t* node = (soul_ast_node_t*)malloc(sizeof(soul_ast_node_t));
-	node->type = type;
+	node->type            = type;
 	return node;
 }
 
 // @TODO: Destroy
 void soul_ast_node_destroy(soul_ast_node_t* node)
 {
-	if(!node) return;
-	switch(node->type)
+	if (!node) return;
+	switch (node->type)
 	{
 		case soul_ast_expr_assign:
 			soul_ast_node_destroy(node->as.expr_assign.lhs);
@@ -164,32 +169,36 @@ void soul_ast_node_destroy(soul_ast_node_t* node)
 	soul_ast_node_destroy(node);
 }
 
-soul_ast_node_t* soul_ast_node_create_assign_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs)
+soul_ast_node_t* soul_ast_node_create_assign_expression(soul_ast_node_t* lhs,
+                                                        soul_ast_node_t* rhs)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_assign);
+	soul_ast_node_t* node    = soul_ast_node_create(soul_ast_expr_assign);
 	node->as.expr_assign.lhs = lhs;
 	node->as.expr_assign.rhs = rhs;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_unary_expression(soul_ast_node_t* expr, soul_ast_node_operator_t op)
+soul_ast_node_t* soul_ast_node_create_unary_expression(
+    soul_ast_node_t* expr, soul_ast_node_operator_t op)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_unary);
+	soul_ast_node_t* node    = soul_ast_node_create(soul_ast_expr_unary);
 	node->as.expr_unary.expr = expr;
-	node->as.expr_unary.op = op;
+	node->as.expr_unary.op   = op;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_binary_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs, soul_ast_node_operator_t op)
+soul_ast_node_t* soul_ast_node_create_binary_expression(
+    soul_ast_node_t* lhs, soul_ast_node_t* rhs, soul_ast_node_operator_t op)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_binary);
+	soul_ast_node_t* node    = soul_ast_node_create(soul_ast_expr_binary);
 	node->as.expr_binary.lhs = lhs;
 	node->as.expr_binary.rhs = rhs;
-	node->as.expr_binary.op = op;
+	node->as.expr_binary.op  = op;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_variable_literal_expression(soul_ast_node_identifier_t identifier)
+soul_ast_node_t* soul_ast_node_create_variable_literal_expression(
+    soul_ast_node_identifier_t identifier)
 {
 	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_var_literal);
 	node->as.expr_literal_variable.id = identifier;
@@ -210,77 +219,89 @@ soul_ast_node_t* soul_ast_node_create_number_literal_expression(int64_t val)
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_string_literal_expression(soul_ast_node_identifier_t val)
+soul_ast_node_t* soul_ast_node_create_string_literal_expression(
+    soul_ast_node_identifier_t val)
 {
 	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_string_literal);
 	node->as.expr_literal_string.val = val;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_expression_statement(soul_ast_node_t* stmt)
+soul_ast_node_t* soul_ast_node_create_expression_statement(
+    soul_ast_node_t* stmt)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_expr_stmt);
+	soul_ast_node_t* node   = soul_ast_node_create(soul_ast_expr_stmt);
 	node->as.expr_stmt.stmt = stmt;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_variable_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* expr, bool is_mutable)
+soul_ast_node_t* soul_ast_node_create_variable_decl_statement(
+    soul_ast_node_identifier_t id, soul_ast_node_identifier_t type,
+    soul_ast_node_t* expr, bool is_mutable)
 {
 	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_variable_decl);
-	node->as.stmt_variable_decl.id = id;
-	node->as.stmt_variable_decl.type = type;
-	node->as.stmt_variable_decl.expr = expr;
+	node->as.stmt_variable_decl.id         = id;
+	node->as.stmt_variable_decl.type       = type;
+	node->as.stmt_variable_decl.expr       = expr;
 	node->as.stmt_variable_decl.is_mutable = is_mutable;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_function_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* body, soul_ast_node_array_t params)
+soul_ast_node_t* soul_ast_node_create_function_decl_statement(
+    soul_ast_node_identifier_t id, soul_ast_node_identifier_t type,
+    soul_ast_node_t* body, soul_ast_node_array_t params)
 {
 	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_function_decl);
-	node->as.stmt_function_decl.id = id;
-	node->as.stmt_function_decl.type = type;
+	node->as.stmt_function_decl.id     = id;
+	node->as.stmt_function_decl.type   = type;
 	node->as.stmt_function_decl.params = params;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_if_statement(soul_ast_node_t* condition, soul_ast_node_t* then_body, soul_ast_node_t* else_body)
+soul_ast_node_t* soul_ast_node_create_if_statement(soul_ast_node_t* condition,
+                                                   soul_ast_node_t* then_body,
+                                                   soul_ast_node_t* else_body)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_if);
+	soul_ast_node_t* node      = soul_ast_node_create(soul_ast_stmt_if);
 	node->as.stmt_if.condition = condition;
 	node->as.stmt_if.then_body = then_body;
 	node->as.stmt_if.else_body = else_body;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_for_statement(soul_ast_node_t* initializer, soul_ast_node_t* condition, soul_ast_node_t* increment_stmt, soul_ast_node_t* body)
+soul_ast_node_t* soul_ast_node_create_for_statement(
+    soul_ast_node_t* initializer, soul_ast_node_t* condition,
+    soul_ast_node_t* increment_stmt, soul_ast_node_t* body)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_for);
-	node->as.stmt_for.initializer = initializer;
-	node->as.stmt_for.condition = condition;
+	soul_ast_node_t* node            = soul_ast_node_create(soul_ast_stmt_for);
+	node->as.stmt_for.initializer    = initializer;
+	node->as.stmt_for.condition      = condition;
 	node->as.stmt_for.increment_stmt = increment_stmt;
-	node->as.stmt_for.body = body;
+	node->as.stmt_for.body           = body;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_while_statement(soul_ast_node_t* condition, soul_ast_node_t* body)
+soul_ast_node_t* soul_ast_node_create_while_statement(
+    soul_ast_node_t* condition, soul_ast_node_t* body)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_while);
+	soul_ast_node_t* node         = soul_ast_node_create(soul_ast_stmt_while);
 	node->as.stmt_while.condition = condition;
-	node->as.stmt_while.body = body;
+	node->as.stmt_while.body      = body;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_block_statement(soul_ast_node_array_t statements)
+soul_ast_node_t* soul_ast_node_create_block_statement(
+    soul_ast_node_array_t statements)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_block);
+	soul_ast_node_t* node     = soul_ast_node_create(soul_ast_stmt_block);
 	node->as.stmt_block.stmts = statements;
 	return node;
 }
 
-soul_ast_node_t* soul_ast_node_create_return_statement(soul_ast_node_t* return_expr)
+soul_ast_node_t* soul_ast_node_create_return_statement(
+    soul_ast_node_t* return_expr)
 {
-	soul_ast_node_t* node = soul_ast_node_create(soul_ast_stmt_return);
+	soul_ast_node_t* node     = soul_ast_node_create(soul_ast_stmt_return);
 	node->as.stmt_return.expr = return_expr;
 	return node;
 }
-

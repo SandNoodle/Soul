@@ -36,6 +36,7 @@ soul_type_checker_t soul_type_checker_create(void);
  * @param root root of the AST.
  * @return result of the type checking.
  */
-soul_type_checker_result_t soul_type_checker_analyze(soul_type_checker_t* type_checker, struct soul_ast_node_t* root);
+soul_type_checker_result_t soul_type_checker_analyze(
+    soul_type_checker_t* type_checker, struct soul_ast_node_t* root);
 
 #endif // SOUL_AST_TYPE_CHECKER_H

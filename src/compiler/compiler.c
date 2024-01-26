@@ -1,20 +1,24 @@
 #include "compiler.h"
 
-#include "soul_config.h"
 #include "ast/ast.h"
 #include "runtime/chunk.h"
 #include "runtime/opcode.h"
+#include "soul_config.h"
 
 #include <stdlib.h>
 
 // Expressions
-static void compiler_compile_unary_expression(soul_compiler_t*, soul_ast_node_t*);
-static void compiler_compile_binary_expression(soul_compiler_t*, soul_ast_node_t*);
-static void compiler_compile_bool_literal_expression(soul_compiler_t*, soul_ast_node_t*);
+static void compiler_compile_unary_expression(soul_compiler_t*,
+                                              soul_ast_node_t*);
+static void compiler_compile_binary_expression(soul_compiler_t*,
+                                               soul_ast_node_t*);
+static void compiler_compile_bool_literal_expression(soul_compiler_t*,
+                                                     soul_ast_node_t*);
 
 // Statements
 static void compiler_compile_if_statement(soul_compiler_t*, soul_ast_node_t*);
-static void compiler_compile_block_statement(soul_compiler_t*, soul_ast_node_t*);
+static void compiler_compile_block_statement(soul_compiler_t*,
+                                             soul_ast_node_t*);
 
 // Utils
 void compiler_enter_scope(soul_compiler_t*);
@@ -31,10 +35,11 @@ soul_compiler_t soul_compiler_create(void)
 	return compiler;
 }
 
-static void compiler_compile_node(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_node(soul_compiler_t* compiler,
+                                  soul_ast_node_t* node)
 {
 	// @TODO:
-	switch(node->type)
+	switch (node->type)
 	{
 		case soul_ast_expr_assign:
 			break;
@@ -65,9 +70,10 @@ static void compiler_compile_node(soul_compiler_t* compiler, soul_ast_node_t* no
 	}
 }
 
-static void compiler_compile_operand(soul_compiler_t* compiler, soul_ast_node_operator_t op)
+static void compiler_compile_operand(soul_compiler_t* compiler,
+                                     soul_ast_node_operator_t op)
 {
-	switch(op)
+	switch (op)
 	{
 		// @TODO:
 		default:
@@ -76,26 +82,31 @@ static void compiler_compile_operand(soul_compiler_t* compiler, soul_ast_node_op
 	}
 }
 
-static void compiler_compile_unary_expression(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_unary_expression(soul_compiler_t* compiler,
+                                              soul_ast_node_t* node)
 {
 	compiler_compile_node(compiler, node->as.expr_unary.expr);
 	compiler_compile_operand(compiler, node->as.expr_unary.op);
 }
 
-static void compiler_compile_binary_expression(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_binary_expression(soul_compiler_t* compiler,
+                                               soul_ast_node_t* node)
 {
 	compiler_compile_node(compiler, node->as.expr_binary.lhs);
 	compiler_compile_node(compiler, node->as.expr_binary.rhs);
 	compiler_compile_operand(compiler, node->as.expr_binary.op);
 }
 
-static void compiler_compile_bool_literal_expression(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_bool_literal_expression(soul_compiler_t* compiler,
+                                                     soul_ast_node_t* node)
 {
-	soul_opcode_t value = node->as.expr_literal_bool.val ? soul_op_push_true : soul_op_push_false;
+	soul_opcode_t value = node->as.expr_literal_bool.val ? soul_op_push_true
+	                                                     : soul_op_push_false;
 	compiler_emit_opcode(compiler, value);
 }
 
-static void compiler_compile_if_statement(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_if_statement(soul_compiler_t* compiler,
+                                          soul_ast_node_t* node)
 {
 	// Condition
 	compiler_compile_node(compiler, node->as.stmt_if.condition);
@@ -112,7 +123,7 @@ static void compiler_compile_if_statement(soul_compiler_t* compiler, soul_ast_no
 	compiler_patch_short(compiler, jump_address, current_address);
 
 	// (Optional) Else branch
-	if(node->as.stmt_if.else_body)
+	if (node->as.stmt_if.else_body)
 	{
 		jump_address = compiler_get_current_address(compiler);
 		compiler_compile_node(compiler, node->as.stmt_if.else_body);
@@ -121,23 +132,25 @@ static void compiler_compile_if_statement(soul_compiler_t* compiler, soul_ast_no
 	}
 }
 
-static void compiler_compile_block_statement(soul_compiler_t* compiler, soul_ast_node_t* node)
+static void compiler_compile_block_statement(soul_compiler_t* compiler,
+                                             soul_ast_node_t* node)
 {
 	compiler_enter_scope(compiler);
 	soul_ast_node_array_t* statements = &node->as.stmt_block.stmts;
-	for(size_t i = 0; i < statements->size; ++i)
+	for (size_t i = 0; i < statements->size; ++i)
 	{
 		compiler_compile_node(compiler, statements->nodes[i]);
 	}
 	compiler_exit_scope(compiler);
 }
 
-soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler, soul_ast_node_t* root)
+soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler,
+                                   soul_ast_node_t* root)
 {
-	if(!compiler || !root) return soul_chunk_create();
+	if (!compiler || !root) return soul_chunk_create();
 
 	soul_chunk_t chunk = soul_chunk_create();
-	compiler->chunk = &chunk;
+	compiler->chunk    = &chunk;
 	compiler_compile_node(compiler, root);
 
 	return chunk;
@@ -159,7 +172,8 @@ void compiler_emit_short(soul_compiler_t* compiler, uint16_t s)
 	// @TODO
 }
 
-void compiler_patch_short(soul_compiler_t* compiler, uint32_t address, uint16_t value)
+void compiler_patch_short(soul_compiler_t* compiler, uint32_t address,
+                          uint16_t value)
 {
 	// @TODO
 }
@@ -169,4 +183,3 @@ uint32_t compiler_get_current_address(soul_compiler_t* compiler)
 	// @TODO
 	return 0;
 }
-

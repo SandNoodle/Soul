@@ -23,6 +23,7 @@ soul_lexer_t soul_lexer_create(void);
  * @param size size of the string.
  * @return array of scanned tokens if successful, or nullptr otherwise.
  */
-struct soul_token_array_t soul_lexer_scan(soul_lexer_t* lexer, const char* str, size_t size);
+struct soul_token_array_t soul_lexer_scan(soul_lexer_t* lexer, const char* str,
+                                          size_t size);
 
 #endif // SOUL_LEXER_LEXER_H

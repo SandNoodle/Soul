@@ -1,5 +1,6 @@
 #include "vm.h"
 
+#include "opcode.h"
 #include "chunk.h"
 
 soul_vm_t soul_vm_create(void)

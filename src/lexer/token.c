@@ -1,6 +1,9 @@
 #include "token.h"
 
+#include "soul_config.h"
+
 #include <stdlib.h>
+#include <string.h>
 
 soul_token_array_t soul_token_array_create(void)
 {
@@ -37,7 +40,7 @@ bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
 	return true;
 }
 
-soul_token_t soul_token_array_at(soul_token_array_t* tokens, size_t index)
+soul_token_t soul_token_array_at(soul_token_array_t* array, size_t index)
 {
 	if (!array || index >= array->size)
 	{

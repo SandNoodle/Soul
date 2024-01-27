@@ -62,6 +62,34 @@ struct soul_token_t
 	size_t length;
 };
 
+typedef struct soul_token_keyword_t soul_token_keyword_t;
+struct soul_token_keyword_t
+{
+	soul_token_type_t type;
+	const char* start;
+	size_t      length;
+};
+
+#define soul_token_keywords_size 16
+static const soul_token_keyword_t soul_keywords[soul_token_keywords_size] = {
+	{ soul_token_native,   "native",   6 },
+	{ soul_token_import,   "import",   6 },
+	{ soul_token_define,   "define",   6 },
+	{ soul_token_fn,       "fn",       2 },
+	{ soul_token_let,      "let",      3 },
+	{ soul_token_mut,      "mut",      3 },
+	{ soul_token_if,       "if",       2 },
+	{ soul_token_else,     "else",     4 },
+	{ soul_token_for,      "for",      3 },
+	{ soul_token_while,    "while",    5 },
+	{ soul_token_continue, "continue", 8 },
+	{ soul_token_break,    "break",    5 },
+	{ soul_token_struct,   "struct",   6 },
+	{ soul_token_enum,     "enum",     4 },
+	{ soul_token_true,     "true",     4 },
+	{ soul_token_false,    "false",    5 },
+};
+
 bool soul_is_literal_token(soul_token_type_t type);
 bool soul_is_assign_token(soul_token_type_t type);
 bool soul_is_sync_token(soul_token_type_t type);

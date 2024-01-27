@@ -56,6 +56,7 @@ static soul_token_t lexer_scan_token(soul_lexer_t* lexer)
 {
 	lexer_skip_whitespace(lexer);
 
+	lexer->token_start = lexer->current_char;
 	char c = lexer_advance(lexer);
 	if (is_eof(c)) return lexer_create_token(lexer, soul_token_eof);
 	if (is_alpha(c)) return lexer_create_identifier_token(lexer);
@@ -126,12 +127,11 @@ static soul_token_t lexer_create_error_token(soul_lexer_t* lexer,
 
 static soul_token_t lexer_create_identifier_token(soul_lexer_t* lexer)
 {
-	bool peek_next_char = true;
-	while (peek_next_char)
+	char c = lexer_peek(lexer);
+	while (is_alpha(c) || is_digit(c))
 	{
 		lexer_advance(lexer);
-		char c         = lexer_peek(lexer);
-		peek_next_char = is_alpha(c) || is_digit(c);
+		c = lexer_peek(lexer);
 	}
 
 	// Check for keywords.

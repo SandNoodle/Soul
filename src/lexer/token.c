@@ -5,6 +5,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+const char* soul_token_type_to_string(soul_token_type_t type)
+{
+	// IMPORTANT: This function assumes strict order between token types for ranges.
+	//            They HAVE to match.
+	if(type >= soul_token_semicolon && type <= soul_token_double_pipe)
+		return "operator";
+
+	if(type >= soul_token_native && type <= soul_token_false)
+		return "keyword";
+
+	// Literals
+	if(type == soul_token_number) return "number";
+	if(type == soul_token_string) return "string";
+	if(type == soul_token_identifier) return "identifier";
+
+	// Special tokens
+	if(type == soul_token_error) return "__ERROR__";
+	if(type == soul_token_eof) return "__EOF__";
+
+	return "unknown";
+}
+
 soul_token_array_t soul_token_array_create(void)
 {
 	soul_token_array_t array;

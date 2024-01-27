@@ -90,8 +90,16 @@ static const soul_token_keyword_t soul_keywords[soul_token_keywords_size] = {
 	{ soul_token_false,    "false",    5 },
 };
 
+/** Converts given token type as a string. */
+const char* soul_token_type_to_string(soul_token_type_t type);
+
+/** Returns true if given token's type is of a literal type. */
 bool soul_is_literal_token(soul_token_type_t type);
+
+/** Returns true if given token's type is of an assign type. */
 bool soul_is_assign_token(soul_token_type_t type);
+
+/** Returns true if given token's type is a synchronization type. */
 bool soul_is_sync_token(soul_token_type_t type);
 
 typedef struct soul_token_array_t soul_token_array_t;

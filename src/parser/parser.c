@@ -5,30 +5,57 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
+typedef enum soul_precedence_t : uint8_t
+{
+	soul_prec_none = 0,
+	soul_prec_assign,         // =
+	soul_prec_or,             // ||
+	soul_prec_and,            // &&
+	soul_prec_equal,          // == !=
+	soul_prec_compare,        // < > <= =>
+	soul_prec_additive,       // + -
+	soul_prec_multiplicative, // * /
+	soul_prec_unary,          // ! -
+	soul_prec_call,           // @TODO
+	soul_prec_primary,
+} soul_precedence_t;
+
+typedef struct soul_ast_node_t* (*soul_prefix_precedence_fn)(soul_parser_t*);
+typedef struct soul_ast_node_t* (*soul_infix_precedence_fn)(
+    soul_parser_t*, struct soul_ast_node_t*);
+
+typedef struct soul_precedence_rule_t soul_precedence_rule_t;
+struct soul_precedence_rule_t
+{
+	soul_precedence_t precedence;
+	soul_prefix_precedence_fn prefix;
+	soul_infix_precedence_fn infix;
+};
+
+// clang-format off
 // Statements
-static soul_ast_node_t* parser_parse_statement(soul_parser_t*);
-static soul_ast_node_t* parser_parse_variable_declaration_statement(
-    soul_parser_t* parser);
-static soul_ast_node_t* parser_parse_block_statement(soul_parser_t*);
+static soul_ast_node_t* parse_statement(soul_parser_t*);
+static soul_ast_node_t* parse_variable_declaration_statement(soul_parser_t* parser);
+static soul_ast_node_t* parse_block_statement(soul_parser_t*);
 
 // Expressions
-static soul_precedence_rule_t parser_get_precedence_rule(
-    soul_token_type_t type);
-static soul_ast_node_t* parser_parse_expression(soul_parser_t*);
-static soul_ast_node_t* parser_parse_expression_with_precedence(
-    soul_parser_t*, soul_precedence_t);
-static soul_ast_node_t* parser_parse_expression_statement(soul_parser_t*);
+static soul_precedence_rule_t get_precedence_rule(soul_token_type_t type);
+static soul_ast_node_t* parse_expression(soul_parser_t*);
+static soul_ast_node_t* parse_expression_with_precedence(soul_parser_t*, soul_precedence_t);
+static soul_ast_node_t* parse_expression_statement(soul_parser_t*);
 
 // Util
-static void parser_advance(soul_parser_t*);
-static void parser_synchronize(soul_parser_t*);
-static bool parser_match(soul_parser_t*, soul_token_type_t);
-static bool parser_match_any(soul_parser_t*, soul_token_type_t*, size_t);
-static soul_token_t parser_peek(soul_parser_t*);
-static soul_token_t parser_peek_prev(soul_parser_t*);
-static soul_token_t parser_peek_next(soul_parser_t*);
-static soul_token_t parser_require(soul_parser_t*, soul_token_type_t);
+static void advance(soul_parser_t*);
+static void synchronize(soul_parser_t*);
+static bool match(soul_parser_t*, soul_token_type_t);
+static bool match_any(soul_parser_t*, soul_token_type_t*, size_t);
+static soul_token_t peek(soul_parser_t*);
+static soul_token_t peek_prev(soul_parser_t*);
+static soul_token_t peek_next(soul_parser_t*);
+static soul_token_t require(soul_parser_t*, soul_token_type_t);
+// clang-format on
 
 soul_parser_t soul_parser_create(void)
 {
@@ -51,9 +78,10 @@ soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
 	while (soul_token_array_type_at(parser->token_array, parser->current_token)
 	       != soul_token_eof)
 	{
-		soul_ast_node_t* node = parser_parse_statement(parser);
+		const soul_token_t token = soul_token_array_at(parser->token_array, parser->current_token);
+		soul_ast_node_t* node = parse_statement(parser);
 		soul_ast_node_array_append(&statements, node);
-		if (parser->had_panic) parser_synchronize(parser);
+		if (parser->had_panic) synchronize(parser);
 	}
 
 	// TODO: Root node should be a function.
@@ -64,68 +92,69 @@ soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
 // Private
 //
 
-static soul_ast_node_t* parser_parse_variable_declaration_statement(
+static soul_ast_node_t* parse_variable_declaration_statement(
     soul_parser_t* parser)
 {
 	// let (mut) <identifier> : <type> = <expression>;
-	parser_require(parser, soul_token_let);
+	require(parser, soul_token_let);
 
 	// (Optional) Mutability
-	bool is_mutable = parser_match(parser, soul_token_mut);
-	if (is_mutable) parser_advance(parser);
+	bool is_mutable = match(parser, soul_token_mut);
+	if (is_mutable) advance(parser);
 
 	// Identifier
 	soul_token_t identifier_token
-	    = parser_require(parser, soul_token_identifier);
+	    = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t identifier = soul_ast_node_identifier_create(
 	    identifier_token.start, identifier_token.length);
 
 	// Type
-	parser_require(parser, soul_token_colon);
-	soul_token_t type_token = parser_require(parser, soul_token_identifier);
+	require(parser, soul_token_colon);
+	soul_token_t type_token = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t type
 	    = soul_ast_node_identifier_create(type_token.start, type_token.length);
 
 	// Expression
-	parser_require(parser, soul_token_equal);
-	soul_ast_node_t* expr = parser_parse_expression(parser);
+	require(parser, soul_token_equal);
+	soul_ast_node_t* expr = parse_expression(parser);
+	require(parser, soul_token_semicolon);
 
 	return soul_ast_node_create_variable_decl_statement(identifier, type, expr,
 	                                                    is_mutable);
 }
 
-static soul_ast_node_t* parser_parse_function_declaration_statement(
+static soul_ast_node_t* parse_function_declaration_statement(
     soul_parser_t* parser)
 {
 	// fn <identifier> ((<params>)) :: <type> { <block> }
-	parser_require(parser, soul_token_fn);
+	require(parser, soul_token_fn);
 
 	// Identifier
 	soul_token_t identifier_token
-	    = parser_require(parser, soul_token_identifier);
+	    = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t identifier = soul_ast_node_identifier_create(
 	    identifier_token.start, identifier_token.length);
 
 	// (Optional) Parameters
-	bool has_params = parser_match(parser, soul_token_paren_left);
+	bool has_params = match(parser, soul_token_paren_left);
 	soul_ast_node_array_t params;
 	soul_ast_node_array_initialize(&params);
 	if (has_params)
 	{
-		parser_advance(parser); // Consume "("
+		advance(parser); // Consume "("
 
-		while (parser_match(parser, soul_token_identifier))
+		while (match(parser, soul_token_identifier))
 		{
 			// <identifier> : <type>
 			soul_token_t param_id_token
-			    = parser_require(parser, soul_token_identifier);
+			    = require(parser, soul_token_identifier);
 			soul_ast_node_identifier_t param_identifier
 			    = soul_ast_node_identifier_create(param_id_token.start,
 			                                      param_id_token.length);
 
-			parser_require(parser, soul_token_colon);
+			require(parser, soul_token_colon);
 			soul_token_t param_type_token
-			    = parser_require(parser, soul_token_identifier);
+			    = require(parser, soul_token_identifier);
 			soul_ast_node_identifier_t param_type
 			    = soul_ast_node_identifier_create(param_type_token.start,
 			                                      param_type_token.length);
@@ -140,99 +169,99 @@ static soul_ast_node_t* parser_parse_function_declaration_statement(
 			soul_ast_node_array_append(&params, param);
 		}
 
-		parser_require(parser, soul_token_paren_right); // Consume ")"
+		require(parser, soul_token_paren_right); // Consume ")"
 	}
 
 	// Type
-	parser_require(parser, soul_token_double_colon);
-	soul_token_t type_token = parser_require(parser, soul_token_identifier);
+	require(parser, soul_token_double_colon);
+	soul_token_t type_token = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t type
 	    = soul_ast_node_identifier_create(type_token.start, type_token.length);
 
 	// Body
-	soul_ast_node_t* body = parser_parse_block_statement(parser);
+	soul_ast_node_t* body = parse_block_statement(parser);
 
 	return soul_ast_node_create_function_decl_statement(identifier, type, body,
 	                                                    params);
 }
 
-static soul_ast_node_t* parser_parse_if_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_if_statement(soul_parser_t* parser)
 {
 	// if (<condition>) { <then_body> } else { <else_body> }
-	parser_require(parser, soul_token_if);
+	require(parser, soul_token_if);
 
 	// Condition
-	parser_require(parser, soul_token_paren_left);
-	soul_ast_node_t* condition = parser_parse_expression(parser);
-	parser_require(parser, soul_token_paren_right);
+	require(parser, soul_token_paren_left);
+	soul_ast_node_t* condition = parse_expression(parser);
+	require(parser, soul_token_paren_right);
 
 	// Then
-	soul_ast_node_t* then_body = parser_parse_block_statement(parser);
+	soul_ast_node_t* then_body = parse_block_statement(parser);
 
 	// (Optional) Else
 	soul_ast_node_t* else_body = NULL;
-	if (parser_match(parser, soul_token_else))
+	if (match(parser, soul_token_else))
 	{
-		parser_advance(parser); // Consume "else"
-		else_body = parser_parse_block_statement(parser);
+		advance(parser); // Consume "else"
+		else_body = parse_block_statement(parser);
 	}
 
 	return soul_ast_node_create_if_statement(condition, then_body, else_body);
 }
 
-static soul_ast_node_t* parser_parse_for_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_for_statement(soul_parser_t* parser)
 {
 	// for ( <initializer> ; <condition> ; <increment>) { <body> }
-	parser_require(parser, soul_token_for);
-	parser_require(parser, soul_token_paren_left);
+	require(parser, soul_token_for);
+	require(parser, soul_token_paren_left);
 
 	// (Optional) Initializer
 	soul_ast_node_t* initializer = NULL;
-	if (parser_match(parser, soul_token_let))
+	if (match(parser, soul_token_let))
 	{
-		initializer = parser_parse_variable_declaration_statement(parser);
+		initializer = parse_variable_declaration_statement(parser);
 	}
-	parser_require(parser, soul_token_semicolon);
+	require(parser, soul_token_semicolon);
 
 	// (Optional) Condition
 	soul_ast_node_t* condition = NULL;
-	if (parser_match(parser, soul_token_identifier))
+	if (match(parser, soul_token_identifier))
 	{
-		condition = parser_parse_expression(parser);
+		condition = parse_expression(parser);
 	}
 	else
 	{
 		// ...it is a while true loop!
 		condition = soul_ast_node_create_boolean_literal_expression(true);
 	}
-	parser_require(parser, soul_token_semicolon);
+	require(parser, soul_token_semicolon);
 
 	// (Optional) Increment
 	soul_ast_node_t* increment_statement = NULL;
-	if (parser_match(parser, soul_token_identifier))
+	if (match(parser, soul_token_identifier))
 	{
-		increment_statement = parser_parse_expression(parser);
+		increment_statement = parse_expression(parser);
 	}
-	parser_require(parser, soul_token_paren_right);
+	require(parser, soul_token_paren_right);
 
 	// Body
-	soul_ast_node_t* body = parser_parse_block_statement(parser);
+	soul_ast_node_t* body = parse_block_statement(parser);
 
 	return soul_ast_node_create_for_statement(initializer, condition,
 	                                          increment_statement, body);
 }
 
-static soul_ast_node_t* parser_parse_while_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_while_statement(soul_parser_t* parser)
 {
 	// while ((<condition>)) { <body> }
-	parser_require(parser, soul_token_while);
+	require(parser, soul_token_while);
 
 	// (Optional) Condition
 	soul_ast_node_t* condition = NULL;
-	if (parser_match(parser, soul_token_paren_left))
+	if (match(parser, soul_token_paren_left))
 	{
-		condition = parser_parse_expression(parser);
-		parser_require(parser, soul_token_paren_right);
+		condition = parse_expression(parser);
+		require(parser, soul_token_paren_right);
 	}
 	else
 	{
@@ -241,74 +270,74 @@ static soul_ast_node_t* parser_parse_while_statement(soul_parser_t* parser)
 	}
 
 	// Body
-	soul_ast_node_t* body = parser_parse_block_statement(parser);
+	soul_ast_node_t* body = parse_block_statement(parser);
 
 	return soul_ast_node_create_while_statement(condition, body);
 }
 
-static soul_ast_node_t* parser_parse_block_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_block_statement(soul_parser_t* parser)
 {
 	// { <statements> }
-	parser_require(parser, soul_token_brace_left);
+	require(parser, soul_token_brace_left);
 
 	soul_ast_node_array_t statements;
-	while (parser_peek(parser).type != soul_token_brace_right)
+	while (peek(parser).type != soul_token_brace_right)
 	{
-		soul_ast_node_array_append(&statements, parser_parse_statement(parser));
+		soul_ast_node_array_append(&statements, parse_statement(parser));
 		// NOTE: Prevent trying to parse unterminated blocks.
 		// TODO: Propagate error.
-		if (parser_peek(parser).type == soul_token_eof) break;
+		if (peek(parser).type == soul_token_eof) break;
 	}
-	parser_require(parser, soul_token_brace_right);
+	require(parser, soul_token_brace_right);
 
 	return soul_ast_node_create_block_statement(statements);
 }
 
-static soul_ast_node_t* parser_parse_return_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_return_statement(soul_parser_t* parser)
 {
 	// return (<expr>);
-	parser_require(parser, soul_token_return);
+	require(parser, soul_token_return);
 
 	// (Optional) Expression;
 	soul_ast_node_t* return_expr = NULL;
-	if (!parser_match(parser, soul_token_semicolon))
+	if (!match(parser, soul_token_semicolon))
 	{
-		return_expr = parser_parse_expression(parser);
+		return_expr = parse_expression(parser);
 	}
-	parser_require(parser, soul_token_semicolon);
+	require(parser, soul_token_semicolon);
 
 	return soul_ast_node_create_return_statement(return_expr);
 }
 
-static soul_ast_node_t* parser_parse_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_statement(soul_parser_t* parser)
 {
-	switch (parser_peek(parser).type)
+	switch (peek(parser).type)
 	{
 		case soul_token_let:
-			return parser_parse_variable_declaration_statement(parser);
+			return parse_variable_declaration_statement(parser);
 		case soul_token_fn:
-			return parser_parse_function_declaration_statement(parser);
+			return parse_function_declaration_statement(parser);
 		case soul_token_if:
-			return parser_parse_if_statement(parser);
+			return parse_if_statement(parser);
 		case soul_token_for:
-			return parser_parse_for_statement(parser);
+			return parse_for_statement(parser);
 		case soul_token_while:
-			return parser_parse_while_statement(parser);
+			return parse_while_statement(parser);
 		case soul_token_paren_left:
-			return parser_parse_block_statement(parser);
+			return parse_block_statement(parser);
 		case soul_token_return:
-			return parser_parse_return_statement(parser);
+			return parse_return_statement(parser);
 		default:
 			break;
 	}
-	soul_ast_node_t* statement = parser_parse_expression_statement(parser);
-	parser_require(parser, soul_token_semicolon);
+	soul_ast_node_t* statement = parse_expression_statement(parser);
+	require(parser, soul_token_semicolon);
 	return statement;
 }
 
-static soul_ast_node_t* parser_parse_literal_expression(soul_parser_t* parser)
+static soul_ast_node_t* parse_literal_expression(soul_parser_t* parser)
 {
-	soul_token_t token    = parser_peek_prev(parser);
+	soul_token_t token    = peek_prev(parser);
 	soul_ast_node_t* node = NULL;
 	switch (token.type)
 	{
@@ -330,8 +359,7 @@ static soul_ast_node_t* parser_parse_literal_expression(soul_parser_t* parser)
 		}
 		case soul_token_true:
 		case soul_token_false: {
-			bool val = token.type == soul_token_true;
-			node     = soul_ast_node_create_boolean_literal_expression(val);
+			node     = soul_ast_node_create_boolean_literal_expression(token.type == soul_token_true);
 			break;
 		}
 		default:
@@ -342,61 +370,61 @@ static soul_ast_node_t* parser_parse_literal_expression(soul_parser_t* parser)
 	return node;
 }
 
-static soul_ast_node_t* parser_parse_assignment_expression(
+static soul_ast_node_t* parse_assignment_expression(
     soul_parser_t* parser)
 {
-	soul_ast_node_t* lhs = parser_parse_expression(parser);
-	parser_advance(parser); // Consume the assignment token.
-	soul_ast_node_t* rhs = parser_parse_expression(parser);
+	soul_ast_node_t* lhs = parse_expression(parser);
+	advance(parser); // Consume the assignment token.
+	soul_ast_node_t* rhs = parse_expression(parser);
 	return soul_ast_node_create_assign_expression(lhs, rhs);
 }
 
-static soul_ast_node_t* parser_parse_unary_expression(soul_parser_t* parser)
+static soul_ast_node_t* parse_unary_expression(soul_parser_t* parser)
 {
-	soul_token_t token = parser_peek_prev(parser);
-	parser_advance(parser);
-	soul_ast_node_t* val        = parser_parse_literal_expression(parser);
+	soul_token_t token = peek_prev(parser);
+	advance(parser);
+	soul_ast_node_t* val        = parse_literal_expression(parser);
 	soul_ast_node_operator_t op = soul_token_type_to_operator(token.type);
 	return soul_ast_node_create_unary_expression(val, op);
 }
 
-static soul_ast_node_t* parser_parse_binary_expression(soul_parser_t* parser,
+static soul_ast_node_t* parse_binary_expression(soul_parser_t* parser,
                                                        soul_ast_node_t* lhs)
 {
-	soul_token_t token          = parser_peek_prev(parser);
-	soul_precedence_rule_t rule = parser_get_precedence_rule(token.type);
-	soul_ast_node_t* rhs        = parser_parse_expression_with_precedence(
+	soul_token_t token          = peek_prev(parser);
+	soul_precedence_rule_t rule = get_precedence_rule(token.type);
+	soul_ast_node_t* rhs        = parse_expression_with_precedence(
         parser, (rule.precedence + 1));
 	soul_ast_node_operator_t op = soul_token_type_to_operator(token.type);
 	return soul_ast_node_create_binary_expression(lhs, rhs, op);
 }
 
-static soul_precedence_rule_t parser_get_precedence_rule(soul_token_type_t type)
+static soul_precedence_rule_t get_precedence_rule(soul_token_type_t type)
 {
 	if (soul_is_literal_token(type))
 		return (soul_precedence_rule_t){soul_prec_none,
-		                                parser_parse_literal_expression, NULL};
+		                                parse_literal_expression, NULL};
 
 	switch (type)
 	{
 		case soul_token_minus:
 			return (soul_precedence_rule_t){
 			    soul_prec_additive,
-			    parser_parse_unary_expression,
-			    parser_parse_binary_expression,
+			    parse_unary_expression,
+			    parse_binary_expression,
 			};
 		case soul_token_plus:
 			return (soul_precedence_rule_t){
 			    soul_prec_additive,
 			    NULL,
-			    parser_parse_binary_expression,
+			    parse_binary_expression,
 			};
 		case soul_token_star:
 		case soul_token_slash:
 			return (soul_precedence_rule_t){
 			    soul_prec_multiplicative,
 			    NULL,
-			    parser_parse_binary_expression,
+			    parse_binary_expression,
 			};
 		default:
 			// NOTE: No precedence.
@@ -404,25 +432,25 @@ static soul_precedence_rule_t parser_get_precedence_rule(soul_token_type_t type)
 	}
 }
 
-static soul_ast_node_t* parser_parse_expression_statement(soul_parser_t* parser)
+static soul_ast_node_t* parse_expression_statement(soul_parser_t* parser)
 {
-	soul_token_type_t next_type = parser_peek_next(parser).type;
+	soul_token_type_t next_type = peek_next(parser).type;
 
 	if (soul_is_assign_token(next_type))
-		return parser_parse_assignment_expression(parser);
+		return parse_assignment_expression(parser);
 
-	soul_ast_node_t* expr = parser_parse_expression(parser);
+	soul_ast_node_t* expr = parse_expression(parser);
 	return soul_ast_node_create_expression_statement(expr);
 }
 
-static soul_ast_node_t* parser_parse_expression_with_precedence(
+static soul_ast_node_t* parse_expression_with_precedence(
     soul_parser_t* parser, soul_precedence_t precedence)
 {
-	parser_advance(parser); // Skip operand token.
+	advance(parser); // Skip operand token.
 
-	soul_token_type_t previous_token = parser_peek_prev(parser).type;
+	soul_token_type_t previous_token = peek_prev(parser).type;
 	soul_prefix_precedence_fn prefix_rule
-	    = parser_get_precedence_rule(previous_token).prefix;
+	    = get_precedence_rule(previous_token).prefix;
 
 	if (!prefix_rule)
 	{
@@ -432,26 +460,26 @@ static soul_ast_node_t* parser_parse_expression_with_precedence(
 	soul_ast_node_t* prefix_expr = prefix_rule(parser);
 
 	while (precedence
-	       <= parser_get_precedence_rule(parser_peek(parser).type).precedence)
+	       <= get_precedence_rule(peek(parser).type).precedence)
 	{
-		parser_advance(parser);
-		previous_token = parser_peek_prev(parser).type;
+		advance(parser);
+		previous_token = peek_prev(parser).type;
 		soul_infix_precedence_fn infix_rule
-		    = parser_get_precedence_rule(previous_token).infix;
+		    = get_precedence_rule(previous_token).infix;
 		prefix_expr = infix_rule(parser, prefix_expr);
 	}
 
 	return prefix_expr;
 }
 
-static soul_ast_node_t* parser_parse_expression(soul_parser_t* parser)
+static soul_ast_node_t* parse_expression(soul_parser_t* parser)
 {
 	// NOTE: Starting precedence has to be at least 1 level higher than
 	//       no precedence.
-	return parser_parse_expression_with_precedence(parser, soul_prec_none + 1);
+	return parse_expression_with_precedence(parser, soul_prec_none + 1);
 }
 
-static void parser_advance(soul_parser_t* parser)
+static void advance(soul_parser_t* parser)
 {
 	if (parser->current_token + 1 > parser->token_array->size)
 	{
@@ -466,28 +494,28 @@ static void parser_advance(soul_parser_t* parser)
 	}
 }
 
-static void parser_synchronize(soul_parser_t* parser)
+static void synchronize(soul_parser_t* parser)
 {
 	parser->had_panic = false;
 
-	while (parser_match(parser, soul_token_eof))
+	while (match(parser, soul_token_eof))
 	{
 		if (!soul_is_sync_token(soul_token_array_type_at(
 		        parser->token_array, parser->current_token)))
 		{
-			parser_advance(parser);
+			advance(parser);
 		}
 		break; // Synchronized!
 	}
 }
 
-static bool parser_match(soul_parser_t* parser, soul_token_type_t type)
+static bool match(soul_parser_t* parser, soul_token_type_t type)
 {
 	return soul_token_array_type_at(parser->token_array, parser->current_token)
 	    == type;
 }
 
-static bool parser_match_any(soul_parser_t* parser, soul_token_type_t* types,
+static bool match_any(soul_parser_t* parser, soul_token_type_t* types,
                              size_t count)
 {
 	soul_token_type_t current_type
@@ -499,12 +527,12 @@ static bool parser_match_any(soul_parser_t* parser, soul_token_type_t* types,
 	return false;
 }
 
-static soul_token_t parser_peek(soul_parser_t* parser)
+static soul_token_t peek(soul_parser_t* parser)
 {
 	return soul_token_array_at(parser->token_array, parser->current_token);
 }
 
-static soul_token_t parser_peek_prev(soul_parser_t* parser)
+static soul_token_t peek_prev(soul_parser_t* parser)
 {
 #ifdef NDEBUG
 	if (parser->current_token < 1)
@@ -523,7 +551,7 @@ static soul_token_t parser_peek_prev(soul_parser_t* parser)
 	return soul_token_array_at(parser->token_array, parser->current_token - 1);
 }
 
-static soul_token_t parser_peek_next(soul_parser_t* parser)
+static soul_token_t peek_next(soul_parser_t* parser)
 {
 #ifdef NDEBUG
 	if (parser->current_token + 1 > parser->token_array->size)
@@ -543,11 +571,12 @@ static soul_token_t parser_peek_next(soul_parser_t* parser)
 	return soul_token_array_at(parser->token_array, parser->current_token + 1);
 }
 
-static soul_token_t parser_require(soul_parser_t* parser,
+static soul_token_t require(soul_parser_t* parser,
                                    soul_token_type_t type)
 {
-	if (parser_peek(parser).type != type)
+	if (peek(parser).type != type)
 	{
+		printf("required type: %s, but got %s\n", soul_token_type_to_string(type), soul_token_type_to_string(peek(parser).type));
 		// TODO: better creation of error tokens.
 		const char* error_string = "required token is missing";
 		soul_token_t error       = {
@@ -557,6 +586,6 @@ static soul_token_t parser_require(soul_parser_t* parser,
         };
 		return error;
 	}
-	parser_advance(parser);
-	return parser_peek_prev(parser);
+	advance(parser);
+	return peek_prev(parser);
 }

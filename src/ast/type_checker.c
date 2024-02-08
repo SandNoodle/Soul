@@ -75,9 +75,6 @@ static soul_basic_type_t soul_type_checker_traverse(
 			return soul_basic_type_integer;
 		case soul_ast_expr_string_literal:
 			return soul_basic_type_string;
-		case soul_ast_expr_stmt:
-			return soul_type_checker_traverse(type_checker,
-			                                  node->as.expr_stmt.stmt);
 		case soul_ast_stmt_if: {
 			soul_basic_type_t condition_type = soul_type_checker_traverse(
 			    type_checker, node->as.stmt_if.condition);

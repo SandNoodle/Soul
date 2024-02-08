@@ -1,7 +1,9 @@
+# Euler 01: Find the sum of all multiples of 3 or 5 below 1000.
+
 fn main :: void
 {
 	let mut sum : u64 = 0;
-	for(i : u64 in 0..1000)
+	for(let i : u64 = 0; i < 1000; ++i)
 	{
 		if((i % 3 == 0) || (i % 5 == 0))
 		{
@@ -11,3 +13,4 @@ fn main :: void
 
 	std::print(sum);
 }
+

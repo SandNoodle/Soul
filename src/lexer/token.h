@@ -113,7 +113,7 @@ struct soul_token_array_t
 /** Creates a dynamic array struct that can holds tokens. */
 soul_token_array_t soul_token_array_create(void);
 
-/** Destroys given soul token array */
+/** Destroys given soul_token_array */
 void soul_token_array_destroy(soul_token_array_t* array);
 
 /** Appends the given token at the end of an array */

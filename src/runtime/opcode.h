@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+// clang-format off
 typedef enum soul_opcode_t : uint8_t
 {
 	soul_op_noop, // Does nothing.
@@ -11,7 +12,7 @@ typedef enum soul_opcode_t : uint8_t
 	soul_op_pop,
 	soul_op_get_local,
 	soul_op_set_local,
-	soul_op_get_const,
+	soul_op_push_const, // Pushes constant value
 	soul_op_push_true,  // Pushes 'true' bool literal
 	soul_op_push_false, // Pushes 'false' bool literal
 
@@ -21,17 +22,12 @@ typedef enum soul_opcode_t : uint8_t
 	soul_op_jump_true,  // Conditional jump when true
 
 	// Arithmetic
-	soul_op_addi,
-	soul_op_subi,
-	soul_op_muli,
-	soul_op_divi, // Integer
-	soul_op_addf,
-	soul_op_subf,
-	soul_op_mulf,
-	soul_op_divf, // Real
+	soul_op_addi, soul_op_subi, soul_op_muli, soul_op_divi, // Integer
+	soul_op_addf, soul_op_subf, soul_op_mulf, soul_op_divf, // Real
 
 	// Special opcodes.
 	soul_op_halt,
 } soul_opcode_t;
+// clang-format on
 
 #endif // SOUL_RUNTIME_OPCODE_H

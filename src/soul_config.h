@@ -16,4 +16,14 @@
 	#define SOUL_ARRAY_CAPACITY_GROWTH_RATE 2
 #endif // SOUL_ARRAY_CAPACITY_GROWTH_RATE
 
+// Minimal capacity of the stacks.
+#ifndef SOUL_STACK_MIN_CAPACITY
+	#define SOUL_STACK_MIN_CAPACITY 32
+#endif // SOUL_STACK_MIN_CAPACITY
+
+// Factor by which the stack's capacity will grow.
+#ifndef SOUL_STACK_CAPACITY_GROWTH_RATE
+	#define SOUL_STACK_CAPACITY_GROWTH_RATE 2
+#endif // SOUL_STACK_CAPACITY_GROWTH_RATE
+
 #endif // SOUL_CONFIG_H

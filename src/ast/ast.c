@@ -9,6 +9,32 @@
 // @TODO: Move out into a config file.
 #define SOUL_AST_NODE_ARRAY_MIN_CAPACITY 8
 
+const char* soul_ast_node_type_to_string(soul_ast_node_type_t type)
+{
+	// IMPORTANT: Has to match soul_ast_node_type_t
+	// clang-format off
+	const char* names[] = {
+		[soul_ast_expr_assign]         = "assign",
+		[soul_ast_expr_unary]          = "unary",
+		[soul_ast_expr_binary]         = "binary",
+		[soul_ast_expr_var_literal]    = "variable_literal",
+		[soul_ast_expr_bool_literal]   = "boolean_literal",
+		[soul_ast_expr_number_literal] = "number_literal",
+		[soul_ast_expr_string_literal] = "string_literal",
+		[soul_ast_expr_stmt]           = "expression_statement",
+		[soul_ast_stmt_variable_decl]  = "variable_declaration_statement",
+		[soul_ast_stmt_function_decl]  = "function_declaration_statement",
+		[soul_ast_stmt_native_decl]    = "native_declaration_statement",
+		[soul_ast_stmt_if]             = "if_statement",
+		[soul_ast_stmt_for]            = "for_statement",
+		[soul_ast_stmt_while]          = "while_statement",
+		[soul_ast_stmt_block]          = "block_statement",
+		[soul_ast_stmt_return]         = "return_statement",
+	};
+	// clang-format on
+	return names[type];
+}
+
 soul_ast_node_identifier_t soul_ast_node_identifier_create(const char* string,
                                                            size_t size)
 {

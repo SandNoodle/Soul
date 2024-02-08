@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static inline void extend_capacity_if_needed(soul_token_array_t*);
+
 const char* soul_token_type_to_string(soul_token_type_t type)
 {
 	// IMPORTANT: This function assumes strict order between token types for ranges.
@@ -47,17 +49,7 @@ void soul_token_array_destroy(soul_token_array_t* array)
 bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
 {
 	if (!array) return false;
-	if (array->size + 1 > array->capacity)
-	{
-		const size_t new_capacity
-		    = array->capacity < SOUL_ARRAY_MIN_CAPACITY
-		        ? SOUL_ARRAY_MIN_CAPACITY
-		        : array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
-		array->tokens = (soul_token_t*)realloc(
-		    array->tokens, sizeof(soul_token_t) * new_capacity);
-		array->capacity = new_capacity;
-	}
-
+	extend_capacity_if_needed(array);
 	array->tokens[array->size++] = token;
 	return true;
 }
@@ -122,4 +114,22 @@ bool soul_is_sync_token(soul_token_type_t type)
 		|| type == soul_token_enum
 	    || type == soul_token_brace_left; // Scopes
 	// clang-format on
+}
+
+//
+// Private
+//
+
+static inline void extend_capacity_if_needed(soul_token_array_t* array)
+{
+	if (array->size + 1 > array->capacity)
+	{
+		const size_t new_capacity
+		    = array->capacity < SOUL_ARRAY_MIN_CAPACITY
+		        ? SOUL_ARRAY_MIN_CAPACITY
+		        : array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
+		array->tokens = (soul_token_t*)realloc(
+		    array->tokens, sizeof(soul_token_t) * new_capacity);
+		array->capacity = new_capacity;
+	}
 }

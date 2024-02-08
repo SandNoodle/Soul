@@ -16,4 +16,7 @@ struct soul_chunk_t
 /** */
 soul_chunk_t soul_chunk_create(void);
 
+/** TODO: Temp. Find a better way to do that so we don't have to use stdio.h */
+void soul_print_chunk(const soul_chunk_t* chunk);
+
 #endif // SOUL_COMPILER_CHUNK_H

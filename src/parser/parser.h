@@ -21,41 +21,12 @@ struct soul_parser_t
 soul_parser_t soul_parser_create(void);
 
 /**
- * @brief
- *
- * @param
- * @param
- * @param
- * @return
+ * @brief Parses given token array into its AST representation.
+ * @param parser parser to use.
+ * @param tokens tokens to parse.
+ * @return Abstract Syntax Tree representation of a token array.
  */
 struct soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
                                           struct soul_token_array_t* tokens);
-
-typedef enum soul_precedence_t : uint8_t
-{
-	soul_prec_none = 0,
-	soul_prec_assign,         // =
-	soul_prec_or,             // ||
-	soul_prec_and,            // &&
-	soul_prec_equal,          // == !=
-	soul_prec_compare,        // < > <= =>
-	soul_prec_additive,       // + -
-	soul_prec_multiplicative, // * /
-	soul_prec_unary,          // ! -
-	soul_prec_call,           // @TODO
-	soul_prec_primary,
-} soul_precedence_t;
-
-typedef struct soul_ast_node_t* (*soul_prefix_precedence_fn)(soul_parser_t*);
-typedef struct soul_ast_node_t* (*soul_infix_precedence_fn)(
-    soul_parser_t*, struct soul_ast_node_t*);
-
-typedef struct soul_precedence_rule_t soul_precedence_rule_t;
-struct soul_precedence_rule_t
-{
-	soul_precedence_t precedence;
-	soul_prefix_precedence_fn prefix;
-	soul_infix_precedence_fn infix;
-};
 
 #endif // SOUL_PARSER_PARSER_H

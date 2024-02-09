@@ -1,6 +1,8 @@
 #ifndef SOUL_COMPILER_CHUNK_H
 #define SOUL_COMPILER_CHUNK_H
 
+#include "runtime/value.h"
+
 #include <stdint.h>
 
 /**
@@ -11,6 +13,7 @@ struct soul_chunk_t
 {
 	uint8_t* code;
 	uint32_t code_size;
+	soul_value_array_t constants;
 };
 
 /** */

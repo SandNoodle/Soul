@@ -116,7 +116,7 @@ soul_token_array_t soul_token_array_create(void);
 /** Destroys given soul_token_array */
 void soul_token_array_destroy(soul_token_array_t* array);
 
-/** Appends the given token at the end of an array */
+/** Appends the given token at the end of an array. */
 bool soul_token_array_append(soul_token_array_t* array, soul_token_t token);
 
 /** Returns token at an index. */

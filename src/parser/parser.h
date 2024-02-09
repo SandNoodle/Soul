@@ -1,16 +1,13 @@
 #ifndef SOUL_PARSER_PARSER_H
 #define SOUL_PARSER_PARSER_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
-struct soul_token_array_t;
-struct soul_ast_node_t;
+#include "ast/ast.h"
+#include "lexer/token.h"
 
 typedef struct soul_parser_t soul_parser_t;
 struct soul_parser_t
 {
-	struct soul_token_array_t* token_array;
+	soul_token_array_t* token_array;
 	size_t current_token;
 
 	bool had_panic;
@@ -26,7 +23,7 @@ soul_parser_t soul_parser_create(void);
  * @param tokens tokens to parse.
  * @return Abstract Syntax Tree representation of a token array.
  */
-struct soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
-                                          struct soul_token_array_t* tokens);
+soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
+                                   soul_token_array_t* tokens);
 
 #endif // SOUL_PARSER_PARSER_H

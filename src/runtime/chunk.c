@@ -1,7 +1,6 @@
 #include "chunk.h"
 
 #include <stdlib.h>
-#include <stdio.h> // TODO TEMP
 
 soul_chunk_t soul_chunk_create(void)
 {

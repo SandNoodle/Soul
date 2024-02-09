@@ -6,6 +6,11 @@
 	#define SOUL_MAX_LOCAL_VARIABLES 256
 #endif // SOUL_MAX_LOCAL_VARIABLES
 
+// Maximum number of constants in a chunk. 
+#ifndef SOUL_MAX_CONSTANT_VALUES
+	#define SOUL_MAX_CONSTANT_VALUES 65535
+#endif // SOUL_MAX_CONSTANT_VALUES
+
 // Minimal capacity of the dynamic arrays.
 #ifndef SOUL_ARRAY_MIN_CAPACITY
 	#define SOUL_ARRAY_MIN_CAPACITY 8

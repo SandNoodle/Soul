@@ -1,9 +1,10 @@
 #ifndef SOUL_LEXER_LEXER_H
 #define SOUL_LEXER_LEXER_H
 
+#include "lexer/token.h"
+
 #include <stdint.h>
 
-struct soul_token_array_t;
 typedef struct soul_lexer_t soul_lexer_t;
 struct soul_lexer_t
 {

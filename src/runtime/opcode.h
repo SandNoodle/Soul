@@ -10,6 +10,7 @@ typedef enum soul_opcode_t : uint8_t
 
 	// Stack operations
 	soul_op_pop,
+	soul_op_pop_n,
 	soul_op_get_local,
 	soul_op_set_local,
 	soul_op_push_const, // Pushes constant value
@@ -24,6 +25,9 @@ typedef enum soul_opcode_t : uint8_t
 	// Arithmetic
 	soul_op_addi, soul_op_subi, soul_op_muli, soul_op_divi, // Integer
 	soul_op_addf, soul_op_subf, soul_op_mulf, soul_op_divf, // Real
+
+	// TEMP
+	soul_op_printi, // Prints int.
 
 	// Special opcodes.
 	soul_op_halt,

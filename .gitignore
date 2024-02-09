@@ -32,5 +32,6 @@
 compile_commands.json
 build/
 .cache/
+.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/git,executable

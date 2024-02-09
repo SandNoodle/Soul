@@ -5,6 +5,9 @@
 #include "ast/ast_stringify.h"
 #include "compiler/compiler.h"
 #include "runtime/chunk.h"
+#include "runtime/opcode.h"
+#include "runtime/value.h"
+#include "runtime/vm.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -15,8 +18,49 @@
 #define SOUL_PRINT_AST
 #define SOUL_PRINT_BYTECODE
 
-// TODO: Working on printing the ast.
-//       There seems a bug in parsing of a block statements - it does not end parsing.
+int main(void)
+{
+	soul_value_t const_values[] = {
+		(soul_value_t){.int_value = 54},
+		(soul_value_t){.int_value = 45},
+		(soul_value_t){.int_value = 12},
+		(soul_value_t){.int_value = 8},
+		(soul_value_t){.int_value = 4},
+		(soul_value_t){.int_value = 1},
+	};
+	soul_value_array_t constants = soul_value_array_create();
+	const size_t array_size = sizeof(const_values) / sizeof(const_values[0]);
+	for(size_t i = 0; i < array_size; ++i)
+	{
+		soul_value_array_append(&constants, const_values[i]);
+	}
+	uint8_t code[] = {
+		soul_op_push_const, 0x00,
+		soul_op_push_const, 0x01,
+		soul_op_addi,
+		soul_op_push_const, 0x05,
+		soul_op_addi,
+		soul_op_push_const, 0x02,
+		soul_op_muli,
+		soul_op_push_const, 0x03,
+		soul_op_push_const, 0x04,
+		soul_op_divi,
+		soul_op_divi,
+		soul_op_printi,
+		soul_op_halt,
+	};
+	// ((((54 + 45) + 1) * 12) / (8 / 4)) = 100 * 12 / 4 = 300
+
+	soul_chunk_t chunk = soul_chunk_create();
+	chunk.code = code;
+	chunk.code_size = sizeof(code) / sizeof(code[0]);
+	chunk.constants = constants;
+
+	soul_vm_t vm = soul_vm_create();
+	soul_vm_interpret(&vm, &chunk);
+}
+
+#if 0
 
 typedef struct file_t file_t;
 struct file_t
@@ -120,3 +164,4 @@ int main (void)
 
 	return 0;
 }
+#endif

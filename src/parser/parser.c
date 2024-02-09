@@ -1,8 +1,5 @@
 #include "parser.h"
 
-#include "ast/ast.h"
-#include "lexer/token.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,8 +20,7 @@ typedef enum soul_precedence_t : uint8_t
 } soul_precedence_t;
 
 typedef struct soul_ast_node_t* (*soul_prefix_precedence_fn)(soul_parser_t*);
-typedef struct soul_ast_node_t* (*soul_infix_precedence_fn)(
-    soul_parser_t*, struct soul_ast_node_t*);
+typedef struct soul_ast_node_t* (*soul_infix_precedence_fn)(soul_parser_t*, soul_ast_node_t*);
 
 typedef struct soul_precedence_rule_t soul_precedence_rule_t;
 struct soul_precedence_rule_t

@@ -53,13 +53,14 @@ static soul_token_t peek_next(soul_parser_t*);
 static soul_token_t require(soul_parser_t*, soul_token_type_t);
 // clang-format on
 
-soul_parser_t soul_parser_create(void)
+soul_parser_t soul_parser_create(soul_allocator_t* allocator)
 {
 	soul_parser_t parser;
 	parser.token_array   = NULL;
 	parser.current_token = 0;
 	parser.had_panic     = 0;
 	parser.had_error     = 0;
+	parser.allocator     = allocator;
 	return parser;
 }
 
@@ -69,19 +70,18 @@ soul_ast_node_t* soul_parser_parse(soul_parser_t* parser,
 	if (!parser || !token_array) return NULL;
 
 	parser->token_array = token_array;
-	soul_ast_node_array_t statements;
-	soul_ast_node_array_initialize(&statements);
+	soul_ast_node_array_t statements = soul_ast_node_array_create(parser->allocator);
 	while (soul_token_array_type_at(parser->token_array, parser->current_token)
 	       != soul_token_eof)
 	{
 		const soul_token_t token = soul_token_array_at(parser->token_array, parser->current_token);
 		soul_ast_node_t* node = parse_statement(parser);
-		soul_ast_node_array_append(&statements, node);
+		soul_ast_node_array_append(&statements, node, parser->allocator);
 		if (parser->had_panic) synchronize(parser);
 	}
 
 	// TODO: Root node should be a function.
-	return soul_ast_node_create_block_statement(statements);
+	return soul_ast_node_create_block_statement(statements, parser->allocator);
 }
 
 //
@@ -102,13 +102,13 @@ static soul_ast_node_t* parse_variable_declaration_statement(
 	soul_token_t identifier_token
 	    = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t identifier = soul_ast_node_identifier_create(
-	    identifier_token.start, identifier_token.length);
+	    identifier_token.start, identifier_token.length, parser->allocator);
 
 	// Type
 	require(parser, soul_token_colon);
 	soul_token_t type_token = require(parser, soul_token_identifier);
-	soul_ast_node_identifier_t type
-	    = soul_ast_node_identifier_create(type_token.start, type_token.length);
+	soul_ast_node_identifier_t type = soul_ast_node_identifier_create(
+		type_token.start, type_token.length, parser->allocator);
 
 	// Expression
 	require(parser, soul_token_equal);
@@ -116,7 +116,7 @@ static soul_ast_node_t* parse_variable_declaration_statement(
 	require(parser, soul_token_semicolon);
 
 	return soul_ast_node_create_variable_decl_statement(identifier, type, expr,
-	                                                    is_mutable);
+	                                                    is_mutable, parser->allocator);
 }
 
 static soul_ast_node_t* parse_function_declaration_statement(
@@ -129,12 +129,11 @@ static soul_ast_node_t* parse_function_declaration_statement(
 	soul_token_t identifier_token
 	    = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t identifier = soul_ast_node_identifier_create(
-	    identifier_token.start, identifier_token.length);
+	    identifier_token.start, identifier_token.length, parser->allocator);
 
 	// (Optional) Parameters
 	bool has_params = match(parser, soul_token_paren_left);
-	soul_ast_node_array_t params;
-	soul_ast_node_array_initialize(&params);
+	soul_ast_node_array_t params = soul_ast_node_array_create(parser->allocator);
 	if (has_params)
 	{
 		advance(parser); // Consume "("
@@ -146,14 +145,16 @@ static soul_ast_node_t* parse_function_declaration_statement(
 			    = require(parser, soul_token_identifier);
 			soul_ast_node_identifier_t param_identifier
 			    = soul_ast_node_identifier_create(param_id_token.start,
-			                                      param_id_token.length);
+			                                      param_id_token.length,
+			                                      parser->allocator);
 
 			require(parser, soul_token_colon);
 			soul_token_t param_type_token
 			    = require(parser, soul_token_identifier);
 			soul_ast_node_identifier_t param_type
 			    = soul_ast_node_identifier_create(param_type_token.start,
-			                                      param_type_token.length);
+			                                      param_type_token.length,
+			                                      parser->allocator);
 
 			// TODO: This technically is not the best way to create function
 			//       parameters, because Soul expects variables to be declared
@@ -161,8 +162,8 @@ static soul_ast_node_t* parse_function_declaration_statement(
 			//       later on.
 			soul_ast_node_t* param
 			    = soul_ast_node_create_variable_decl_statement(
-			        param_identifier, param_type, NULL, false);
-			soul_ast_node_array_append(&params, param);
+			        param_identifier, param_type, NULL, false, parser->allocator);
+			soul_ast_node_array_append(&params, param, parser->allocator);
 		}
 
 		require(parser, soul_token_paren_right); // Consume ")"
@@ -172,13 +173,13 @@ static soul_ast_node_t* parse_function_declaration_statement(
 	require(parser, soul_token_double_colon);
 	soul_token_t type_token = require(parser, soul_token_identifier);
 	soul_ast_node_identifier_t type
-	    = soul_ast_node_identifier_create(type_token.start, type_token.length);
+	    = soul_ast_node_identifier_create(type_token.start, type_token.length, parser->allocator);
 
 	// Body
 	soul_ast_node_t* body = parse_block_statement(parser);
 
 	return soul_ast_node_create_function_decl_statement(identifier, type, body,
-	                                                    params);
+	                                                    params, parser->allocator);
 }
 
 static soul_ast_node_t* parse_if_statement(soul_parser_t* parser)
@@ -202,7 +203,7 @@ static soul_ast_node_t* parse_if_statement(soul_parser_t* parser)
 		else_body = parse_block_statement(parser);
 	}
 
-	return soul_ast_node_create_if_statement(condition, then_body, else_body);
+	return soul_ast_node_create_if_statement(condition, then_body, else_body, parser->allocator);
 }
 
 static soul_ast_node_t* parse_for_statement(soul_parser_t* parser)
@@ -228,7 +229,7 @@ static soul_ast_node_t* parse_for_statement(soul_parser_t* parser)
 	else
 	{
 		// ...it is a while true loop!
-		condition = soul_ast_node_create_boolean_literal_expression(true);
+		condition = soul_ast_node_create_boolean_literal_expression(true, parser->allocator);
 	}
 	require(parser, soul_token_semicolon);
 
@@ -244,7 +245,7 @@ static soul_ast_node_t* parse_for_statement(soul_parser_t* parser)
 	soul_ast_node_t* body = parse_block_statement(parser);
 
 	return soul_ast_node_create_for_statement(initializer, condition,
-	                                          increment_statement, body);
+	                                          increment_statement, body, parser->allocator);
 }
 
 static soul_ast_node_t* parse_while_statement(soul_parser_t* parser)
@@ -262,13 +263,13 @@ static soul_ast_node_t* parse_while_statement(soul_parser_t* parser)
 	else
 	{
 		// ...it is a while true loop!
-		condition = soul_ast_node_create_boolean_literal_expression(true);
+		condition = soul_ast_node_create_boolean_literal_expression(true, parser->allocator);
 	}
 
 	// Body
 	soul_ast_node_t* body = parse_block_statement(parser);
 
-	return soul_ast_node_create_while_statement(condition, body);
+	return soul_ast_node_create_while_statement(condition, body, parser->allocator);
 }
 
 static soul_ast_node_t* parse_block_statement(soul_parser_t* parser)
@@ -279,14 +280,14 @@ static soul_ast_node_t* parse_block_statement(soul_parser_t* parser)
 	soul_ast_node_array_t statements;
 	while (peek(parser).type != soul_token_brace_right)
 	{
-		soul_ast_node_array_append(&statements, parse_statement(parser));
+		soul_ast_node_array_append(&statements, parse_statement(parser), parser->allocator);
 		// NOTE: Prevent trying to parse unterminated blocks.
 		// TODO: Propagate error.
 		if (peek(parser).type == soul_token_eof) break;
 	}
 	require(parser, soul_token_brace_right);
 
-	return soul_ast_node_create_block_statement(statements);
+	return soul_ast_node_create_block_statement(statements, parser->allocator);
 }
 
 static soul_ast_node_t* parse_return_statement(soul_parser_t* parser)
@@ -302,7 +303,7 @@ static soul_ast_node_t* parse_return_statement(soul_parser_t* parser)
 	}
 	require(parser, soul_token_semicolon);
 
-	return soul_ast_node_create_return_statement(return_expr);
+	return soul_ast_node_create_return_statement(return_expr, parser->allocator);
 }
 
 static soul_ast_node_t* parse_statement(soul_parser_t* parser)
@@ -338,24 +339,24 @@ static soul_ast_node_t* parse_literal_expression(soul_parser_t* parser)
 	switch (token.type)
 	{
 		case soul_token_identifier: {
-			soul_ast_node_identifier_t val
-			    = soul_ast_node_identifier_create(token.start, token.length);
-			node = soul_ast_node_create_variable_literal_expression(val);
+			soul_ast_node_identifier_t val = soul_ast_node_identifier_create(
+			    token.start, token.length, parser->allocator);
+			node = soul_ast_node_create_variable_literal_expression(val, parser->allocator);
 			break;
 		}
 		case soul_token_number: {
-			node = soul_ast_node_create_number_literal_expression(0);
+			node = soul_ast_node_create_number_literal_expression(0, parser->allocator);
 			break;
 		}
 		case soul_token_string: {
 			soul_ast_node_identifier_t val
-			    = soul_ast_node_identifier_create(token.start, token.length);
-			node = soul_ast_node_create_string_literal_expression(val);
+			    = soul_ast_node_identifier_create(token.start, token.length, parser->allocator);
+			node = soul_ast_node_create_string_literal_expression(val, parser->allocator);
 			break;
 		}
 		case soul_token_true:
 		case soul_token_false: {
-			node     = soul_ast_node_create_boolean_literal_expression(token.type == soul_token_true);
+			node = soul_ast_node_create_boolean_literal_expression(token.type == soul_token_true, parser->allocator);
 			break;
 		}
 		default:
@@ -372,7 +373,7 @@ static soul_ast_node_t* parse_assignment_expression(
 	soul_ast_node_t* lhs = parse_expression(parser);
 	advance(parser); // Consume the assignment token.
 	soul_ast_node_t* rhs = parse_expression(parser);
-	return soul_ast_node_create_assign_expression(lhs, rhs);
+	return soul_ast_node_create_assign_expression(lhs, rhs, parser->allocator);
 }
 
 static soul_ast_node_t* parse_unary_expression(soul_parser_t* parser)
@@ -381,7 +382,7 @@ static soul_ast_node_t* parse_unary_expression(soul_parser_t* parser)
 	advance(parser);
 	soul_ast_node_t* val        = parse_literal_expression(parser);
 	soul_ast_node_operator_t op = soul_token_type_to_operator(token.type);
-	return soul_ast_node_create_unary_expression(val, op);
+	return soul_ast_node_create_unary_expression(val, op, parser->allocator);
 }
 
 static soul_ast_node_t* parse_binary_expression(soul_parser_t* parser,
@@ -392,7 +393,7 @@ static soul_ast_node_t* parse_binary_expression(soul_parser_t* parser,
 	soul_ast_node_t* rhs        = parse_expression_with_precedence(
         parser, (rule.precedence + 1));
 	soul_ast_node_operator_t op = soul_token_type_to_operator(token.type);
-	return soul_ast_node_create_binary_expression(lhs, rhs, op);
+	return soul_ast_node_create_binary_expression(lhs, rhs, op, parser->allocator);
 }
 
 static soul_precedence_rule_t get_precedence_rule(soul_token_type_t type)
@@ -436,7 +437,7 @@ static soul_ast_node_t* parse_expression_statement(soul_parser_t* parser)
 		return parse_assignment_expression(parser);
 
 	soul_ast_node_t* expr = parse_expression(parser);
-	return soul_ast_node_create_expression_statement(expr);
+	return soul_ast_node_create_expression_statement(expr, parser->allocator);
 }
 
 static soul_ast_node_t* parse_expression_with_precedence(

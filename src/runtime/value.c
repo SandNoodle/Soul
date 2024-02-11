@@ -7,21 +7,24 @@
 
 #define RETURN_VALUE_IF_ERROR(cond) if ((cond)) { return (soul_value_t){0}; }
 
-soul_value_stack_t soul_value_stack_create(void)
+soul_value_stack_t soul_value_stack_create(soul_allocator_t* allocator)
 {
 	soul_value_stack_t stack;
-	stack.values = NULL;
-	stack.size = 0;
-	stack.capacity = 0;
+	stack.values    = NULL;
+	stack.size      = 0;
+	stack.capacity  = 0;
+	stack.allocator = allocator;
 	return stack;
 }
 
 void soul_value_stack_destroy(soul_value_stack_t* stack)
 {
 	if(!stack) return;
-	stack->size = 0;
-	stack->capacity = 0;
-	free(stack->values);
+	stack->allocator->free(stack->values, stack->capacity * sizeof(soul_value_t), stack->allocator->user_data);
+	stack->values    = NULL;
+	stack->size      = 0;
+	stack->capacity  = 0;
+	stack->allocator = NULL;
 }
 
 void soul_value_stack_push(soul_value_stack_t* stack, soul_value_t value)
@@ -29,11 +32,15 @@ void soul_value_stack_push(soul_value_stack_t* stack, soul_value_t value)
 	if(!stack) return;
 	if(stack->size + 1 > stack->capacity)
 	{
+		soul_allocator_t* alloc = stack->allocator;
 		const size_t new_capacity
 			= stack->capacity < SOUL_STACK_MIN_CAPACITY
 			? SOUL_STACK_MIN_CAPACITY
 			: stack->capacity * SOUL_STACK_CAPACITY_GROWTH_RATE;
-		stack->values = (soul_value_t*)realloc(stack->values, sizeof(soul_value_t) * new_capacity);
+		stack->values = (soul_value_t*)alloc->realloc(
+		    stack->values,
+		    sizeof(soul_value_t) * new_capacity,
+		    alloc->user_data);
 		stack->capacity = new_capacity;
 	}
 	stack->values[stack->size++] = value;
@@ -72,21 +79,24 @@ void soul_value_stack_reset(soul_value_stack_t* stack)
 	memset(stack->values, 0, sizeof(soul_value_t) * stack->capacity);
 }
 
-soul_value_array_t soul_value_array_create(void)
+soul_value_array_t soul_value_array_create(soul_allocator_t* allocator)
 {
 	soul_value_array_t array;
-	array.values = NULL;
-	array.size = 0;
-	array.capacity = 0;
+	array.values    = NULL;
+	array.size      = 0;
+	array.capacity  = 0;
+	array.allocator = allocator;
 	return array;
 }
 
 void soul_value_array_destroy(soul_value_array_t* array)
 {
 	if(!array) return;
-	array->size = 0;
-	array->capacity = 0;
-	free(array->values);
+	array->allocator->free(array->values, array->capacity * sizeof(soul_value_t), array->allocator->user_data);
+	array->values    = NULL;
+	array->size      = 0;
+	array->capacity  = 0;
+	array->allocator = NULL;
 }
 
 bool soul_value_array_append(soul_value_array_t* array, soul_value_t value)
@@ -94,11 +104,12 @@ bool soul_value_array_append(soul_value_array_t* array, soul_value_t value)
 	if(!array) return false;
 	if(array->size + 1 > array->capacity)
 	{
+		soul_allocator_t* alloc = array->allocator;
 		const size_t new_capacity
 			= array->capacity < SOUL_STACK_MIN_CAPACITY
 			? SOUL_STACK_MIN_CAPACITY
 			: array->capacity * SOUL_STACK_CAPACITY_GROWTH_RATE;
-		array->values = (soul_value_t*)realloc(array->values, sizeof(soul_value_t) * new_capacity);
+		array->values = (soul_value_t*)alloc->realloc(array->values, sizeof(soul_value_t) * new_capacity, alloc->user_data);
 		array->capacity = new_capacity;
 	}
 	array->values[array->size++] = value;

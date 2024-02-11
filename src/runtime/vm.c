@@ -16,17 +16,20 @@
 
 static void reset(soul_vm_t*);
 
-soul_vm_t soul_vm_create(void)
+soul_vm_t soul_vm_create(soul_allocator_t* allocator)
 {
 	soul_vm_t vm;
-	vm.ip = 0;
-	vm.chunk = NULL;
-	vm.stack = soul_value_stack_create();
+	vm.ip        = 0;
+	vm.chunk     = NULL;
+	vm.stack     = soul_value_stack_create(allocator);
+	vm.allocator = allocator;
 	return vm;
 }
 
 void soul_vm_interpret(soul_vm_t* vm, soul_chunk_t* chunk)
 {
+	if(!vm || !chunk) return;
+
 	reset(vm);
 	vm->chunk = chunk;
 	bool should_stop = false;

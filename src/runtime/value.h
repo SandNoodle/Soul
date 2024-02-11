@@ -1,6 +1,8 @@
 #ifndef SOUL_RUNTIME_VALUE_H
 #define SOUL_RUNTIME_VALUE_H
 
+#include "allocator.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -19,10 +21,11 @@ struct soul_value_stack_t
 	soul_value_t* values;
 	size_t size;
 	size_t capacity;
+	soul_allocator_t* allocator;
 };
 
 /** Creates a stack that can holds values. */
-soul_value_stack_t soul_value_stack_create(void);
+soul_value_stack_t soul_value_stack_create(soul_allocator_t* allocator);
 
 /** Destroys given soul_value_stack. */
 void soul_value_stack_destroy(soul_value_stack_t* stack);
@@ -56,10 +59,11 @@ struct soul_value_array_t
 	soul_value_t* values;
 	size_t size;
 	size_t capacity;
+	soul_allocator_t* allocator;
 };
 
 /** Creates a dynamic array that can holds values. */
-soul_value_array_t soul_value_array_create(void);
+soul_value_array_t soul_value_array_create(soul_allocator_t* allocator);
 
 /** Destroys given soul_value_array. */
 void soul_value_array_destroy(soul_value_array_t* array);

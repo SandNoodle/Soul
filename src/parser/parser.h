@@ -1,6 +1,7 @@
 #ifndef SOUL_PARSER_PARSER_H
 #define SOUL_PARSER_PARSER_H
 
+#include "allocator.h"
 #include "ast/ast.h"
 #include "lexer/token.h"
 
@@ -12,10 +13,12 @@ struct soul_parser_t
 
 	bool had_panic;
 	bool had_error;
+
+	soul_allocator_t* allocator;
 };
 
 /** Creates parser ready for parsing. */
-soul_parser_t soul_parser_create(void);
+soul_parser_t soul_parser_create(soul_allocator_t* allocator);
 
 /**
  * @brief Parses given token array into its AST representation.

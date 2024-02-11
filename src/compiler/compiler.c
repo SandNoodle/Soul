@@ -30,14 +30,16 @@ void emit_short(soul_compiler_t*, uint16_t);
 void patch_short(soul_compiler_t*, uint32_t address, uint16_t value);
 uint32_t get_current_address(soul_compiler_t*);
 
-soul_compiler_t soul_compiler_create(void)
+soul_compiler_t soul_compiler_create(soul_allocator_t* allocator)
 {
 	soul_compiler_t compiler;
+	compiler.chunk = NULL;
+	compiler.allocator = allocator;
 	return compiler;
 }
 
 static void compile_node(soul_compiler_t* compiler,
-                                  soul_ast_node_t* node)
+                         soul_ast_node_t* node)
 {
 	if(!node) return;
 
@@ -182,13 +184,23 @@ static void compile_block_statement(soul_compiler_t* compiler,
 soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler,
                                    soul_ast_node_t* root)
 {
-	if (!compiler || !root) return soul_chunk_create();
+	if (!compiler || !root) return soul_chunk_create(NULL);
 
-	soul_chunk_t chunk = soul_chunk_create();
+	soul_chunk_t chunk = soul_chunk_create(compiler->allocator);
 	compiler->chunk    = &chunk;
 	compile_node(compiler, root);
 
 	return chunk;
+}
+
+void enter_scope(soul_compiler_t* compiler)
+{
+	// @TODO
+}
+
+void exit_scope(soul_compiler_t* compiler)
+{
+	// @TODO
 }
 
 uint32_t emit_opcode(soul_compiler_t* compiler, soul_opcode_t op)

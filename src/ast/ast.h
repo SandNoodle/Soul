@@ -1,6 +1,8 @@
 #ifndef SOUL_AST_AST_H
 #define SOUL_AST_AST_H
 
+#include "allocator.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -10,16 +12,17 @@ typedef struct soul_ast_node_t soul_ast_node_t;
 typedef struct soul_ast_node_identifier_t soul_ast_node_identifier_t;
 struct soul_ast_node_identifier_t
 {
-	char* str;
+	char* data;
 	uint32_t length;
 };
 
 /** Creates AST Identifier node from a string. */
 soul_ast_node_identifier_t soul_ast_node_identifier_create(const char* string,
-                                                           size_t size);
+                                                           size_t length,
+                                                           soul_allocator_t* allocator);
 
 /** Destroys given AST Identifier node. */
-void soul_ast_node_identifier_destroy(soul_ast_node_identifier_t* id);
+void soul_ast_node_identifier_destroy(soul_ast_node_identifier_t* id, soul_allocator_t* allocator);
 
 typedef struct soul_ast_node_array_t soul_ast_node_array_t;
 struct soul_ast_node_array_t
@@ -29,15 +32,19 @@ struct soul_ast_node_array_t
 	size_t capacity;
 };
 
-/** Initializes given AST Node array. */
-void soul_ast_node_array_initialize(soul_ast_node_array_t* arr);
+/** Creates new AST Node dynamic array. */
+soul_ast_node_array_t soul_ast_node_array_create(soul_allocator_t* allocator);
+
+/** Destroys given ASTNode dynamic array. */
+void soul_ast_node_array_destroy(soul_ast_node_array_t* array, soul_allocator_t* allocator);
 
 /** Appends given node to the end of the array. */
 void soul_ast_node_array_append(soul_ast_node_array_t* arr,
-                                soul_ast_node_t* node);
+                                soul_ast_node_t* node,
+                                soul_allocator_t* allocator);
 
 /** Clears the whole array and frees nodes. */
-void soul_ast_node_array_clear(soul_ast_node_array_t* arr);
+void soul_ast_node_array_clear(soul_ast_node_array_t* arr, soul_allocator_t* allocator);
 
 /**
  * Represents operator used with unary, binary, ... nodes.
@@ -195,28 +202,28 @@ struct soul_ast_node_t
 const char* soul_ast_node_type_to_string(soul_ast_node_type_t type);
 
 /** Creates new AST Node. */
-soul_ast_node_t* soul_ast_node_create(soul_ast_node_type_t);
+soul_ast_node_t* soul_ast_node_create(soul_ast_node_type_t, soul_allocator_t*);
 
 /** Destroys given AST Node. */
-void soul_ast_node_destroy(soul_ast_node_t* node);
+void soul_ast_node_destroy(soul_ast_node_t* node, soul_allocator_t*);
 
 // clang-format off
-soul_ast_node_t* soul_ast_node_create_assign_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs);
-soul_ast_node_t* soul_ast_node_create_unary_expression(soul_ast_node_t* expr, soul_ast_node_operator_t op);
-soul_ast_node_t* soul_ast_node_create_binary_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs, soul_ast_node_operator_t op);
-soul_ast_node_t* soul_ast_node_create_variable_literal_expression(soul_ast_node_identifier_t identifier);
-soul_ast_node_t* soul_ast_node_create_boolean_literal_expression(bool val);
-soul_ast_node_t* soul_ast_node_create_number_literal_expression(int64_t val);
-soul_ast_node_t* soul_ast_node_create_string_literal_expression(soul_ast_node_identifier_t val);
-soul_ast_node_t* soul_ast_node_create_expression_statement(soul_ast_node_t* stmt);
+soul_ast_node_t* soul_ast_node_create_assign_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_unary_expression(soul_ast_node_t* expr, soul_ast_node_operator_t op, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_binary_expression(soul_ast_node_t* lhs, soul_ast_node_t* rhs, soul_ast_node_operator_t op, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_variable_literal_expression(soul_ast_node_identifier_t identifier, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_boolean_literal_expression(bool val, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_number_literal_expression(int64_t val, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_string_literal_expression(soul_ast_node_identifier_t val, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_expression_statement(soul_ast_node_t* stmt, soul_allocator_t*);
 
-soul_ast_node_t* soul_ast_node_create_variable_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* expr, bool is_mutable);
-soul_ast_node_t* soul_ast_node_create_function_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* body, soul_ast_node_array_t params);
-soul_ast_node_t* soul_ast_node_create_if_statement(soul_ast_node_t* condition, soul_ast_node_t* then_body, soul_ast_node_t* else_body);
-soul_ast_node_t* soul_ast_node_create_for_statement(soul_ast_node_t* initializer, soul_ast_node_t* condition, soul_ast_node_t* increment_stmt, soul_ast_node_t* body);
-soul_ast_node_t* soul_ast_node_create_while_statement(soul_ast_node_t* condition, soul_ast_node_t* body);
-soul_ast_node_t* soul_ast_node_create_block_statement(soul_ast_node_array_t statements);
-soul_ast_node_t* soul_ast_node_create_return_statement(soul_ast_node_t* return_expr);
+soul_ast_node_t* soul_ast_node_create_variable_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* expr, bool is_mutable, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_function_decl_statement(soul_ast_node_identifier_t id, soul_ast_node_identifier_t type, soul_ast_node_t* body, soul_ast_node_array_t params, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_if_statement(soul_ast_node_t* condition, soul_ast_node_t* then_body, soul_ast_node_t* else_body, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_for_statement(soul_ast_node_t* initializer, soul_ast_node_t* condition, soul_ast_node_t* increment_stmt, soul_ast_node_t* body, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_while_statement(soul_ast_node_t* condition, soul_ast_node_t* body, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_block_statement(soul_ast_node_array_t statements, soul_allocator_t*);
+soul_ast_node_t* soul_ast_node_create_return_statement(soul_ast_node_t* return_expr, soul_allocator_t*);
 // clang-format on
 
 #endif // SOUL_AST_AST_H

@@ -18,24 +18,26 @@ static bool is_alpha(char c);
 static bool is_digit(char c);
 static bool is_quotation(char c);
 
-soul_lexer_t soul_lexer_create(void)
+soul_lexer_t soul_lexer_create(soul_allocator_t* allocator)
 {
 	soul_lexer_t lexer;
 	lexer.token_start  = NULL;
 	lexer.current_char = NULL;
 	lexer.current_line = 0;
+	lexer.allocator = allocator;
 	return lexer;
 }
 
-soul_token_array_t soul_lexer_scan(soul_lexer_t* lexer, const char* str,
+soul_token_array_t soul_lexer_scan(soul_lexer_t* lexer,
+	                               const char* str,
                                    size_t size)
 {
-	if (!lexer) return soul_token_array_create();
+	if (!lexer) return soul_token_array_create(lexer->allocator);
 
 	lexer->token_start  = str;
 	lexer->current_char = str;
 
-	soul_token_array_t array = soul_token_array_create();
+	soul_token_array_t array = soul_token_array_create(lexer->allocator);
 	for (;;)
 	{
 		soul_token_t token = lexer_scan_token(lexer);

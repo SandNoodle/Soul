@@ -16,7 +16,7 @@ static void print_indent(size_t level)
 
 static void print_identifier(soul_ast_node_identifier_t* identifier)
 {
-	printf("[%.*s]", (int)identifier->length, identifier->str);
+	printf("[%.*s]", (int)identifier->length, identifier->data);
 }
 
 static void stringify_impl(soul_ast_node_t* node, size_t indent)
@@ -74,8 +74,7 @@ static void stringify_impl(soul_ast_node_t* node, size_t indent)
 			break;
 		}
 		case soul_ast_expr_stmt: {
-			struct soul_ast_expr_stmt_t* e = &node->as.expr_stmt;
-			stringify_impl(e->stmt, indent);
+			stringify_impl(node->as.expr_stmt.stmt, indent);
 			break;
 		}
 		case soul_ast_stmt_variable_decl: {

@@ -18,8 +18,40 @@
 #define SOUL_PRINT_AST
 #define SOUL_PRINT_BYTECODE
 
+void* std_alloc(size_t size, void* context)
+{
+	(void)context;
+	return malloc(size);
+}
+
+void* std_realloc(void* ptr, size_t size, void* context)
+{
+	(void)context;
+	return realloc(ptr, size);
+}
+
+void std_free(void* ptr, size_t size, void* context)
+{
+	(void)context;
+	(void)size;
+	free(ptr);
+}
+
+soul_allocator_t mallocator(void)
+{
+	soul_allocator_t allocator;
+	allocator.alloc     = std_alloc;
+	allocator.realloc   = std_realloc;
+	allocator.free      = std_free;
+	allocator.user_data = NULL;
+	return allocator;
+}
+
+#if 0
 int main(void)
 {
+	soul_allocator_t alloc = mallocator();
+
 	soul_value_t const_values[] = {
 		(soul_value_t){.int_value = 54},
 		(soul_value_t){.int_value = 45},
@@ -28,7 +60,7 @@ int main(void)
 		(soul_value_t){.int_value = 4},
 		(soul_value_t){.int_value = 1},
 	};
-	soul_value_array_t constants = soul_value_array_create();
+	soul_value_array_t constants = soul_value_array_create(&alloc);
 	const size_t array_size = sizeof(const_values) / sizeof(const_values[0]);
 	for(size_t i = 0; i < array_size; ++i)
 	{
@@ -51,16 +83,16 @@ int main(void)
 	};
 	// ((((54 + 45) + 1) * 12) / (8 / 4)) = 100 * 12 / 4 = 300
 
-	soul_chunk_t chunk = soul_chunk_create();
+	soul_chunk_t chunk = soul_chunk_create(&alloc);
 	chunk.code = code;
 	chunk.code_size = sizeof(code) / sizeof(code[0]);
 	chunk.constants = constants;
 
-	soul_vm_t vm = soul_vm_create();
+	soul_vm_t vm = soul_vm_create(&alloc);
 	soul_vm_interpret(&vm, &chunk);
 }
 
-#if 0
+#else
 
 typedef struct file_t file_t;
 struct file_t
@@ -90,16 +122,16 @@ file_t read_file(const char* path)
 	rewind(f);
 	
 	// Alloc buffer
-	file.data = (char*)malloc(file.size);
+	file.data = (char*)malloc(file.size + 1);
 	if(!file.data) {
 		printf("Failed to allocate a sufficient buffer to a file.\n");
 		fclose(f);
 		return file;
 	}
-	memset(file.data, '\0', sizeof(char) * file.size);
+	memset(file.data, '\0', sizeof(char) * (file.size + 1));
 
 	// Read the whole file
-	size_t read_size = fread(file.data, sizeof(char), file.size, f);
+	size_t read_size = fread(file.data, sizeof(char), file.size + 1, f);
 	if(read_size != file.size)
 	{
 		printf("Read size (%zu) is diffrenet from file's size (%zu).\n", read_size, file.size);
@@ -115,6 +147,8 @@ file_t read_file(const char* path)
 
 int main (void)
 {
+	soul_allocator_t alloc = mallocator();
+
 	file_t file = read_file("../../playground/test.soul");
 	if(!file.is_valid) { return 1; }
 
@@ -122,14 +156,14 @@ int main (void)
 	// Lexing
 	//
 
-	soul_lexer_t lexer = soul_lexer_create();
+	soul_lexer_t lexer = soul_lexer_create(&alloc);
 	soul_token_array_t array = soul_lexer_scan(&lexer, file.data, file.size);
 
 #ifdef SOUL_PRINT_ARRAY
 	for(size_t i = 0; i < array.size; ++i)
 	{
 		const soul_token_t token = array.tokens[i];
-		printf("%d: %.*s [%s]\n", i, (int)token.length, token.start, soul_token_type_to_string(token.type));
+		printf("%zu: %.*s [%s]\n", i, (int)token.length, token.start, soul_token_type_to_string(token.type));
 	}
 #endif // SOUL_PRINT_ARRAY
 
@@ -137,7 +171,7 @@ int main (void)
 	// Parsing
 	//
 
-	soul_parser_t parser = soul_parser_create();
+	soul_parser_t parser = soul_parser_create(&alloc);
 	soul_ast_node_t* ast = soul_parser_parse(&parser, &array);
 	if(!ast)
 	{
@@ -153,7 +187,7 @@ int main (void)
 	// Compiling
 	//
 
-	soul_compiler_t compiler = soul_compiler_create();
+	soul_compiler_t compiler = soul_compiler_create(&alloc);
 	soul_chunk_t chunk = soul_compiler_compile(&compiler, ast);
 
 #ifdef SOUL_PRINT_BYTECODE

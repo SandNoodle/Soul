@@ -1,6 +1,8 @@
 #ifndef LEXER_TOKEN_H
 #define LEXER_TOKEN_H
 
+#include "allocator.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -108,10 +110,12 @@ struct soul_token_array_t
 	soul_token_t* tokens;
 	size_t size;
 	size_t capacity;
+
+	soul_allocator_t* allocator;
 };
 
 /** Creates a dynamic array struct that can holds tokens. */
-soul_token_array_t soul_token_array_create(void);
+soul_token_array_t soul_token_array_create(soul_allocator_t* allocator);
 
 /** Destroys given soul_token_array */
 void soul_token_array_destroy(soul_token_array_t* array);

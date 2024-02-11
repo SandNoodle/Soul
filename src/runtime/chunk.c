@@ -1,12 +1,14 @@
 #include "chunk.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
-soul_chunk_t soul_chunk_create(void)
+soul_chunk_t soul_chunk_create(soul_allocator_t* allocator)
 {
 	soul_chunk_t chunk;
 	chunk.code      = NULL;
 	chunk.code_size = 0;
+	chunk.allocator = allocator;
 	return chunk;
 }
 

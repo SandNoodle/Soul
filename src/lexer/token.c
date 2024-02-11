@@ -29,21 +29,25 @@ const char* soul_token_type_to_string(soul_token_type_t type)
 	return "unknown";
 }
 
-soul_token_array_t soul_token_array_create(void)
+soul_token_array_t soul_token_array_create(soul_allocator_t* allocator)
 {
 	soul_token_array_t array;
-	array.tokens   = NULL;
-	array.size     = 0;
-	array.capacity = 0;
+	array.tokens    = NULL;
+	array.size      = 0;
+	array.capacity  = 0;
+	array.allocator = allocator;
 	return array;
 }
 
 void soul_token_array_destroy(soul_token_array_t* array)
 {
 	if (!array) return;
-	array->size     = 0;
-	array->capacity = 0;
-	free(array->tokens);
+	array->allocator->free(array->tokens,
+	                       array->capacity * sizeof(soul_token_t),
+	                       array->allocator->user_data);
+	array->size      = 0;
+	array->capacity  = 0;
+	array->allocator = NULL;
 }
 
 bool soul_token_array_append(soul_token_array_t* array, soul_token_t token)
@@ -124,12 +128,15 @@ static inline void extend_capacity_if_needed(soul_token_array_t* array)
 {
 	if (array->size + 1 > array->capacity)
 	{
+		soul_allocator_t* alloc = array->allocator;
 		const size_t new_capacity
 		    = array->capacity < SOUL_ARRAY_MIN_CAPACITY
 		        ? SOUL_ARRAY_MIN_CAPACITY
 		        : array->capacity * SOUL_ARRAY_CAPACITY_GROWTH_RATE;
-		array->tokens = (soul_token_t*)realloc(
-		    array->tokens, sizeof(soul_token_t) * new_capacity);
+		array->tokens = (soul_token_t*)alloc->realloc(
+		    array->tokens,
+		    sizeof(soul_token_t) * new_capacity,
+		    alloc->user_data);
 		array->capacity = new_capacity;
 	}
 }

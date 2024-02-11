@@ -320,7 +320,7 @@ static soul_ast_node_t* parse_statement(soul_parser_t* parser)
 			return parse_for_statement(parser);
 		case soul_token_while:
 			return parse_while_statement(parser);
-		case soul_token_paren_left:
+		case soul_token_brace_left:
 			return parse_block_statement(parser);
 		case soul_token_return:
 			return parse_return_statement(parser);

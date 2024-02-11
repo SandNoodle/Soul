@@ -24,6 +24,7 @@ static void compile_block_statement(soul_compiler_t*, soul_ast_node_t*);
 // Utils
 void enter_scope(soul_compiler_t*);
 void exit_scope(soul_compiler_t*);
+bool is_global_scope(soul_compiler_t*);
 uint32_t emit_opcode(soul_compiler_t*, soul_opcode_t);
 void emit_byte(soul_compiler_t*, uint8_t);
 void emit_short(soul_compiler_t*, uint16_t);
@@ -34,6 +35,9 @@ soul_compiler_t soul_compiler_create(soul_allocator_t* allocator)
 {
 	soul_compiler_t compiler;
 	compiler.chunk = NULL;
+	compiler.current_depth = 0;
+	compiler.had_error = false;
+	compiler.had_panic = false;
 	compiler.allocator = allocator;
 	return compiler;
 }
@@ -67,6 +71,7 @@ static void compile_node(soul_compiler_t* compiler,
 		case soul_ast_stmt_for:
 		case soul_ast_stmt_while:
 		case soul_ast_stmt_block:
+			return compile_block_statement(compiler, node);
 		case soul_ast_stmt_return:
 		case soul_ast_stmt_variable_decl:
 			return compile_varaiable_declaration_statement(compiler, node);
@@ -138,6 +143,13 @@ static void compile_string_literal_expression(soul_compiler_t* compiler, soul_as
 
 static void compile_varaiable_declaration_statement(soul_compiler_t* compiler, soul_ast_node_t* node)
 {
+	if(is_global_scope(compiler))
+	{
+		// TODO: Error callback.
+		return;
+	}
+
+	struct soul_ast_stmt_variable_decl_t* s = &node->as.stmt_variable_decl;
 	assert(false && "unimplemented");
 }
 
@@ -195,38 +207,44 @@ soul_chunk_t soul_compiler_compile(soul_compiler_t* compiler,
 
 void enter_scope(soul_compiler_t* compiler)
 {
-	// @TODO
+	compiler->current_depth++;
 }
 
 void exit_scope(soul_compiler_t* compiler)
 {
-	// @TODO
+	assert(false && "unimplemented");
+	/* discard_variables(compiler->, compiler->current_depth); */ // TODO
+	compiler->current_depth--;
+}
+
+bool is_global_scope(soul_compiler_t* compiler)
+{
+	return compiler->current_depth == 0;
 }
 
 uint32_t emit_opcode(soul_compiler_t* compiler, soul_opcode_t op)
 {
-	// @TODO
-	return 0;
+	assert(false && "unimplemented");
 }
 
 void emit_byte(soul_compiler_t* compiler, uint8_t b)
 {
-	// @TODO
+	assert(false && "unimplemented");
 }
 
 void emit_short(soul_compiler_t* compiler, uint16_t s)
 {
-	// @TODO
+	assert(false && "unimplemented");
 }
 
 void patch_short(soul_compiler_t* compiler, uint32_t address,
                           uint16_t value)
 {
-	// @TODO
+	assert(false && "unimplemented");
 }
 
 uint32_t get_current_address(soul_compiler_t* compiler)
 {
-	// @TODO
+	assert(false && "unimplemented");
 	return 0;
 }

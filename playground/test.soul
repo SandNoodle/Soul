@@ -1,5 +1,5 @@
 # This is a comment.
 # fn main :: void
 {
-	let mut test : str = "String";
+	let test : str = "String";
 }

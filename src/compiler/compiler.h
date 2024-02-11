@@ -9,6 +9,11 @@ typedef struct soul_compiler_t soul_compiler_t;
 struct soul_compiler_t
 {
 	soul_chunk_t* chunk;
+	uint32_t current_depth;
+
+	bool had_error;
+	bool had_panic;
+
 	soul_allocator_t* allocator;
 };
 

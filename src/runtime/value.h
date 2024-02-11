@@ -12,6 +12,7 @@ union soul_value_t
 {
 	int64_t int_value;
 	double float_value;
+	bool boolean_value;
 	char* string_value;
 };
 

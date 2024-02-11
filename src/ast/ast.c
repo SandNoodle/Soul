@@ -9,6 +9,32 @@
 // @TODO: Move out into a config file.
 #define SOUL_AST_NODE_ARRAY_MIN_CAPACITY 8
 
+bool soul_is_unary_operator(soul_ast_node_operator_t op)
+{
+	return op == soul_ast_op_sub
+		|| op == soul_ast_op_inc
+		|| op == soul_ast_op_dec
+		|| op == soul_ast_op_logic_not;
+}
+
+bool soul_is_binary_operator(soul_ast_node_operator_t op)
+{
+	return op == soul_ast_op_add
+		|| op == soul_ast_op_sub
+		|| op == soul_ast_op_mul
+		|| op == soul_ast_op_div
+		|| op == soul_ast_op_mod
+		|| op == soul_ast_op_pow
+		|| op == soul_ast_op_equal
+		|| op == soul_ast_op_not_equal
+		|| op == soul_ast_op_greater
+		|| op == soul_ast_op_greater_equal
+		|| op == soul_ast_op_less
+		|| op == soul_ast_op_less_equal
+		|| op == soul_ast_op_logic_and
+		|| op == soul_ast_op_logic_or;
+}
+
 const char* soul_ast_node_type_to_string(soul_ast_node_type_t type)
 {
 	// IMPORTANT: Has to match soul_ast_node_type_t

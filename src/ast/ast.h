@@ -77,6 +77,9 @@ typedef enum soul_ast_node_operator_t : uint8_t
 	soul_ast_op_logic_or,  // Or
 } soul_ast_node_operator_t;
 
+bool soul_is_unary_operator(soul_ast_node_operator_t op);
+bool soul_is_binary_operator(soul_ast_node_operator_t op);
+
 soul_ast_node_operator_t soul_token_type_to_operator(enum soul_token_type_t type);
 
 /**
@@ -140,6 +143,7 @@ struct soul_ast_node_t
 		} expr_literal_bool;
 		struct soul_ast_expr_literal_number_t
 		{
+			// TODO: tagged union.
 			int64_t val;
 		} expr_literal_number;
 		struct soul_ast_expr_literal_string_t

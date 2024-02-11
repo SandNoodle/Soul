@@ -34,5 +34,6 @@ compile_commands.json
 build/
 .cache/
 .idea/
+cmake-*/
 
 # End of https://www.toptal.com/developers/gitignore/api/git,executable

@@ -9,8 +9,6 @@
 
 namespace soul::ir
 {
-	class BasicBlock;
-
 	/**
 	 * @brief Represents a single Instruction in the language's Intermediate Representation.
 	 * @detials Represented in Static Single-Assignment (SSA) Three-Address Code (TAC) form.

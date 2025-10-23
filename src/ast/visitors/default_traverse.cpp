@@ -95,22 +95,4 @@ namespace soul::ast::visitors
 		accept(node.condition.get());
 		accept(node.statements.get());
 	}
-
-	void DefaultTraverseVisitor::visit(BinaryNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(BlockNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(CastNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(ErrorNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(ForLoopNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(ForeachLoopNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(FunctionCallNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(FunctionDeclarationNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(IfNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(LiteralNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(LoopControlNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(ModuleNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(ReturnNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(StructDeclarationNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(UnaryNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(VariableDeclarationNode& node) { visit(std::as_const(node)); }
-	void DefaultTraverseVisitor::visit(WhileNode& node) { visit(std::as_const(node)); }
 }  // namespace soul::ast::visitors

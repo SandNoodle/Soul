@@ -4,9 +4,10 @@
 
 namespace soul::ir
 {
-	struct Module;
+	struct BasicBlock;
 	struct Function;
 	struct Instruction;
+	struct Module;
 
 	/**
 	 * @brief InstructionKind is a concept, which holds true for any class that inherits from an Instruction class.

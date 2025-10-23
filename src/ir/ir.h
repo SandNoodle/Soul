@@ -23,7 +23,7 @@ namespace soul::ir
 		constexpr Function(std::string_view name, types::Type return_type, std::vector<types::Type> parameters);
 	};
 
-	class Module
+	struct Module
 	{
 		public:
 		std::string                            name;

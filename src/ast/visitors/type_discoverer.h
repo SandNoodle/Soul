@@ -39,6 +39,6 @@ namespace soul::ast::visitors
 
 		protected:
 		using CopyVisitor::visit;
-		void visit(StructDeclarationNode&) override;
+		void visit(const StructDeclarationNode&) override;
 	};
 }  // namespace soul::ast::visitors

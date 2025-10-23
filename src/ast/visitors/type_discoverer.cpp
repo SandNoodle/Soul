@@ -11,7 +11,7 @@ namespace soul::ast::visitors
 
 	TypeDiscovererVisitor::TypeMap TypeDiscovererVisitor::discovered_types() noexcept { return _registered_types; }
 
-	void TypeDiscovererVisitor::visit(StructDeclarationNode& node)
+	void TypeDiscovererVisitor::visit(const StructDeclarationNode& node)
 	{
 		if (_registered_types.contains(node.name)) {
 			_current_clone = ErrorNode::create(std::format("redefinition of type '{}'", node.name));

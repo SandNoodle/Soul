@@ -37,23 +37,5 @@ namespace soul::ast::visitors
 		virtual constexpr void visit(const UnaryNode&) {}
 		virtual constexpr void visit(const VariableDeclarationNode&) {}
 		virtual constexpr void visit(const WhileNode&) {}
-
-		virtual constexpr void visit(BinaryNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(BlockNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(CastNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(ErrorNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(ForLoopNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(ForeachLoopNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(FunctionCallNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(FunctionDeclarationNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(IfNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(LiteralNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(LoopControlNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(ModuleNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(ReturnNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(StructDeclarationNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(UnaryNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(VariableDeclarationNode& node) { visit(std::as_const(node)); }
-		virtual constexpr void visit(WhileNode& node) { visit(std::as_const(node)); }
 	};
 }  // namespace soul::ast::visitors

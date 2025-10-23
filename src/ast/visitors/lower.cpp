@@ -293,7 +293,6 @@ namespace soul::ast::visitors
 		switch (node.op) {
 			case ASTNode::Operator::LogicalNot:
 				return _builder.emit<Not>(expression);
-
 			default:
 				break;
 		}

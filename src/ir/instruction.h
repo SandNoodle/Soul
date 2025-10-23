@@ -181,7 +181,7 @@ namespace soul::ir
 
 	/**
 	 * @brief Upsilon instruction: performs a write operation (stores a value) into a 'shadow variable' of a given
-	 * phi node, i.e. stores a value that will be used by a correlated Phi instruction.
+	 * phi node, i.e. stores a value that will be used by a correlated Phi instruction(s).
 	 * @see https://gist.github.com/pizlonator/cf1e72b8600b1437dda8153ea3fdb963
 	 */
 	struct Upsilon final : public Instruction

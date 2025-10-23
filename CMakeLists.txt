@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 
 # ----- [ Project ] -----
 project(ScriptingLanguage VERSION 0.1 LANGUAGES CXX)

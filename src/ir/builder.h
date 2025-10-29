@@ -12,20 +12,20 @@
 namespace soul::ir
 {
 	/**
-	 * @brief IRBuilder is a helper class, which simplifies and enables building of IR programs.
+	 * @brief IRBuilder is a helper class, which simplifies building of IRs.
+	 * @warning It shouldn't be used for modifying existing IRs.
 	 */
 	class IRBuilder
 	{
 		private:
-		using VariableContext
-			= std::unordered_map<std::string_view /* identifier */, std::vector<Instruction*> /* upsilons */>;
+		using StackSlotsMapping = std::unordered_map<std::string_view, StackSlot*>;
 
 		private:
 		std::unique_ptr<Module> _module{};
 		BasicBlock*             _current_block{};
 		BasicBlock::Label       _next_block_version{ 0 };
 		Instruction::Version    _next_instruction_version{ 0 };
-		VariableContext         _variable_context{};
+		StackSlotsMapping       _slots_mapping;
 
 		public:
 		constexpr IRBuilder();
@@ -44,9 +44,11 @@ namespace soul::ir
 		 * @brief Creates a new function in the module (with a single basic block initialized).
 		 * @warning Switches the current basic block to a newly initialized one.
 		 */
-		constexpr void create_function(std::string_view         identifier,
-		                               types::Type              return_type,
-		                               std::vector<types::Type> parameters);
+		constexpr void       create_function(std::string_view         identifier,
+		                                     types::Type              return_type,
+		                                     std::vector<types::Type> parameters);
+		constexpr StackSlot* reserve_slot(std::string_view identifier, types::Type type);
+		constexpr StackSlot* get_slot(std::string_view identifier);
 
 		constexpr void        switch_to(BasicBlock* block);
 		constexpr BasicBlock* create_basic_block();

@@ -163,13 +163,13 @@ namespace soul::ast::visitors
 		// IMPORTANT: Assignment operator is the only one which can change the meaning of LiteralNode(Identifier)s
 		// depending on which side it is present.
 		if (node.op == ASTNode::Operator::Assign) {
-			// 1. For the LHS, if Identifier is present, this will mean the value its is being overridden.
+			// 1. For the LHS, if Identifier is present, this will mean the value its pointing to is being overridden.
 			const bool is_write_target = node.lhs->is<LiteralNode>()
 			                          && node.lhs->as<LiteralNode>().literal_type == LiteralNode::Type::Identifier;
 			if (is_write_target) {
-				const auto& identifier = node.lhs->as<LiteralNode>().value.get<std::string>();
-				auto*       value{ emit(node.rhs.get()) };
-				return _builder.emit_upsilon(identifier, value);
+				auto* slot{ _builder.get_slot(node.lhs->as<LiteralNode>().value.as<Identifier>()) };
+				auto* value{ emit(node.rhs.get()) };
+				return _builder.emit<StackStore>(slot, value);
 			}
 
 			// 2. For the RHS, we can (safely) assume that all operations will be a READ operation.
@@ -227,7 +227,7 @@ namespace soul::ast::visitors
 
 	ir::Instruction* LowerVisitor::emit(const ErrorNode&)
 	{
-		// ERROR: IR should be in a valid state at this point.
+		// ERROR: AST should be in a valid state at this point.
 		return _builder.emit<Unreachable>();
 	}
 
@@ -269,8 +269,9 @@ namespace soul::ast::visitors
 	{
 		// IMPORTANT: We assume that visiting LiteralNode will always result in the READ operation for Identifiers, as
 		// any special (i.e. writing) logic will be handled beforehand.
-		if (node.literal_type == LiteralNode::Type::Identifier) {
-			return _builder.emit_phi(node.value.get<std::string>(), node.type);
+		if (node.value.is<Identifier>()) {
+			auto* slot = _builder.get_slot(node.value.as<Identifier>());
+			return _builder.emit<StackLoad>(slot);
 		}
 		return _builder.emit<Const>(node.type, node.value);
 	}
@@ -302,8 +303,9 @@ namespace soul::ast::visitors
 
 	ir::Instruction* LowerVisitor::emit(const VariableDeclarationNode& node)
 	{
-		auto* value = emit(node.expression.get());
-		return _builder.emit_upsilon(node.name, value);
+		auto* slot{ _builder.reserve_slot(node.name, node.type) };
+		auto* value{ emit(node.expression.get()) };
+		return _builder.emit<StackStore>(slot, value);
 	}
 
 	ir::Instruction* LowerVisitor::emit(const WhileNode&)

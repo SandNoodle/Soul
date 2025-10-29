@@ -208,10 +208,10 @@ namespace soul::ast::visitors
 		CopyVisitor::visit(node);
 
 		if (node.literal_type == LiteralNode::Type::Identifier) {
-			const auto& type_identifier = get_variable_type(node.value.get<std::string>());
+			const auto& type_identifier = get_variable_type(node.value.as<Identifier>());
 			if (!type_identifier) {
 				_current_clone = ErrorNode::create(
-					std::format("use of undeclared identifier '{}'", node.value.get<std::string>()));
+					std::format("use of undeclared identifier '{}'", std::string(node.value.as<Identifier>())));
 				return;
 			}
 			_current_clone->type = *type_identifier;

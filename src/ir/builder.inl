@@ -20,6 +20,20 @@ namespace soul::ir
 		_current_block = create_basic_block();
 	}
 
+	constexpr auto IRBuilder::reserve_slot(std::string_view identifier, types::Type type) -> StackSlot*
+	{
+		auto* slot                 = static_cast<StackSlot*>(emit<StackSlot>(std::move(type)));
+		_slots_mapping[identifier] = slot;
+		return slot;
+	}
+	constexpr auto IRBuilder::get_slot(std::string_view identifier) -> StackSlot*
+	{
+		if (!_slots_mapping.contains(identifier)) [[unlikely]] {
+			return nullptr;
+		}
+		return _slots_mapping.at(identifier);
+	}
+
 	constexpr auto IRBuilder::switch_to(BasicBlock* block) -> void
 	{
 		assert(block && "uninitialized block was passed (nullptr)");
@@ -68,8 +82,7 @@ namespace soul::ir
 	template <typename... Args>
 	constexpr auto IRBuilder::emit_upsilon(std::string_view identifier, Args&&... args) -> Instruction*
 	{
-		auto* upsilon = emit_impl<Upsilon, Args...>(std::forward<Args>(args)..., nullptr);
-		_variable_context[identifier].emplace_back(upsilon);
+		auto* upsilon = emit_impl<Upsilon, Args...>(std::forward<Args>(args)..., nullptr /* phi */);
 		return upsilon;
 	}
 
@@ -77,17 +90,6 @@ namespace soul::ir
 	constexpr auto IRBuilder::emit_phi(std::string_view identifier, Args&&... args) -> Instruction*
 	{
 		auto* phi = emit_impl<Phi>(std::forward<Args>(args)...);
-
-		// Patch upsilons.
-		const auto it{ _variable_context.find(identifier) };
-		if (it == std::end(_variable_context)) [[unlikely]] {
-			return phi;
-		}
-		for (auto& upsilon : it->second) {
-			upsilon->as<Upsilon>().phi = phi;
-		}
-		it->second.clear();
-
 		return phi;
 	}
 

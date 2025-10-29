@@ -1,7 +1,5 @@
 #include "ast/visitors/default_traverse.h"
 
-#include <utility>
-
 namespace soul::ast::visitors
 {
 	void DefaultTraverseVisitor::accept(ASTNode::Reference node)

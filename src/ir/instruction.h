@@ -164,6 +164,18 @@ namespace soul::ir
 	};
 
 	/**
+	 * @brief Return instruction: terminates control flow of a function and (possibly) returns an expression.
+	 */
+	struct Return final : public Instruction
+	{
+		public:
+		constexpr Return(Instruction* arg);
+
+		constexpr bool operator==(const Return& other) const noexcept  = default;
+		constexpr auto operator<=>(const Return& other) const noexcept = default;
+	};
+
+	/**
 	 * @brief StackStore instruction: represents a reserved scratch place (of a given type) on the stack for
 	 * the function to use.
 	 */

@@ -41,6 +41,7 @@ namespace soul::ast::visitors
 		void visit(const IfNode&) override;
 		void visit(const LiteralNode&) override;
 		void visit(const ModuleNode&) override;
+		void visit(const ReturnNode&) override;
 		void visit(const StructDeclarationNode&) override;
 		void visit(const UnaryNode&) override;
 		void visit(const VariableDeclarationNode&) override;
@@ -62,6 +63,7 @@ namespace soul::ast::visitors
 		ir::Instruction* emit(const IfNode&);
 		ir::Instruction* emit(const LiteralNode&);
 		ir::Instruction* emit(const ModuleNode&);
+		ir::Instruction* emit(const ReturnNode&);
 		ir::Instruction* emit(const StructDeclarationNode&);
 		ir::Instruction* emit(const UnaryNode&);
 		ir::Instruction* emit(const VariableDeclarationNode&);

@@ -8,6 +8,27 @@ namespace soul::ast::visitors
 	using namespace soul::types;
 	using namespace soul::ir;
 
+	namespace detail
+	{
+		class ReserveStackSlotVisitor : public DefaultTraverseVisitor
+		{
+			public:
+			std::vector<std::pair<std::string, types::Type>> required_slots;
+
+			public:
+			using DefaultTraverseVisitor::accept;
+
+			protected:
+			using DefaultTraverseVisitor::visit;
+			void visit(const VariableDeclarationNode& node);
+		};
+
+		void ReserveStackSlotVisitor::visit(const VariableDeclarationNode& node)
+		{
+			required_slots.emplace_back(std::make_pair(node.name, node.type));
+		}
+	}  // namespace detail
+
 	std::unique_ptr<Module> LowerVisitor::get() noexcept { return _builder.build(); }
 
 	void LowerVisitor::visit(const BinaryNode& node) { _current_instruction = emit(node); }
@@ -69,10 +90,16 @@ namespace soul::ast::visitors
 
 		_builder.create_function(node.name, node.type, std::move(parameters));
 
+		// NOTE: Traverse the tree gathering all variable declarations and reserve the stack slots.
+		detail::ReserveStackSlotVisitor reserve_stack_slot_visitor{};
+		reserve_stack_slot_visitor.accept(&static_cast<ASTNode&>(const_cast<FunctionDeclarationNode&>(node)));
+		for (const auto& [slot_name, slot_type] : reserve_stack_slot_visitor.required_slots) {
+			std::ignore = _builder.reserve_slot(slot_name, slot_type);
+		}
+
 		for (const auto& parameter : node.parameters) {
 			accept(parameter.get());
 		}
-
 		for (const auto& statement : node.statements->as<BlockNode>().statements) {
 			accept(statement.get());
 		}
@@ -119,6 +146,7 @@ namespace soul::ast::visitors
 		}
 	}
 
+	void LowerVisitor::visit(const ReturnNode& node) { _current_instruction = emit(node); }
 	void LowerVisitor::visit(const StructDeclarationNode& node) { _current_instruction = emit(node); }
 	void LowerVisitor::visit(const UnaryNode& node) { _current_instruction = emit(node); }
 	void LowerVisitor::visit(const VariableDeclarationNode& node) { _current_instruction = emit(node); }
@@ -282,6 +310,12 @@ namespace soul::ast::visitors
 		return _builder.emit<Unreachable>();
 	}
 
+	ir::Instruction* LowerVisitor::emit(const ReturnNode& node)
+	{
+		auto* expression{ emit(node.expression.get()) };
+		return _builder.emit<Return>(expression);
+	}
+
 	ir::Instruction* LowerVisitor::emit(const StructDeclarationNode&)
 	{
 		// NOTE: ERROR; at this point this node should not be present.
@@ -303,7 +337,7 @@ namespace soul::ast::visitors
 
 	ir::Instruction* LowerVisitor::emit(const VariableDeclarationNode& node)
 	{
-		auto* slot{ _builder.reserve_slot(node.name, node.type) };
+		auto* slot{ _builder.get_slot(node.name) };
 		auto* value{ emit(node.expression.get()) };
 		return _builder.emit<StackStore>(slot, value);
 	}

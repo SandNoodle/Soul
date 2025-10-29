@@ -65,6 +65,11 @@ namespace soul::ir
 	{
 	}
 
+	constexpr Return::Return(Instruction* arg)
+		: Instruction(types::Type{ types::PrimitiveType::Kind::Void }, Instruction::single_arg(arg))
+	{
+	}
+
 	constexpr StackSlot::StackSlot(types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
 
 	constexpr StackStore::StackStore(StackSlot* slot, Instruction* value)

@@ -79,20 +79,6 @@ namespace soul::ir
 		return emit_impl<Inst, Args...>(std::forward<Args>(args)...);
 	}
 
-	template <typename... Args>
-	constexpr auto IRBuilder::emit_upsilon(std::string_view identifier, Args&&... args) -> Instruction*
-	{
-		auto* upsilon = emit_impl<Upsilon, Args...>(std::forward<Args>(args)..., nullptr /* phi */);
-		return upsilon;
-	}
-
-	template <typename... Args>
-	constexpr auto IRBuilder::emit_phi(std::string_view identifier, Args&&... args) -> Instruction*
-	{
-		auto* phi = emit_impl<Phi>(std::forward<Args>(args)...);
-		return phi;
-	}
-
 	template <InstructionKind Inst, typename... Args>
 		requires(std::is_constructible_v<Inst, std::remove_cvref_t<Args>...>)
 	constexpr auto IRBuilder::emit_impl(Args&&... args) -> Instruction*

@@ -110,6 +110,12 @@ namespace soul::ir::visitors
 		                   instruction.else_block ? instruction.else_block->label() : Instruction::k_invalid_version);
 	}
 
+	void PrintVisitor::visit(const Return& instruction)
+	{
+		_ss << std::format("Return(%{})",
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version);
+	}
+
 	void PrintVisitor::visit([[maybe_unused]] const StackSlot& instruction) { _ss << std::format("StackSlot()"); }
 
 	void PrintVisitor::visit(const StackStore& instruction)

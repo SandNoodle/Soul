@@ -90,7 +90,7 @@ namespace soul::ast::visitors
 
 		_builder.create_function(node.name, node.type, std::move(parameters));
 
-		// NOTE: Traverse the tree gathering all variable declarations and reserve the stack slots.
+		// NOTE: Traverse the tree while gathering all variable declarations and reserve stack slots for them.
 		detail::ReserveStackSlotVisitor reserve_stack_slot_visitor{};
 		reserve_stack_slot_visitor.accept(&static_cast<ASTNode&>(const_cast<FunctionDeclarationNode&>(node)));
 		for (const auto& [slot_name, slot_type] : reserve_stack_slot_visitor.required_slots) {

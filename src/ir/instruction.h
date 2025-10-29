@@ -6,6 +6,7 @@
 #include "ir/instruction_fwd.h"
 
 #include <array>
+#include <limits>
 
 namespace soul::ir
 {
@@ -216,6 +217,26 @@ namespace soul::ir
 
 		constexpr bool operator==(const StackLoad& other) const noexcept  = default;
 		constexpr auto operator<=>(const StackLoad& other) const noexcept = default;
+	};
+
+	/**
+	 * @brief GetArgument instruction: @TODO
+	 */
+	struct GetArgument final : public Instruction
+	{
+		public:
+		using Index = std::size_t;
+
+		static constexpr Index k_invalid_index = std::numeric_limits<Index>::max();
+
+		public:
+		Index index{ k_invalid_index };
+
+		public:
+		constexpr GetArgument(types::Type type, Index index);
+
+		constexpr bool operator==(const GetArgument& other) const noexcept  = default;
+		constexpr auto operator<=>(const GetArgument& other) const noexcept = default;
 	};
 
 	/**

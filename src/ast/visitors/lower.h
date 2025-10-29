@@ -20,7 +20,7 @@ namespace soul::ast::visitors
 	{
 		private:
 		ir::IRBuilder    _builder{};
-		ir::Instruction* _current_instruction = nullptr;
+		ir::Instruction* _current_instruction{ nullptr };
 
 		public:
 		/** @brief Returns IR representation equivalent to the AST. */

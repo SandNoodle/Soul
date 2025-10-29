@@ -131,6 +131,11 @@ namespace soul::ir::visitors
 		                   instruction.slot ? instruction.slot->version : Instruction::k_invalid_version);
 	}
 
+	void PrintVisitor::visit(const GetArgument& instruction)
+	{
+		_ss << std::format("GetArgument({})", instruction.index);
+	}
+
 	void PrintVisitor::visit([[maybe_unused]] const Phi& instruction) { _ss << "Phi()"sv; }
 
 	void PrintVisitor::visit(const Upsilon& instruction)

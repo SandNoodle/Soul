@@ -201,8 +201,10 @@ namespace soul::ast::visitors::ut
 		{
 			auto* first_slot  = expected_ir_builder.reserve_slot("a", PrimitiveType::Kind::String);
 			auto* second_slot = expected_ir_builder.reserve_slot("b", PrimitiveType::Kind::Boolean);
-			expected_ir_builder.emit<StackStore>(first_slot, nullptr);
-			expected_ir_builder.emit<StackStore>(second_slot, nullptr);
+			auto* first_arg   = expected_ir_builder.emit<GetArgument>(Type{ PrimitiveType::Kind::String }, 0);
+			expected_ir_builder.emit<StackStore>(first_slot, first_arg);
+			auto* second_arg = expected_ir_builder.emit<GetArgument>(Type{ PrimitiveType::Kind::Boolean }, 1);
+			expected_ir_builder.emit<StackStore>(second_slot, second_arg);
 			auto* return_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
 			                                                     Scalar::create<PrimitiveType::Kind::Int32>(1));
 			expected_ir_builder.emit<Return>(return_value);

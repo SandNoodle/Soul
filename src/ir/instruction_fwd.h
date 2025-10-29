@@ -58,6 +58,7 @@ namespace soul::ir
 	SOUL_INSTRUCTION(StackSlot)   \
 	SOUL_INSTRUCTION(StackStore)  \
 	SOUL_INSTRUCTION(StackLoad)   \
+	SOUL_INSTRUCTION(GetArgument) \
 	SOUL_INSTRUCTION(Phi)         \
 	SOUL_INSTRUCTION(Upsilon)     \
 	SOUL_INSTRUCTION(Not)         \

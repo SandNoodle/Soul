@@ -82,6 +82,11 @@ namespace soul::ir
 	{
 	}
 
+	constexpr GetArgument::GetArgument(types::Type type, Index index)
+		: Instruction(std::move(type), Instruction::no_args()), index(index)
+	{
+	}
+
 	constexpr Phi::Phi(types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
 
 	constexpr Upsilon::Upsilon(Instruction* value, Instruction* phi)

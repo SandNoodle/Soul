@@ -97,8 +97,14 @@ namespace soul::ast::visitors
 			std::ignore = _builder.reserve_slot(slot_name, slot_type);
 		}
 
-		for (const auto& parameter : node.parameters) {
-			accept(parameter.get());
+		for (std::size_t index = 0; index < node.parameters.size(); ++index) {
+			// NOTE: In the case of parameters, even though function parameters are always VariableDeclarations, they
+			// don't bind to any known values (which are set on the call site) - thus require special handling.
+			const auto& parameter = node.parameters[index]->as<VariableDeclarationNode>();
+
+			auto* slot{ _builder.get_slot(parameter.name) };
+			auto* value{ _builder.emit<GetArgument>(parameter.type, index) };
+			_builder.emit<StackStore>(slot, value);
 		}
 		for (const auto& statement : node.statements->as<BlockNode>().statements) {
 			accept(statement.get());

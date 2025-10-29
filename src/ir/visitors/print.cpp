@@ -77,7 +77,8 @@ namespace soul::ir::visitors
 
 	void PrintVisitor::visit(const Cast& instruction)
 	{
-		_ss << std::format("Cast(%{})", instruction.args[0] ? std::to_string(instruction.args[0]->version) : k_nullptr);
+		_ss << std::format("Cast(%{})",
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version);
 	}
 
 	void PrintVisitor::visit(const Call& instruction)
@@ -104,9 +105,24 @@ namespace soul::ir::visitors
 	void PrintVisitor::visit(const JumpIf& instruction)
 	{
 		_ss << std::format("JumpIf(%{}, #{}, #{})",
-		                   instruction.args[0] ? std::to_string(instruction.args[0]->version) : k_nullptr,
-		                   instruction.then_block ? std::to_string(instruction.then_block->label()) : k_nullptr,
-		                   instruction.else_block ? std::to_string(instruction.else_block->label()) : k_nullptr);
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version,
+		                   instruction.then_block ? instruction.then_block->label() : Instruction::k_invalid_version,
+		                   instruction.else_block ? instruction.else_block->label() : Instruction::k_invalid_version);
+	}
+
+	void PrintVisitor::visit([[maybe_unused]] const StackSlot& instruction) { _ss << std::format("StackSlot()"); }
+
+	void PrintVisitor::visit(const StackStore& instruction)
+	{
+		_ss << std::format("StackStore(%{}, %{})",
+		                   instruction.slot ? instruction.slot->version : Instruction::k_invalid_version,
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version);
+	}
+
+	void PrintVisitor::visit(const StackLoad& instruction)
+	{
+		_ss << std::format("StackLoad(%{})",
+		                   instruction.slot ? instruction.slot->version : Instruction::k_invalid_version);
 	}
 
 	void PrintVisitor::visit([[maybe_unused]] const Phi& instruction) { _ss << "Phi()"sv; }
@@ -114,22 +130,23 @@ namespace soul::ir::visitors
 	void PrintVisitor::visit(const Upsilon& instruction)
 	{
 		_ss << std::format("Upsilon(%{}, ^%{})",
-		                   instruction.args[0] ? std::to_string(instruction.args[0]->version) : k_nullptr,
-		                   instruction.phi ? std::to_string(instruction.phi->version) : k_nullptr);
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version,
+		                   k_nullptr);
 	}
 
 	void PrintVisitor::visit(const Not& instruction)
 	{
-		_ss << std::format("Not(%{})", instruction.args[0] ? std::to_string(instruction.args[0]->version) : k_nullptr);
+		_ss << std::format("Not(%{})",
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version);
 	}
 
-#define SOUL_INSTRUCTION(name)                                                                              \
-	void PrintVisitor::visit(const name& instruction)                                                       \
-	{                                                                                                       \
-		_ss << std::format("{}(%{}, %{})",                                                                  \
-		                   #name,                                                                           \
-		                   instruction.args[0] ? std::to_string(instruction.args[0]->version) : k_nullptr,  \
-		                   instruction.args[1] ? std::to_string(instruction.args[1]->version) : k_nullptr); \
+#define SOUL_INSTRUCTION(name)                                                                                   \
+	void PrintVisitor::visit(const name& instruction)                                                            \
+	{                                                                                                            \
+		_ss << std::format("{}(%{}, %{})",                                                                       \
+		                   #name,                                                                                \
+		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version,  \
+		                   instruction.args[1] ? instruction.args[1]->version : Instruction::k_invalid_version); \
 	}
 	SOUL_ARITHMETIC_INSTRUCTIONS
 	SOUL_COMPARISON_INSTRUCTIONS

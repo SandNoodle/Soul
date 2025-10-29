@@ -54,6 +54,9 @@ namespace soul::ir
 	SOUL_INSTRUCTION(Const)       \
 	SOUL_INSTRUCTION(Jump)        \
 	SOUL_INSTRUCTION(JumpIf)      \
+	SOUL_INSTRUCTION(StackSlot)   \
+	SOUL_INSTRUCTION(StackStore)  \
+	SOUL_INSTRUCTION(StackLoad)   \
 	SOUL_INSTRUCTION(Phi)         \
 	SOUL_INSTRUCTION(Upsilon)     \
 	SOUL_INSTRUCTION(Not)         \

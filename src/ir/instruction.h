@@ -164,6 +164,49 @@ namespace soul::ir
 	};
 
 	/**
+	 * @brief StackStore instruction: represents a reserved scratch place (of a given type) on the stack for
+	 * the function to use.
+	 */
+	struct StackSlot final : public Instruction
+	{
+		public:
+		constexpr StackSlot(types::Type type);
+
+		constexpr bool operator==(const StackSlot& other) const noexcept  = default;
+		constexpr auto operator<=>(const StackSlot& other) const noexcept = default;
+	};
+
+	/**
+	 * @brief StackStore instruction: stores the result of an expression into a given stack slot.
+	 */
+	struct StackStore final : public Instruction
+	{
+		public:
+		StackSlot* slot;
+
+		public:
+		constexpr StackStore(StackSlot* slot, Instruction* value);
+
+		constexpr bool operator==(const StackStore& other) const noexcept  = default;
+		constexpr auto operator<=>(const StackStore& other) const noexcept = default;
+	};
+
+	/**
+	 * @brief StackLoad instruction: reads the value currently stored in a given stack slot.
+	 */
+	struct StackLoad final : public Instruction
+	{
+		public:
+		StackSlot* slot;
+
+		public:
+		constexpr StackLoad(StackSlot* slot);
+
+		constexpr bool operator==(const StackLoad& other) const noexcept  = default;
+		constexpr auto operator<=>(const StackLoad& other) const noexcept = default;
+	};
+
+	/**
 	 * @brief Phi instruction: performs a read operation and returns the current value of its 'shadow variable', i.e.
 	 * reads the current value that was set by its correlated Upsilon instruction.
 	 * @see https://gist.github.com/pizlonator/cf1e72b8600b1437dda8153ea3fdb963
@@ -189,7 +232,7 @@ namespace soul::ir
 
 		public:
 		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-		constexpr Upsilon(Instruction* value, Instruction* phi);
+		constexpr Upsilon(Instruction* value, Instruction* phi = nullptr);
 
 		constexpr bool operator==(const Upsilon& other) const noexcept  = default;
 		constexpr auto operator<=>(const Upsilon& other) const noexcept = default;

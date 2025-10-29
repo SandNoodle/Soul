@@ -65,6 +65,18 @@ namespace soul::ir
 	{
 	}
 
+	constexpr StackSlot::StackSlot(types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
+
+	constexpr StackStore::StackStore(StackSlot* slot, Instruction* value)
+		: Instruction(types::Type{ types::PrimitiveType::Kind::Void }, Instruction::single_arg(value)), slot(slot)
+	{
+	}
+
+	constexpr StackLoad::StackLoad(StackSlot* slot)
+		: Instruction(types::Type{ types::PrimitiveType::Kind::Void }, Instruction::no_args()), slot(slot)
+	{
+	}
+
 	constexpr Phi::Phi(types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
 
 	constexpr Upsilon::Upsilon(Instruction* value, Instruction* phi)

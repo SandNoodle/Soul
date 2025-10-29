@@ -9,7 +9,7 @@
       "is_mutable": "true",
       "expression": {
         "node": "literal",
-        "literal_type": "literal_type_int32",
+        "value_type": "value_type_int32",
         "value": "69420"
       }
     }

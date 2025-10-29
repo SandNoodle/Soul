@@ -483,60 +483,49 @@ namespace soul::parser
 			                                Token::name(current_token_or_default().type)));
 		}
 
-		LiteralNode::Type literal_type{};
-		Value             value{};
 		if (token->type == Token::Type::LiteralFloat) {
 			f64        v{};
 			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
-			if (result.ec != std::errc{}) {
+			if (!result) {
 				return create_error(std::format("failed to parse float expression, because: '{}'",
 				                                std::make_error_condition(result.ec).message()));
 			}
 			if (v <= std::numeric_limits<f32>::lowest() || v >= std::numeric_limits<f32>::max()) {
-				value        = Scalar::create<PrimitiveType::Kind::Float64>(v);
-				literal_type = LiteralNode::Type::Float64;
-			} else {
-				value        = Scalar::create<PrimitiveType::Kind::Float32>(v);
-				literal_type = LiteralNode::Type::Float32;
+				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(v));
 			}
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(v));
 		}
 
 		if (token->type == Token::Type::LiteralInteger) {
 			i64        v{};
 			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
-			if (result.ec != std::errc{}) {
+			if (!result) {
 				return create_error(std::format("failed to parse integer expression, because: '{}'",
 				                                std::make_error_condition(result.ec).message()));
 			}
 			if (v <= std::numeric_limits<i32>::lowest() || v >= std::numeric_limits<i32>::max()) {
-				value        = Scalar::create<PrimitiveType::Kind::Int64>(v);
-				literal_type = LiteralNode::Type::Int64;
-			} else {
-				value        = Scalar::create<PrimitiveType::Kind::Int32>(v);
-				literal_type = LiteralNode::Type::Int32;
+				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(v));
 			}
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(v));
 		}
 
 		if (token->type == Token::Type::LiteralString) {
-			literal_type = LiteralNode::Type::String;
-			value        = Scalar::create<PrimitiveType::Kind::String>(token->data);
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>(token->data));
 		}
 
 		if (token->type == Token::Type::LiteralIdentifier) {
-			literal_type = LiteralNode::Type::Identifier;
-			value        = Identifier::create(token->data);
+			return LiteralNode::create(Identifier::create(token->data));
 		}
 
 		if (token->type == Token::Type::KeywordTrue) {
-			literal_type = LiteralNode::Type::Boolean;
-			value        = Scalar::create<PrimitiveType::Kind::Boolean>(true);
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
 		}
 
 		if (token->type == Token::Type::KeywordFalse) {
-			literal_type = LiteralNode::Type::Boolean;
-			value        = Scalar::create<PrimitiveType::Kind::Boolean>(false);
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false));
 		}
-		return LiteralNode::create(std::move(value), literal_type);
+
+		return ErrorNode::create("[INTERNAL] unknown literal");
 	}
 
 	ast::ASTNode::Dependency Parser::parse_loop_control()
@@ -716,8 +705,7 @@ namespace soul::parser
 				                                std::string(current_token_or_default().data)));
 			}
 		} else {
-			auto true_value = Scalar::create<PrimitiveType::Kind::Boolean>(true);
-			condition       = LiteralNode::create(std::move(true_value), LiteralNode::Type::Boolean);
+			condition = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
 		}
 
 		// <block_statement>

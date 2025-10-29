@@ -127,7 +127,6 @@ namespace soul::types
 
 		/**
 		 * @brief Verifies if a Type is of a given TypeKind's type.
-		 * @tparam T Type satisfying the TypeKind concept.
 		 * @return \b true if it is, \b false otherwise.
 		 */
 		template <TypeKind T>
@@ -139,7 +138,6 @@ namespace soul::types
 		/**
 		 * @brief Returns the requested underlying type.
 		 * @important Does not perform any validation - assumes that Type::is<T> was used first.
-		 * @tparam T Type satisfying the TypeKind concept.
 		 */
 		template <TypeKind T>
 		[[nodiscard]] constexpr const T& as() const noexcept

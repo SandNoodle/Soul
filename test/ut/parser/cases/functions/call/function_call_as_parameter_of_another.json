@@ -11,7 +11,7 @@
           "operator": "operator_less",
           "lhs": {
             "node": "literal",
-            "literal_type": "literal_type_int32",
+            "value_type": "value_type_int32",
             "value": "1"
           },
           "rhs": {
@@ -22,12 +22,12 @@
         },
         {
           "node": "literal",
-          "literal_type": "literal_type_string",
+          "value_type": "value_type_string",
           "value": "some_param"
         },
         {
           "node": "literal",
-          "literal_type": "literal_type_float32",
+          "value_type": "value_type_float32",
           "value": "3.14"
         }
       ]

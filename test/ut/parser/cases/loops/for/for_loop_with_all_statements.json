@@ -11,7 +11,7 @@
         "is_mutable": "false",
         "expression": {
           "node": "literal",
-          "literal_type": "literal_type_int32",
+          "value_type": "value_type_int32",
           "value": "33"
         }
       },
@@ -20,12 +20,12 @@
         "operator": "operator_less",
         "lhs": {
           "node": "literal",
-          "literal_type": "literal_type_identifier",
+          "value_type": "value_type_identifier",
           "value": "foo"
         },
         "rhs": {
           "node": "literal",
-          "literal_type": "literal_type_identifier",
+          "value_type": "value_type_identifier",
           "value": "some_size"
         }
       },
@@ -34,12 +34,12 @@
         "operator": "operator_add",
         "lhs": {
           "node": "literal",
-          "literal_type": "literal_type_identifier",
+          "value_type": "value_type_identifier",
           "value": "some_expression_here"
         },
         "rhs": {
           "node": "literal",
-          "literal_type": "literal_type_int32",
+          "value_type": "value_type_int32",
           "value": "2"
         }
       },

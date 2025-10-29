@@ -6,7 +6,7 @@
       "node": "if",
       "expression": {
         "node": "literal",
-        "literal_type": "literal_type_boolean",
+        "value_type": "value_type_boolean",
         "value": "true"
       },
       "then_statements": {
@@ -19,7 +19,7 @@
             "is_mutable": "false",
             "expression": {
               "node": "literal",
-              "literal_type": "literal_type_boolean",
+              "value_type": "value_type_boolean",
               "value": "true"
             }
           }
@@ -35,7 +35,7 @@
             "is_mutable": "false",
             "expression": {
               "node": "literal",
-              "literal_type": "literal_type_string",
+              "value_type": "value_type_string",
               "value": "my_string"
             }
           }

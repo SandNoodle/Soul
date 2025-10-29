@@ -164,8 +164,8 @@ namespace soul::ast::visitors
 		// depending on which side it is present.
 		if (node.op == ASTNode::Operator::Assign) {
 			// 1. For the LHS, if Identifier is present, this will mean the value its pointing to is being overridden.
-			const bool is_write_target = node.lhs->is<LiteralNode>()
-			                          && node.lhs->as<LiteralNode>().literal_type == LiteralNode::Type::Identifier;
+			const bool is_write_target
+				= node.lhs->is<LiteralNode>() && node.lhs->as<LiteralNode>().value.is<Identifier>();
 			if (is_write_target) {
 				auto* slot{ _builder.get_slot(node.lhs->as<LiteralNode>().value.as<Identifier>()) };
 				auto* value{ emit(node.rhs.get()) };

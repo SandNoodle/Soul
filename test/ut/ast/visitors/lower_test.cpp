@@ -82,12 +82,10 @@ namespace soul::ast::visitors::ut
 	{
 		auto inner_scope_statements = ASTNode::Dependencies{};
 		inner_scope_statements.reserve(3);
+		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)));
 		inner_scope_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean));
-		inner_scope_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String));
-		inner_scope_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123), LiteralNode::Type::Int64));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")));
+		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(123)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
@@ -115,7 +113,7 @@ namespace soul::ast::visitors::ut
 		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::String },
 		                                Scalar::create<PrimitiveType::Kind::String>("my_string"));
 		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int64 },
-		                                Scalar::create<PrimitiveType::Kind::Int32>(123));
+		                                Scalar::create<PrimitiveType::Kind::Int64>(123));
 		const auto& expected_ir = expected_ir_builder.build();
 
 		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
@@ -126,8 +124,8 @@ namespace soul::ast::visitors::ut
 	{
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(CastNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123), LiteralNode::Type::Int32), "str"));
+		function_declaration_statements.emplace_back(
+			CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), "str"));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
 		                                      "i32",
@@ -171,9 +169,9 @@ namespace soul::ast::visitors::ut
 		auto first_function_call_parameters         = ASTNode::Dependencies{};
 		first_function_call_parameters.reserve(2);
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")));
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)));
 		// @TODO
 		// first_function_call_parameters.emplace_back(ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1,
 		//       LiteralNode::Type::Kind::Int32 ));
@@ -221,14 +219,12 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(LowerVisitorTest, If)
 	{
-		auto if_node_condition
-			= LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean);
+		auto if_node_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
 		auto if_then_statements = ASTNode::Dependencies{};
-		if_then_statements.emplace_back(LiteralNode::create(
-			Scalar::create<PrimitiveType::Kind::String>("then_branch_string"), LiteralNode::Type::String));
+		if_then_statements.emplace_back(
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("then_branch_string")));
 		auto if_else_statements = ASTNode::Dependencies{};
-		if_else_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false), LiteralNode::Type::Boolean));
+		if_else_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false)));
 
 		auto if_node = IfNode::create(std::move(if_node_condition),
 		                              BlockNode::create(std::move(if_then_statements)),
@@ -281,33 +277,25 @@ namespace soul::ast::visitors::ut
 	{
 		static const std::array k_input_values = {
 			std::make_tuple(Type{ PrimitiveType::Kind::Boolean },
-			                LiteralNode::Type::Boolean,
 			                Value{ Scalar::create<PrimitiveType::Kind::Boolean>(true) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Char },
-			                LiteralNode::Type::Char,
-			                Value{ Scalar::create<PrimitiveType::Kind::Char>('c') }),
+			std::make_tuple(Type{ PrimitiveType::Kind::Char }, Value{ Scalar::create<PrimitiveType::Kind::Char>('c') }),
 			std::make_tuple(Type{ PrimitiveType::Kind::Float32 },
-			                LiteralNode::Type::Float32,
 			                Value{ Scalar::create<PrimitiveType::Kind::Float32>(3.14f) }),
 			std::make_tuple(Type{ PrimitiveType::Kind::Float64 },
-			                LiteralNode::Type::Float64,
 			                Value{ Scalar::create<PrimitiveType::Kind::Float64>(5.46) }),
 			std::make_tuple(Type{ PrimitiveType::Kind::Int32 },
-			                LiteralNode::Type::Int32,
 			                Value{ Scalar::create<PrimitiveType::Kind::Int32>(123) }),
 			std::make_tuple(Type{ PrimitiveType::Kind::Int64 },
-			                LiteralNode::Type::Int64,
 			                Value{ Scalar::create<PrimitiveType::Kind::Int64>(456L) }),
 			std::make_tuple(Type{ PrimitiveType::Kind::String },
-			                LiteralNode::Type::String,
 			                Value{ Scalar::create<PrimitiveType::Kind::String>("my_string") }),
 		};
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(k_input_values.size());
-		for (const auto& [_, literal_type, value] : k_input_values) {
-			function_declaration_statements.emplace_back(LiteralNode::create(value, literal_type));
+		for (const auto& [_, value] : k_input_values) {
+			function_declaration_statements.emplace_back(LiteralNode::create(value));
 		}
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
@@ -323,7 +311,7 @@ namespace soul::ast::visitors::ut
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
 		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
-		for (const auto& [type, _, value] : k_input_values) {
+		for (const auto& [type, value] : k_input_values) {
 			expected_ir_builder.emit<Const>(type, value);
 		}
 		const auto& expected_ir = expected_ir_builder.build();
@@ -337,23 +325,19 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_variable_name = "index";
 
 		auto index_node = VariableDeclarationNode::create(
-			k_variable_name,
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0), LiteralNode::Type::Int32),
-			true);
+			k_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
-		auto while_node_condition = BinaryNode::create(
-			LiteralNode::create(Value{ Identifier::create(k_variable_name) }, LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::Less);
+		auto while_node_condition
+			= BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         ASTNode::Operator::Less);
 		auto while_node_statements = ASTNode::Dependencies{};
-		while_node_statements.emplace_back(BinaryNode::create(
-			LiteralNode::create(Value{ Identifier::create(k_variable_name) }, LiteralNode::Type::Identifier),
-			BinaryNode::create(
-				LiteralNode::create(Value{ Identifier::create(k_variable_name) }, LiteralNode::Type::Identifier),
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-				ASTNode::Operator::Add),
-			ASTNode::Operator::Assign));
+		while_node_statements.emplace_back(
+			BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
+		                       BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
+		                                          LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+		                                          ASTNode::Operator::Add),
+		                       ASTNode::Operator::Assign));
 
 		auto while_node
 			= WhileNode::create(std::move(while_node_condition), BlockNode::create(std::move(while_node_statements)));
@@ -434,8 +418,7 @@ namespace soul::ast::visitors::ut
 		// NOTE: It doesn't matter that the actual value has invalid type.
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.emplace_back(UnaryNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean),
-			ASTNode::Operator::LogicalNot));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)), ASTNode::Operator::LogicalNot));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(this->k_function_name,
@@ -469,23 +452,17 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(4);
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_first_variable_name,
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-			true));
-		function_declaration_statements.emplace_back(BinaryNode::create(
-			LiteralNode::create(Identifier::create(k_first_variable_name), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(3), LiteralNode::Type::Int32),
-			ASTNode::Operator::Assign));
+			k_first_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)), true));
+		function_declaration_statements.emplace_back(
+			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
+		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(3)),
+		                       ASTNode::Operator::Assign));
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_second_variable_name,
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5), LiteralNode::Type::Int32),
-			false));
-		function_declaration_statements.emplace_back(BinaryNode::create(
-			LiteralNode::create(Identifier::create(k_second_variable_name), LiteralNode::Type::Identifier),
-			LiteralNode::create(Identifier::create(k_first_variable_name), LiteralNode::Type::Identifier),
-			ASTNode::Operator::Assign));
+			k_second_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)), false));
+		function_declaration_statements.emplace_back(
+			BinaryNode::create(LiteralNode::create(Identifier::create(k_second_variable_name)),
+		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
+		                       ASTNode::Operator::Assign));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
@@ -529,17 +506,13 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(2);
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_first_variable_name,
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-			false));
+			k_first_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)), false));
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
 			k_second_variable_name,
 			"i32",
-			BinaryNode::create(
-				LiteralNode::create(Identifier::create(k_first_variable_name), LiteralNode::Type::Identifier),
-				LiteralNode::create(Identifier::create(k_first_variable_name), LiteralNode::Type::Identifier),
-				ASTNode::Operator::Mul),
+			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
+		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
+		                       ASTNode::Operator::Mul),
 			false));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
@@ -583,17 +556,6 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_type     = Type;
 	};
 
-	template <PrimitiveType::Kind V>
-	static constexpr auto k_primitive_to_literal_type
-		= VVDictionary<V,
-	                   VVTranslation<PrimitiveType::Kind::Boolean, LiteralNode::Type::Boolean>,
-	                   VVTranslation<PrimitiveType::Kind::Char, LiteralNode::Type::Char>,
-	                   VVTranslation<PrimitiveType::Kind::Float32, LiteralNode::Type::Float32>,
-	                   VVTranslation<PrimitiveType::Kind::Float64, LiteralNode::Type::Float64>,
-	                   VVTranslation<PrimitiveType::Kind::Int32, LiteralNode::Type::Int32>,
-	                   VVTranslation<PrimitiveType::Kind::Int64, LiteralNode::Type::Int64>,
-	                   VVTranslation<PrimitiveType::Kind::String, LiteralNode::Type::String>>::k_value;
-
 	template <ASTNode::Operator Op>
 	using BinaryInstruction = VTDictionary<Op,
 	                                       VTTranslation<ASTNode::Operator::Add, ir::Add>,
@@ -627,16 +589,13 @@ namespace soul::ast::visitors::ut
 
 	TYPED_TEST(LowerVisitorBinaryTypedTest, Binary)
 	{
-		using InstructionCase                = BinaryInstruction<TypeParam::k_operator>;
-		static constexpr auto k_type         = TypeParam::k_type;
-		static constexpr auto k_literal_type = k_primitive_to_literal_type<k_type>;
+		using InstructionCase        = BinaryInstruction<TypeParam::k_operator>;
+		static constexpr auto k_type = TypeParam::k_type;
 
-		// NOTE: It doesn't matter that the actual value has invalid type.
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(
-			BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), k_literal_type),
-		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2), k_literal_type),
-		                       TypeParam::k_operator));
+		function_declaration_statements.emplace_back(BinaryNode::create(LiteralNode::create(Scalar::create<k_type>(1)),
+		                                                                LiteralNode::create(Scalar::create<k_type>(2)),
+		                                                                TypeParam::k_operator));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(this->k_function_name,
@@ -652,8 +611,8 @@ namespace soul::ast::visitors::ut
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(this->k_module_name);
 		expected_ir_builder.create_function(this->k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* v1 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<PrimitiveType::Kind::Int32>(1));
-		auto* v2 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<PrimitiveType::Kind::Int32>(2));
+		auto* v1 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<k_type>(1));
+		auto* v2 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<k_type>(2));
 		if constexpr (std::is_constructible_v<InstructionCase, types::Type, Instruction*, Instruction*>) {
 			expected_ir_builder.emit<InstructionCase>(Type{ k_type }, v1, v2);
 		} else if constexpr (std::is_constructible_v<InstructionCase, Instruction*, Instruction*>) {

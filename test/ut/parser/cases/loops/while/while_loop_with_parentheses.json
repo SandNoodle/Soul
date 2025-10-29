@@ -6,7 +6,7 @@
       "node": "while_loop",
       "condition": {
         "node": "literal",
-        "literal_type": "literal_type_boolean",
+        "value_type": "value_type_boolean",
         "value": "false"
       },
       "statements": {

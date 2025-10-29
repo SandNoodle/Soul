@@ -8,7 +8,7 @@
       "parameters": [
         {
           "node": "literal",
-          "literal_type": "literal_type_int32",
+          "value_type": "value_type_int32",
           "value": "1"
         },
         {
@@ -16,18 +16,18 @@
           "operator": "operator_less",
           "lhs": {
             "node": "literal",
-            "literal_type": "literal_type_identifier",
+            "value_type": "value_type_identifier",
             "value": "index"
           },
           "rhs": {
             "node": "literal",
-            "literal_type": "literal_type_int32",
+            "value_type": "value_type_int32",
             "value": "10"
           }
         },
         {
           "node": "literal",
-          "literal_type": "literal_type_string",
+          "value_type": "value_type_string",
           "value": "some_string"
         }
       ]

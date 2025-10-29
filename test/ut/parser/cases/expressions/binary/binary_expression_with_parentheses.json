@@ -15,7 +15,7 @@
           "operator": "operator_div",
           "lhs": {
             "node": "literal",
-            "literal_type": "literal_type_int32",
+            "value_type": "value_type_int32",
             "value": "1"
           },
           "rhs": {
@@ -23,19 +23,19 @@
             "operator": "operator_add",
             "lhs": {
               "node": "literal",
-              "literal_type": "literal_type_int32",
+              "value_type": "value_type_int32",
               "value": "2"
             },
             "rhs": {
               "node": "literal",
-              "literal_type": "literal_type_int32",
+              "value_type": "value_type_int32",
               "value": "1"
             }
           }
         },
         "rhs": {
           "node": "literal",
-          "literal_type": "literal_type_int32",
+          "value_type": "value_type_int32",
           "value": "3"
         }
       }

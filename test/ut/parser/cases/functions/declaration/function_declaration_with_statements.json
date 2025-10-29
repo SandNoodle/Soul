@@ -25,7 +25,7 @@
             "is_mutable": "false",
             "expression": {
               "node": "literal",
-              "literal_type": "literal_type_int32",
+              "value_type": "value_type_int32",
               "value": "540"
             }
           },
@@ -36,7 +36,7 @@
             "is_mutable": "false",
             "expression": {
               "node": "literal",
-              "literal_type": "literal_type_float32",
+              "value_type": "value_type_float32",
               "value": "3.4"
             }
           },
@@ -47,7 +47,7 @@
             "is_mutable": "false",
             "expression": {
               "node": "literal",
-              "literal_type": "literal_type_string",
+              "value_type": "value_type_string",
               "value": "that is a string"
             }
           }

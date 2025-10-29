@@ -207,7 +207,7 @@ namespace soul::ast::visitors
 	{
 		CopyVisitor::visit(node);
 
-		if (node.literal_type == LiteralNode::Type::Identifier) {
+		if (node.value.is<Identifier>()) {
 			const auto& type_identifier = get_variable_type(node.value.as<Identifier>());
 			if (!type_identifier) {
 				_current_clone = ErrorNode::create(
@@ -218,23 +218,7 @@ namespace soul::ast::visitors
 			return;
 		}
 
-		static constexpr std::array k_literal_to_type{
-			std::make_pair(LiteralNode::Type::Unknown, PrimitiveType::Kind::Unknown),
-			std::make_pair(LiteralNode::Type::Boolean, PrimitiveType::Kind::Boolean),
-			std::make_pair(LiteralNode::Type::Char, PrimitiveType::Kind::Char),
-			std::make_pair(LiteralNode::Type::Float32, PrimitiveType::Kind::Float32),
-			std::make_pair(LiteralNode::Type::Float64, PrimitiveType::Kind::Float64),
-			std::make_pair(LiteralNode::Type::Int32, PrimitiveType::Kind::Int32),
-			std::make_pair(LiteralNode::Type::Int64, PrimitiveType::Kind::Int64),
-			std::make_pair(LiteralNode::Type::String, PrimitiveType::Kind::String),
-		};
-		const auto it{ std::ranges::find(
-			k_literal_to_type, node.literal_type, &decltype(k_literal_to_type)::value_type::first) };
-		if (it == std::end(k_literal_to_type)) [[unlikely]] {
-			_current_clone->type = PrimitiveType::Kind::Unknown;
-			return;
-		}
-		_current_clone->type = it->second;
+		_current_clone->type = node.value.type();
 	}
 
 	void TypeResolverVisitor::visit(const LoopControlNode& node)

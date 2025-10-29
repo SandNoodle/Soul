@@ -57,7 +57,6 @@ namespace soul::ast
 		/**
 		 * @brief Returns the underlying node.
 		 * @important Does not perform any validation - assumes that ASTNode::is<T> was used first.
-		 * @tparam T Type satisfying the NodeKind concept.
 		 */
 		template <NodeKind Node>
 		constexpr Node& as() noexcept
@@ -79,8 +78,11 @@ namespace soul::ast
 	class VisitorAcceptor : public ASTNode
 	{
 		private:
+		VisitorAcceptor() = default;
 		void accept(visitors::IVisitor& visitor) override { visitor.visit(static_cast<Node&>(*this)); }
 		void accept(visitors::IVisitor& visitor) const override { visitor.visit(static_cast<const Node&>(*this)); }
+
+		friend Node;
 	};
 
 	/**
@@ -363,26 +365,10 @@ namespace soul::ast
 	class LiteralNode : public VisitorAcceptor<LiteralNode>
 	{
 		public:
-		enum class Type : u8
-		{
-			Unknown,
-
-			Boolean,
-			Char,
-			Float32,
-			Float64,
-			Identifier,
-			Int32,
-			Int64,
-			String,
-		};
-
-		public:
 		Value value{};
-		Type  literal_type{ Type::Unknown };
 
 		public:
-		LiteralNode(Value value, Type literal_type);
+		LiteralNode(Value value);
 		~LiteralNode() override = default;
 		operator std::string() const noexcept;
 
@@ -392,9 +378,7 @@ namespace soul::ast
 		 * @param value Value associated with the literal.
 		 * @return New 'LiteralNode' node.
 		 */
-		static Dependency create(Value value, Type literal_type);
-
-		static std::string_view internal_name(const Type type) noexcept;
+		static Dependency create(Value value);
 	};
 
 	/**

@@ -90,10 +90,10 @@ namespace soul::ast::visitors::ut
 		auto input_module_statements = ASTNode::Dependencies{};
 		input_module_statements.reserve(k_substitutable_operators.size());
 		for (const auto op : k_substitutable_operators) {
-			input_module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2), LiteralNode::Type::Int32),
-				op));
+			input_module_statements.emplace_back(
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2)),
+			                       op));
 		}
 		// ...desugar them...
 		auto result_module = build(ModuleNode::create(k_module_name, std::move(input_module_statements)));
@@ -110,11 +110,10 @@ namespace soul::ast::visitors::ut
 		expected_module_statements.reserve(k_result_operators.size());
 		for (const auto op : k_result_operators) {
 			expected_module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-				BinaryNode::create(
-					LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1), LiteralNode::Type::Int32),
-					LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2), LiteralNode::Type::Int32),
-					op),
+				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2)),
+			                       op),
 				ASTNode::Operator::Assign));
 		}
 		auto expected_module = build(ModuleNode::create(k_module_name, std::move(expected_module_statements)));
@@ -127,26 +126,19 @@ namespace soul::ast::visitors::ut
 	{
 		// Get a ForLoop node...
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index",
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0), LiteralNode::Type::Int32),
-			true);
+			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
-		auto for_loop_condition = BinaryNode::create(
-			LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::Less);
+		auto for_loop_condition
+			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         ASTNode::Operator::Less);
 
 		auto for_loop_update
-			= UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                        ASTNode::Operator::Increment);
+			= UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment);
 
 		auto for_loop_statements = ASTNode::Dependencies{};
 		for_loop_statements.push_back(VariableDeclarationNode::create(
-			"inner",
-			"f32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14), LiteralNode::Type::Float32),
-			false));
+			"inner", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)), false));
 
 		auto for_loop = ForLoopNode::create(std::move(for_loop_initialization),
 		                                    std::move(for_loop_condition),
@@ -162,26 +154,19 @@ namespace soul::ast::visitors::ut
 
 		// ...and verify the results.
 		auto while_node_initialization = VariableDeclarationNode::create(
-			"index",
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0), LiteralNode::Type::Int32),
-			true);
+			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
-		auto while_node_condition = BinaryNode::create(
-			LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::Less);
+		auto while_node_condition
+			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         ASTNode::Operator::Less);
 
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.reserve(2);
 		while_node_statements.push_back(VariableDeclarationNode::create(
-			"inner",
-			"f32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14), LiteralNode::Type::Float32),
-			false));
+			"inner", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)), false));
 		while_node_statements.push_back(
-			UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                      ASTNode::Operator::Increment));
+			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment));
 
 		auto while_node
 			= WhileNode::create(std::move(while_node_condition), BlockNode::create(std::move(while_node_statements)));

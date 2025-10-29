@@ -13,7 +13,8 @@
 namespace soul
 {
 	class Value;
-	std::partial_ordering operator<=>(const Value& lhs, const Value& rhs) noexcept;
+
+	std::partial_ordering operator<=>(const Value& lhs, const Value& rhs);
 
 	namespace detail
 	{
@@ -50,11 +51,12 @@ namespace soul
 			ValueType _value;
 
 			public:
-			ValueBase(ViewType value) noexcept : _value(ValueType(std::move(value))) {}
+			constexpr ValueBase(ViewType value) noexcept;
+			constexpr bool          operator==(const ValueBase& other) const noexcept  = default;
+			constexpr auto          operator<=>(const ValueBase& other) const noexcept = default;
+			[[nodiscard]] constexpr operator ViewType() const noexcept;
 
-			constexpr bool operator==(const ValueBase& other) const noexcept  = default;
-			constexpr auto operator<=>(const ValueBase& other) const noexcept = default;
-			constexpr      operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
+			[[nodiscard]] constexpr types::Type type() const noexcept;
 		};
 
 		template <types::PrimitiveType::Kind... Vs>
@@ -69,33 +71,33 @@ namespace soul
 
 			public:
 			template <types::PrimitiveType::Kind V>
-			ScalarBase(ValueType<V> value) : _value(std::move(value))
-			{
-			}
+			constexpr ScalarBase(ValueType<V> value);
 			constexpr bool operator==(const ScalarBase& other) const noexcept  = default;
 			constexpr auto operator<=>(const ScalarBase& other) const noexcept = default;
 			explicit       operator std::string() const;
 
 			template <types::PrimitiveType::Kind V, typename... Args>
-			static constexpr ValueType<V> create(Args&&... args)
-			{
-				return ValueType<V>(std::forward<Args>(args)...);
-			}
+			static constexpr ValueType<V> create(Args&&... args);
 
+			/**
+			 * @brief Verifies if Scalar of a given type.
+			 * @return \b true if it is, \b false otherwise.
+			 */
 			template <types::PrimitiveType::Kind V>
-			constexpr bool is() const noexcept
-			{
-				return std::holds_alternative<ValueBase<V>>(_value);
-			}
+			constexpr bool is() const noexcept;
 
+			/**
+			 * @brief Returns the underlying value (of a given type).
+			 * @important Does not perform any validation - assumes that Value::is<T> was used first.
+			 */
 			template <types::PrimitiveType::Kind V>
-			constexpr ValueBase<V>::ViewType as() const noexcept
-			{
-				return std::get<ValueBase<V>>(_value);
-			}
+			constexpr ValueBase<V>::ViewType as() const noexcept;
+
+			[[nodiscard]] types::Type type() const;
 		};
 	}  // namespace detail
 
+	/** @brief Represents a value of some primitive type. */
 	using Scalar = detail::ScalarBase<types::PrimitiveType::Kind::Boolean,
 	                                  types::PrimitiveType::Kind::Char,
 	                                  types::PrimitiveType::Kind::Float32,
@@ -104,6 +106,9 @@ namespace soul
 	                                  types::PrimitiveType::Kind::Int64,
 	                                  types::PrimitiveType::Kind::String>;
 
+	/**
+	 * @brief Represents a reference to some variable, function name, etc.
+	 */
 	class Identifier
 	{
 		public:
@@ -114,15 +119,20 @@ namespace soul
 		ValueType _value;
 
 		public:
-		constexpr Identifier(ViewType value) : _value(std::move(value)) {}
+		constexpr Identifier(ViewType value);
 		constexpr bool operator==(const Identifier& other) const noexcept  = default;
 		constexpr auto operator<=>(const Identifier& other) const noexcept = default;
 		constexpr      operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
 		explicit       operator std::string() const;
 
 		static auto create(ViewType value) { return Identifier(std::move(value)); }
+
+		[[nodiscard]] types::Type type() const noexcept;
 	};
 
+	/**
+	 * @brief Represents a linear sequence of values.
+	 */
 	class Array
 	{
 		public:
@@ -132,11 +142,17 @@ namespace soul
 		Values _values;
 
 		public:
-		constexpr bool operator==(const Array& other) const noexcept  = default;
-		constexpr auto operator<=>(const Array& other) const noexcept = default;
+		constexpr Array(Values values);
+		constexpr bool operator==(const Array& other) const noexcept = default;
+		constexpr auto operator<=>(const Array& other) const         = default;
 		explicit       operator std::string() const;
+
+		[[nodiscard]] types::Type type() const;
 	};
 
+	/**
+	 * @brief Represents a user-defined structure of values.
+	 */
 	class Struct
 	{
 		public:
@@ -146,11 +162,15 @@ namespace soul
 		Members _members;
 
 		public:
-		constexpr bool operator==(const Struct& other) const noexcept  = default;
-		constexpr auto operator<=>(const Struct& other) const noexcept = default;
+		constexpr Struct(Members members);
+		constexpr bool operator==(const Struct& other) const noexcept = default;
+		constexpr auto operator<=>(const Struct& other) const         = default;
 		explicit       operator std::string() const;
+
+		[[nodiscard]] types::Type type() const;
 	};
 
+	/** @brief Represents a value of an unknown type. */
 	using UnknownValue = std::monostate;
 
 	template <typename T>
@@ -173,55 +193,38 @@ namespace soul
 		Variant _value = UnknownValue{};
 
 		public:
-		Value()                      = default;
-		Value(const Value&) noexcept = default;
-		Value(Value&&) noexcept      = default;
-		Value(Scalar value);
-		Value(Identifier value);
-		Value(Variant value);
+		constexpr Value()                      = default;
+		constexpr Value(const Value&) noexcept = default;
+		constexpr Value(Value&&) noexcept      = default;
+		constexpr Value(Identifier value);
+		constexpr Value(Variant value);
 		template <types::PrimitiveType::Kind V>
-		Value(Scalar::ValueType<V> value) : _value(std::move(value))
-		{
-		}
+		constexpr Value(Scalar::ValueType<V> value);
 
-		Value&   operator=(const Value&) noexcept        = default;
-		Value&   operator=(Value&&) noexcept             = default;
-		bool     operator==(const Value&) const noexcept = default;
-		explicit operator std::string() const;
+		constexpr Value& operator=(const Value&) noexcept        = default;
+		constexpr Value& operator=(Value&&) noexcept             = default;
+		constexpr bool   operator==(const Value&) const noexcept = default;
+		explicit         operator std::string() const;
+
+		static std::string_view internal_name(const Value& value);
 
 		/**
 		 * @brief Verifies if Value of a given ValueKind type.
-		 * @tparam T Type satisfying the ValueKind concept.
 		 * @return \b true if it is, \b false otherwise.
 		 */
 		template <ValueKind T>
-		[[nodiscard]] constexpr bool is() const noexcept
-		{
-			return std::holds_alternative<T>(_value);
-		}
+		[[nodiscard]] constexpr bool is() const noexcept;
 
 		/**
 		 * @brief Returns the underlying value (of a given type).
 		 * @important Does not perform any validation - assumes that Value::is<T> was used first.
-		 * @tparam T Type satisfying the ValueKind concept.
 		 */
 		template <ValueKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept
-		{
-			return std::get<T>(_value);
-		}
+		[[nodiscard]] constexpr const T& as() const noexcept;
 
-		/**
-		 * @brief Returns the underlying value (of a given type).
-		 * @important Does not perform any validation - assumes that Value::is<T> was used first.
-		 * @tparam T Type satisfying the ValueKind concept.
-		 */
-		template <ValueKind T>
-		[[nodiscard]] constexpr T& as() noexcept
-		{
-			return std::get<T>(_value);
-		}
+		[[nodiscard]] types::Type type() const;
 
-		friend std::partial_ordering operator<=>(const Value& lhs, const Value& rhs) noexcept;
+		friend std::partial_ordering operator<=>(const Value& lhs, const Value& rhs);
 	};
 }  // namespace soul
+#include "common/value.inl"

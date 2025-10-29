@@ -51,10 +51,10 @@ namespace soul::ast::visitors::ut
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(k_arithmetic_operators.size());
 		for (const auto op : k_arithmetic_operators) {
-			module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(1L), LiteralNode::Type::Int64),
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(5L), LiteralNode::Type::Int64),
-				op));
+			module_statements.emplace_back(
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(1L)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(5L)),
+			                       op));
 		}
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
@@ -74,13 +74,11 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_binary.lhs->is<LiteralNode>());
 			const auto& as_lhs = as_binary.lhs->as<LiteralNode>();
 			EXPECT_EQ(as_lhs.value, Scalar::create<PrimitiveType::Kind::Int64>(1L));
-			EXPECT_EQ(as_lhs.literal_type, LiteralNode::Type::Int64);
 			EXPECT_EQ(as_lhs.type, PrimitiveType::Kind::Int64);
 
 			ASSERT_TRUE(as_binary.rhs->is<LiteralNode>());
 			const auto& as_rhs = as_binary.rhs->as<LiteralNode>();
 			EXPECT_EQ(as_rhs.value, Scalar::create<PrimitiveType::Kind::Int64>(5L));
-			EXPECT_EQ(as_rhs.literal_type, LiteralNode::Type::Int64);
 			EXPECT_EQ(as_rhs.type, PrimitiveType::Kind::Int64);
 		}
 	}
@@ -95,10 +93,10 @@ namespace soul::ast::visitors::ut
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(k_comparison_operators.size());
 		for (const auto op : k_comparison_operators) {
-			module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(1.0), LiteralNode::Type::Float64),
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(5.0), LiteralNode::Type::Float64),
-				op));
+			module_statements.emplace_back(
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(1.0)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(5.0)),
+			                       op));
 		}
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
@@ -118,13 +116,11 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_binary.lhs->is<LiteralNode>());
 			const auto& as_lhs = as_binary.lhs->as<LiteralNode>();
 			EXPECT_EQ(as_lhs.value, Scalar::create<PrimitiveType::Kind::Float64>(1.0));
-			EXPECT_EQ(as_lhs.literal_type, LiteralNode::Type::Float64);
 			EXPECT_EQ(as_lhs.type, PrimitiveType::Kind::Float64);
 
 			ASSERT_TRUE(as_binary.rhs->is<LiteralNode>());
 			const auto& as_rhs = as_binary.rhs->as<LiteralNode>();
 			EXPECT_EQ(as_rhs.value, Scalar::create<PrimitiveType::Kind::Float64>(5.0));
-			EXPECT_EQ(as_rhs.literal_type, LiteralNode::Type::Float64);
 			EXPECT_EQ(as_rhs.type, PrimitiveType::Kind::Float64);
 		}
 	}
@@ -137,10 +133,10 @@ namespace soul::ast::visitors::ut
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(k_logical_operators.size());
 		for (const auto op : k_logical_operators) {
-			module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean),
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false), LiteralNode::Type::Boolean),
-				op));
+			module_statements.emplace_back(
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false)),
+			                       op));
 		}
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
@@ -160,13 +156,11 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_binary.lhs->is<LiteralNode>());
 			const auto& as_lhs = as_binary.lhs->as<LiteralNode>();
 			EXPECT_EQ(as_lhs.value, Scalar::create<PrimitiveType::Kind::Boolean>(true));
-			EXPECT_EQ(as_lhs.literal_type, LiteralNode::Type::Boolean);
 			EXPECT_EQ(as_lhs.type, PrimitiveType::Kind::Boolean);
 
 			ASSERT_TRUE(as_binary.rhs->is<LiteralNode>());
 			const auto& as_rhs = as_binary.rhs->as<LiteralNode>();
 			EXPECT_EQ(as_rhs.value, Scalar::create<PrimitiveType::Kind::Boolean>(false));
-			EXPECT_EQ(as_rhs.literal_type, LiteralNode::Type::Boolean);
 			EXPECT_EQ(as_rhs.type, PrimitiveType::Kind::Boolean);
 		}
 	}
@@ -174,10 +168,10 @@ namespace soul::ast::visitors::ut
 	TEST_F(TypeResolverTest, BinaryNode_NoOverload)
 	{
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.emplace_back(BinaryNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(5), LiteralNode::Type::Float32),
-			ASTNode::Operator::LogicalAnd));
+		module_statements.emplace_back(
+			BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")),
+		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(5)),
+		                       ASTNode::Operator::LogicalAnd));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -200,24 +194,15 @@ namespace soul::ast::visitors::ut
 	{
 		auto block_node_statements = ASTNode::Dependencies{};
 		block_node_statements.emplace_back(VariableDeclarationNode::create(
-			"in_scope",
-			"f32",
-			LiteralNode::create(Identifier::create("before_scope"), LiteralNode::Type::Identifier),
-			false));
+			"in_scope", "f32", LiteralNode::create(Identifier::create("before_scope")), false));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(3);
 		module_statements.emplace_back(VariableDeclarationNode::create(
-			"before_scope",
-			"f32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(1.0), LiteralNode::Type::Float32),
-			false));
+			"before_scope", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(1.0)), false));
 		module_statements.emplace_back(BlockNode::create(std::move(block_node_statements)));
 		module_statements.emplace_back(VariableDeclarationNode::create(
-			"after_scope",
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5), LiteralNode::Type::Int32),
-			false));
+			"after_scope", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)), false));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -236,7 +221,6 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_before_scope_variable.expression->is<LiteralNode>());
 			const auto& as_literal = as_before_scope_variable.expression->as<LiteralNode>();
 			EXPECT_EQ(as_literal.value, Scalar::create<PrimitiveType::Kind::Float32>(1.0));
-			EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::Float32);
 			EXPECT_EQ(as_literal.type, PrimitiveType::Kind::Float32);
 		}
 		EXPECT_FALSE(as_before_scope_variable.is_mutable);
@@ -256,7 +240,6 @@ namespace soul::ast::visitors::ut
 				ASSERT_TRUE(as_in_scope_variable.expression->is<LiteralNode>());
 				const auto& as_literal = as_in_scope_variable.expression->as<LiteralNode>();
 				EXPECT_EQ(as_literal.value, Identifier::create("before_scope"));
-				EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::Identifier);
 				EXPECT_EQ(as_literal.type, PrimitiveType::Kind::Float32);
 			}
 			EXPECT_FALSE(as_in_scope_variable.is_mutable);
@@ -272,7 +255,6 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_after_scope_variable.expression->is<LiteralNode>());
 			const auto& as_literal = as_after_scope_variable.expression->as<LiteralNode>();
 			EXPECT_EQ(as_literal.value, Scalar::create<PrimitiveType::Kind::Int32>(5));
-			EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::Int32);
 			EXPECT_EQ(as_literal.type, PrimitiveType::Kind::Int32);
 		}
 		EXPECT_FALSE(as_after_scope_variable.is_mutable);
@@ -281,8 +263,7 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(TypeResolverTest, Cast_BasicType)
 	{
-		auto cast_node = CastNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L), LiteralNode::Type::Int64), "i32");
+		auto cast_node = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)), "i32");
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
@@ -302,14 +283,12 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_cast.expression->is<LiteralNode>());
 		const auto& as_literal = as_cast.expression->as<LiteralNode>();
 		EXPECT_EQ(as_literal.value, Scalar::create<PrimitiveType::Kind::Int64>(128L));
-		EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::Int64);
 		EXPECT_EQ(as_literal.type, PrimitiveType::Kind::Int64);
 	}
 
 	TEST_F(TypeResolverTest, Cast_Impossible)
 	{
-		auto cast_node = CastNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L), LiteralNode::Type::Int64), "chr");
+		auto cast_node = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)), "chr");
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
@@ -332,22 +311,16 @@ namespace soul::ast::visitors::ut
 	TEST_F(TypeResolverTest, ForLoop)
 	{
 		auto initialization = VariableDeclarationNode::create(
-			"index",
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0), LiteralNode::Type::Int32),
-			true);
+			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
-		auto condition = BinaryNode::create(
-			LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::Less);
+		auto condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                                    ASTNode::Operator::Less);
 
-		auto update = UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                                ASTNode::Operator::Increment);
+		auto update = UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment);
 
 		auto for_loop_statements = ASTNode::Dependencies{};
-		for_loop_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String));
+		for_loop_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")));
 
 		auto for_loop          = ForLoopNode::create(std::move(initialization),
                                             std::move(condition),
@@ -379,7 +352,6 @@ namespace soul::ast::visitors::ut
 			const auto& as_value = as_initialization.expression->as<LiteralNode>();
 			EXPECT_EQ(as_value.type, PrimitiveType::Kind::Int32);
 			EXPECT_EQ(as_value.value, Scalar::create<PrimitiveType::Kind::Int32>(0));
-			EXPECT_EQ(as_value.literal_type, LiteralNode::Type::Int32);
 		}
 
 		ASSERT_TRUE(as_for_loop.condition->is<BinaryNode>());
@@ -392,13 +364,11 @@ namespace soul::ast::visitors::ut
 			const auto& as_lhs = as_condition.lhs->as<LiteralNode>();
 			EXPECT_EQ(as_lhs.type, PrimitiveType::Kind::Int32);
 			EXPECT_EQ(as_lhs.value, Identifier::create("index"));
-			EXPECT_EQ(as_lhs.literal_type, LiteralNode::Type::Identifier);
 
 			ASSERT_TRUE(as_condition.rhs->is<LiteralNode>());
 			const auto& as_rhs = as_condition.rhs->as<LiteralNode>();
 			EXPECT_EQ(as_rhs.type, PrimitiveType::Kind::Int32);
 			EXPECT_EQ(as_rhs.value, Scalar::create<PrimitiveType::Kind::Int32>(10));
-			EXPECT_EQ(as_rhs.literal_type, LiteralNode::Type::Int32);
 		}
 
 		ASSERT_TRUE(as_for_loop.update->is<UnaryNode>());
@@ -410,7 +380,6 @@ namespace soul::ast::visitors::ut
 			const auto& as_value = as_update.expression->as<LiteralNode>();
 			EXPECT_EQ(as_value.type, PrimitiveType::Kind::Int32);
 			EXPECT_EQ(as_value.value, Identifier::create("index"));
-			EXPECT_EQ(as_value.literal_type, LiteralNode::Type::Identifier);
 		}
 
 		ASSERT_TRUE(as_for_loop.statements->is<BlockNode>());
@@ -422,15 +391,13 @@ namespace soul::ast::visitors::ut
 		const auto& as_statement = as_statements.statements[0]->as<LiteralNode>();
 		EXPECT_EQ(as_statement.type, PrimitiveType::Kind::String);
 		EXPECT_EQ(as_statement.value, Scalar::create<PrimitiveType::Kind::String>("my_string"));
-		EXPECT_EQ(as_statement.literal_type, LiteralNode::Type::String);
 	}
 
 	TEST_F(TypeResolverTest, ForLoop_ConditionNotBool)
 	{
-		auto condition = BinaryNode::create(
-			LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::Add);
+		auto condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                                    ASTNode::Operator::Add);
 		auto for_loop
 			= ForLoopNode::create(nullptr, std::move(condition), nullptr, BlockNode::create(ASTNode::Dependencies{}));
 		auto module_statements = ASTNode::Dependencies{};
@@ -464,7 +431,7 @@ namespace soul::ast::visitors::ut
 
 		auto function_call_parameters = ASTNode::Dependencies{};
 		function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("some_string"), LiteralNode::Type::String));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("some_string")));
 		auto function_call     = FunctionCallNode::create(k_function_name, ASTNode::Dependencies{});
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_call));
@@ -514,7 +481,7 @@ namespace soul::ast::visitors::ut
 
 		auto function_call_parameters = ASTNode::Dependencies{};
 		function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("some_string"), LiteralNode::Type::String));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("some_string")));
 		auto function_call     = FunctionCallNode::create(k_function_name, ASTNode::Dependencies{});
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(2);
@@ -557,8 +524,8 @@ namespace soul::ast::visitors::ut
 		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "f64", nullptr, false));
 		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("c", "chr", nullptr, false));
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			"d", "chr", LiteralNode::create(Identifier::create("c"), LiteralNode::Type::Identifier), false));
+		function_declaration_statements.emplace_back(
+			VariableDeclarationNode::create("d", "chr", LiteralNode::create(Identifier::create("c")), false));
 		auto function_declaration
 			= FunctionDeclarationNode::create("my_function",
 		                                      "str",
@@ -622,7 +589,6 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_variable_declaration.expression->is<LiteralNode>());
 			const auto& as_literal = as_variable_declaration.expression->as<LiteralNode>();
 			EXPECT_EQ(as_literal.value, Identifier::create("c"));
-			EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::Identifier);
 			EXPECT_EQ(as_literal.type, PrimitiveType::Kind::Char);
 		}
 		EXPECT_FALSE(as_variable_declaration.is_mutable);
@@ -774,40 +740,39 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(TypeResolverTest, LiteralNode)
 	{
-		const auto get_value = [](LiteralNode::Type type) -> Value {
+		const auto get_value = [](PrimitiveType::Kind type) -> Value {
 			switch (type) {
-				case LiteralNode::Type::Boolean:
+				case PrimitiveType::Kind::Boolean:
 					return Scalar::create<PrimitiveType::Kind::Boolean>(true);
-				case LiteralNode::Type::Char:
+				case PrimitiveType::Kind::Char:
 					return Scalar::create<PrimitiveType::Kind::Char>('c');
-				case LiteralNode::Type::Float32:
+				case PrimitiveType::Kind::Float32:
 					return Scalar::create<PrimitiveType::Kind::Float32>(1.0f);
-				case LiteralNode::Type::Float64:
+				case PrimitiveType::Kind::Float64:
 					return Scalar::create<PrimitiveType::Kind::Float64>(10.0);
-				case LiteralNode::Type::Identifier:
-					return Identifier::create("index");
-				case LiteralNode::Type::Int32:
+				case PrimitiveType::Kind::Int32:
 					return Scalar::create<PrimitiveType::Kind::Int32>(1);
-				case LiteralNode::Type::Int64:
+				case PrimitiveType::Kind::Int64:
 					return Scalar::create<PrimitiveType::Kind::Int64>(10L);
-				case LiteralNode::Type::String:
+				case PrimitiveType::Kind::String:
 					return Scalar::create<PrimitiveType::Kind::String>("my_string");
-				case LiteralNode::Type::Unknown:
+				case PrimitiveType::Kind::Unknown:
 				default:
 					return Value{};
 			}
 		};
 
 		static constexpr std::array k_literal_types = {
-			LiteralNode::Type::Unknown, LiteralNode::Type::Boolean, LiteralNode::Type::Char,
-			LiteralNode::Type::Float32, LiteralNode::Type::Float64, LiteralNode::Type::Identifier,
-			LiteralNode::Type::Int32,   LiteralNode::Type::Int64,   LiteralNode::Type::String,
+			PrimitiveType::Kind::Boolean, PrimitiveType::Kind::Char,  PrimitiveType::Kind::Float32,
+			PrimitiveType::Kind::Float64, PrimitiveType::Kind::Int32, PrimitiveType::Kind::Int64,
+			PrimitiveType::Kind::String,
 		};
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.reserve(k_literal_types.size() + 1);
+		module_statements.reserve(k_literal_types.size() + 2);
 		module_statements.emplace_back(VariableDeclarationNode::create("index", "f32", nullptr, false));
+		module_statements.emplace_back(LiteralNode::create(Identifier::create("index")));
 		for (const auto type : k_literal_types) {
-			module_statements.emplace_back(LiteralNode::create(get_value(type), type));
+			module_statements.emplace_back(LiteralNode::create(get_value(type)));
 		}
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
@@ -816,7 +781,7 @@ namespace soul::ast::visitors::ut
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->is<ModuleNode>());
 		const auto& as_module = result_module->as<ModuleNode>();
-		ASSERT_EQ(as_module.statements.size(), k_literal_types.size() + 1);
+		ASSERT_EQ(as_module.statements.size(), k_literal_types.size() + 2);
 
 		ASSERT_TRUE(as_module.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_variable_declaration = as_module.statements[0]->as<VariableDeclarationNode>();
@@ -826,25 +791,18 @@ namespace soul::ast::visitors::ut
 		EXPECT_FALSE(as_variable_declaration.is_mutable);
 		EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Float32);
 
-		static const std::unordered_map<LiteralNode::Type, PrimitiveType::Kind> k_expected_types = {
-			{ LiteralNode::Type::Unknown,    PrimitiveType::Kind::Unknown                                         },
-			{ LiteralNode::Type::Boolean,    PrimitiveType::Kind::Boolean                                         },
-			{ LiteralNode::Type::Char,       PrimitiveType::Kind::Char                                            },
-			{ LiteralNode::Type::Float32,    PrimitiveType::Kind::Float32                                         },
-			{ LiteralNode::Type::Float64,    PrimitiveType::Kind::Float64                                         },
-			{ LiteralNode::Type::Identifier, PrimitiveType::Kind::Float32 /* has to match variable declaration */ },
-			{ LiteralNode::Type::Int32,      PrimitiveType::Kind::Int32                                           },
-			{ LiteralNode::Type::Int64,      PrimitiveType::Kind::Int64                                           },
-			{ LiteralNode::Type::String,     PrimitiveType::Kind::String                                          },
-		};
+		// Identifier literal.
+		ASSERT_TRUE(as_module.statements[1]->is<LiteralNode>());
+		const auto& as_identifier_literal = as_module.statements[1]->as<LiteralNode>();
+		EXPECT_EQ(as_identifier_literal.type, PrimitiveType::Kind::Float32);
+		EXPECT_EQ(as_identifier_literal.value, Identifier::create("index"));
+
 		for (std::size_t index = 0; index < k_literal_types.size(); ++index) {
 			const auto literal_type = k_literal_types[index];
-
-			ASSERT_TRUE(as_module.statements[index + 1]->is<LiteralNode>());
-			const auto& as_literal = as_module.statements[index + 1]->as<LiteralNode>();
-			EXPECT_EQ(as_literal.type, k_expected_types.at(literal_type));
+			ASSERT_TRUE(as_module.statements[index + 2]->is<LiteralNode>());
+			const auto& as_literal = as_module.statements[index + 2]->as<LiteralNode>();
+			EXPECT_EQ(as_literal.type, literal_type);
 			EXPECT_EQ(as_literal.value, get_value(literal_type));
-			EXPECT_EQ(as_literal.literal_type, literal_type);
 		}
 	}
 
@@ -853,8 +811,7 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_variable_name = "undeclared_variable";
 
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.emplace_back(
-			LiteralNode::create(Identifier::create(k_variable_name), LiteralNode::Type::Identifier));
+		module_statements.emplace_back(LiteralNode::create(Identifier::create(k_variable_name)));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -899,8 +856,8 @@ namespace soul::ast::visitors::ut
 	{
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(ReturnNode::create());
-		module_statements.emplace_back(ReturnNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String)));
+		module_statements.emplace_back(
+			ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"))));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -926,7 +883,6 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_return.expression->is<LiteralNode>());
 			const auto& as_literal = as_return.expression->as<LiteralNode>();
 			EXPECT_EQ(as_literal.value, Scalar::create<PrimitiveType::Kind::String>("my_string"));
-			EXPECT_EQ(as_literal.literal_type, LiteralNode::Type::String);
 			EXPECT_EQ(as_literal.type, PrimitiveType::Kind::String);
 		}
 	}
@@ -995,8 +951,8 @@ namespace soul::ast::visitors::ut
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(k_arithmetic_operators.size());
 		for (const auto op : k_arithmetic_operators) {
-			module_statements.emplace_back(UnaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(1), LiteralNode::Type::Int64), op));
+			module_statements.emplace_back(
+				UnaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(1)), op));
 		}
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
@@ -1016,7 +972,6 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_unary.expression->is<LiteralNode>());
 			const auto& as_expression = as_unary.expression->as<LiteralNode>();
 			EXPECT_EQ(as_expression.value, Scalar::create<PrimitiveType::Kind::Int64>(1));
-			EXPECT_EQ(as_expression.literal_type, LiteralNode::Type::Int64);
 			EXPECT_EQ(as_expression.type, PrimitiveType::Kind::Int64);
 		}
 	}
@@ -1025,8 +980,7 @@ namespace soul::ast::visitors::ut
 	{
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(UnaryNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean),
-			ASTNode::Operator::LogicalNot));
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)), ASTNode::Operator::LogicalNot));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -1044,16 +998,15 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_unary.expression->is<LiteralNode>());
 		const auto& as_expression = as_unary.expression->as<LiteralNode>();
 		EXPECT_EQ(as_expression.value, Scalar::create<PrimitiveType::Kind::Boolean>(true));
-		EXPECT_EQ(as_expression.literal_type, LiteralNode::Type::Boolean);
 		EXPECT_EQ(as_expression.type, PrimitiveType::Kind::Boolean);
 	}
 
 	TEST_F(TypeResolverTest, UnaryNode_NoOverload)
 	{
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.emplace_back(UnaryNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"), LiteralNode::Type::String),
-			ASTNode::Operator::LogicalNot));
+		module_statements.emplace_back(
+			UnaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")),
+		                      ASTNode::Operator::LogicalNot));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -1192,12 +1145,10 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(TypeResolverTest, While)
 	{
-		auto while_condition
-			= LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean);
+		auto while_condition = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
 
 		auto while_statements = ASTNode::Dependencies{};
-		while_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(3.14), LiteralNode::Type::Float64));
+		while_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(3.14)));
 
 		auto while_loop = WhileNode::create(std::move(while_condition), BlockNode::create(std::move(while_statements)));
 
@@ -1227,7 +1178,6 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_statements.statements[0]->is<LiteralNode>());
 		const auto& as_statement = as_statements.statements[0]->as<LiteralNode>();
 		EXPECT_EQ(as_statement.value, Scalar::create<PrimitiveType::Kind::Float64>(3.14));
-		EXPECT_EQ(as_statement.literal_type, LiteralNode::Type::Float64);
 		EXPECT_EQ(as_statement.type, PrimitiveType::Kind::Float64);
 	}
 }  // namespace soul::ast::visitors::ut

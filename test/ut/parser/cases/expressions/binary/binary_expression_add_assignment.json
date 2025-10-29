@@ -7,12 +7,12 @@
       "operator": "operator_add_assign",
       "lhs": {
         "node": "literal",
-        "literal_type": "literal_type_int32",
+        "value_type": "value_type_int32",
         "value": "1"
       },
       "rhs": {
         "node": "literal",
-        "literal_type": "literal_type_int32",
+        "value_type": "value_type_int32",
         "value": "2"
       }
     }

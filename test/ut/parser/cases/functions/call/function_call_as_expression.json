@@ -13,7 +13,7 @@
         "parameters": [
           {
             "node": "literal",
-            "literal_type": "literal_type_string",
+            "value_type": "value_type_string",
             "value": "some_value"
           }
         ]

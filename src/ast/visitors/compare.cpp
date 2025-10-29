@@ -238,11 +238,6 @@ namespace soul::ast::visitors
 	template <>
 	void CompareVisitor::compare<LiteralNode>(const LiteralNode& lhs, const LiteralNode& rhs)
 	{
-		_ordering = lhs.literal_type <=> rhs.literal_type;
-		if (_ordering != std::partial_ordering::equivalent) {
-			return;
-		}
-
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
 			return;

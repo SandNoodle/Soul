@@ -28,30 +28,23 @@ namespace soul::ast::visitors
 
 		auto if_node_true_statements = ASTNode::Dependencies{};
 		if_node_true_statements.emplace_back(
-			UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                      ASTNode::Operator::Decrement));
+			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Decrement));
 		auto if_node_false_statements = ASTNode::Dependencies{};
 		if_node_false_statements.emplace_back(
-			UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                      ASTNode::Operator::Increment));
+			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment));
 
-		auto if_node = IfNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true), LiteralNode::Type::Boolean),
-			BlockNode::create(std::move(if_node_true_statements)),
-			BlockNode::create(std::move(if_node_false_statements)));
+		auto if_node = IfNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)),
+		                              BlockNode::create(std::move(if_node_true_statements)),
+		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index",
-			"i32",
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0), LiteralNode::Type::Int32),
-			false);
-		auto for_loop_condition = BinaryNode::create(
-			LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10), LiteralNode::Type::Int32),
-			ASTNode::Operator::LessEqual);
+			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
+		auto for_loop_condition
+			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         ASTNode::Operator::LessEqual);
 		auto for_loop_update
-			= UnaryNode::create(LiteralNode::create(Identifier::create("index"), LiteralNode::Type::Identifier),
-		                        ASTNode::Operator::Increment);
+			= UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment);
 		auto for_loop_statements = ASTNode::Dependencies{};
 		for_loop_statements.push_back(std::move(if_node));
 
@@ -64,8 +57,8 @@ namespace soul::ast::visitors
 		function_declaration_statements.reserve(3);
 		function_declaration_statements.push_back(std::move(for_loop));
 		function_declaration_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Continue));
-		function_declaration_statements.emplace_back(ReturnNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123), LiteralNode::Type::Int32)));
+		function_declaration_statements.emplace_back(
+			ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123))));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(2);
 		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));

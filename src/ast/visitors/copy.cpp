@@ -156,10 +156,7 @@ namespace soul::ast::visitors
 		return IfNode::create(std::move(condition), std::move(then_statements), std::move(else_statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const LiteralNode& node)
-	{
-		return LiteralNode::create(node.value, node.literal_type);
-	}
+	ASTNode::Dependency CopyVisitor::clone(const LiteralNode& node) { return LiteralNode::create(node.value); }
 
 	ASTNode::Dependency CopyVisitor::clone(const LoopControlNode& node)
 	{

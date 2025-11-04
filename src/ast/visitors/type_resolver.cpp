@@ -65,8 +65,8 @@ namespace soul::ast::visitors
 		}
 
 		const auto& cast_node = _current_clone->as<CastNode>();
-		const auto  from_type = cast_node.expression->type;
-		const auto  to_type   = get_type_or_default(cast_node.type_identifier);
+		const auto from_type  = cast_node.expression->type;
+		const auto to_type    = get_type_or_default(cast_node.type_identifier);
 		if (get_cast_type(from_type, to_type) == CastNode::Type::Impossible) {
 			_current_clone = ErrorNode::create(
 				std::format("cannot cast from type '{}' to '{}'", std::string(from_type), std::string(to_type)));
@@ -136,7 +136,7 @@ namespace soul::ast::visitors
 		CopyVisitor::visit(node);
 
 		const auto& function_call = _current_clone->as<FunctionCallNode>();
-		auto        want_types    = function_call.parameters
+		auto want_types           = function_call.parameters
 		                | std::views::transform([](const auto& parameter) -> types::Type { return parameter->type; });
 		const auto function_declaration = get_function_declaration(node.name, want_types);
 		if (!function_declaration.has_value()) {
@@ -155,7 +155,7 @@ namespace soul::ast::visitors
 		CopyVisitor::visit(node);
 
 		auto& function_declaration = _current_clone->as<FunctionDeclarationNode>();
-		auto  want_types           = function_declaration.parameters
+		auto want_types            = function_declaration.parameters
 		                | std::views::transform([](const auto& parameter) -> types::Type { return parameter->type; });
 		if (get_function_declaration(node.name, want_types)) {
 			_current_clone
@@ -191,7 +191,7 @@ namespace soul::ast::visitors
 		CopyVisitor::visit(node);
 
 		const auto& if_node = _current_clone->as<IfNode>();
-		const bool  is_condition_bool_coercible
+		const bool is_condition_bool_coercible
 			= get_cast_type(if_node.condition->type, PrimitiveType::Kind::Boolean) != CastNode::Type::Impossible;
 		if (!is_condition_bool_coercible) {
 			_current_clone = ErrorNode::create(

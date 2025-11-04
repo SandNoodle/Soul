@@ -52,8 +52,8 @@ namespace soul
 
 			public:
 			constexpr ValueBase(ViewType value) noexcept;
-			constexpr bool          operator==(const ValueBase& other) const noexcept  = default;
-			constexpr auto          operator<=>(const ValueBase& other) const noexcept = default;
+			constexpr bool operator==(const ValueBase& other) const noexcept  = default;
+			constexpr auto operator<=>(const ValueBase& other) const noexcept = default;
 			[[nodiscard]] constexpr operator ViewType() const noexcept;
 
 			[[nodiscard]] constexpr types::Type type() const noexcept;
@@ -74,7 +74,7 @@ namespace soul
 			constexpr ScalarBase(ValueType<V> value);
 			constexpr bool operator==(const ScalarBase& other) const noexcept  = default;
 			constexpr auto operator<=>(const ScalarBase& other) const noexcept = default;
-			explicit       operator std::string() const;
+			explicit operator std::string() const;
 
 			template <types::PrimitiveType::Kind V, typename... Args>
 			static constexpr ValueType<V> create(Args&&... args);
@@ -122,8 +122,8 @@ namespace soul
 		constexpr Identifier(ViewType value);
 		constexpr bool operator==(const Identifier& other) const noexcept  = default;
 		constexpr auto operator<=>(const Identifier& other) const noexcept = default;
-		constexpr      operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
-		explicit       operator std::string() const;
+		constexpr operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
+		explicit operator std::string() const;
 
 		static auto create(ViewType value) { return Identifier(std::move(value)); }
 
@@ -145,7 +145,7 @@ namespace soul
 		constexpr Array(Values values);
 		constexpr bool operator==(const Array& other) const noexcept = default;
 		constexpr auto operator<=>(const Array& other) const         = default;
-		explicit       operator std::string() const;
+		explicit operator std::string() const;
 
 		[[nodiscard]] types::Type type() const;
 	};
@@ -165,7 +165,7 @@ namespace soul
 		constexpr Struct(Members members);
 		constexpr bool operator==(const Struct& other) const noexcept = default;
 		constexpr auto operator<=>(const Struct& other) const         = default;
-		explicit       operator std::string() const;
+		explicit operator std::string() const;
 
 		[[nodiscard]] types::Type type() const;
 	};
@@ -201,10 +201,10 @@ namespace soul
 		template <types::PrimitiveType::Kind V>
 		constexpr Value(Scalar::ValueType<V> value);
 
-		constexpr Value& operator=(const Value&) noexcept        = default;
-		constexpr Value& operator=(Value&&) noexcept             = default;
-		constexpr bool   operator==(const Value&) const noexcept = default;
-		explicit         operator std::string() const;
+		constexpr Value& operator=(const Value&) noexcept      = default;
+		constexpr Value& operator=(Value&&) noexcept           = default;
+		constexpr bool operator==(const Value&) const noexcept = default;
+		explicit operator std::string() const;
 
 		static std::string_view internal_name(const Value& value);
 

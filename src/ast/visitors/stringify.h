@@ -23,13 +23,13 @@ namespace soul::ast::visitors
 		};
 
 		private:
-		static constexpr auto        k_unnamed       = "__unnamed__";
+		static constexpr auto k_unnamed              = "__unnamed__";
 		static constexpr std::size_t k_indent_amount = 2;
 
 		private:
 		std::stringstream _ss;
-		std::size_t       _indent_level = 0;
-		Options           _options{};
+		std::size_t _indent_level = 0;
+		Options _options{};
 
 		public:
 		StringifyVisitor(Options options = Options::None);
@@ -61,9 +61,9 @@ namespace soul::ast::visitors
 
 		private:
 		std::string current_indent() const;
-		void        encode(std::string_view key, std::string_view value, bool add_trailing_comma = true);
-		void        encode_type(const types::Type& type);
-		void        encode(std::string_view key, const ASTNode::Reference node, bool add_trailing_comma = true);
+		void encode(std::string_view key, std::string_view value, bool add_trailing_comma = true);
+		void encode_type(const types::Type& type);
+		void encode(std::string_view key, const ASTNode::Reference node, bool add_trailing_comma = true);
 		template <std::ranges::forward_range T>
 		void encode(std::string_view key, const T& parameters, bool add_trailing_comma = true)
 			requires(std::same_as<ASTNode::Dependency, std::ranges::range_value_t<T>>);

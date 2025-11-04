@@ -495,7 +495,6 @@ namespace soul::ast::visitors::ut
 		auto* inner_while_output_block    = expected_ir_builder.create_basic_block();
 		expected_ir_builder.emit<JumpIf>(inner_while_condition_value, inner_while_body_block, inner_while_output_block);
 
-
 		expected_ir_builder.switch_to(inner_while_body_block);
 		expected_ir_builder.emit<Jump>(inner_while_condition_block);
 

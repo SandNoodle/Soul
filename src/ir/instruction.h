@@ -24,9 +24,9 @@ namespace soul::ir
 		static constexpr Version k_invalid_version = std::numeric_limits<Version>::max();
 
 		public:
-		Version     version{ k_invalid_version };
+		Version version{ k_invalid_version };
 		types::Type type{};
-		Arguments   args{ Instruction::no_args() };
+		Arguments args{ Instruction::no_args() };
 
 		public:
 		constexpr Instruction(types::Type type, Arguments args);
@@ -105,7 +105,7 @@ namespace soul::ir
 	struct Call final : public Instruction
 	{
 		public:
-		std::string               identifier;
+		std::string identifier;
 		std::vector<Instruction*> parameters;
 
 		public:
@@ -128,8 +128,8 @@ namespace soul::ir
 		constexpr Const(types::Type type, Value value);
 		virtual ~Const() override = default;
 
-		constexpr bool operator==(const Const& other) const noexcept  = default;
-		auto           operator<=>(const Const& other) const noexcept = default;
+		constexpr bool operator==(const Const& other) const noexcept = default;
+		auto operator<=>(const Const& other) const noexcept          = default;
 	};
 
 	/**

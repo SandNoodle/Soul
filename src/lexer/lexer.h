@@ -18,9 +18,9 @@ namespace soul::lexer
 	{
 		private:
 		std::string_view _script{};
-		std::size_t      _offset_start;
-		std::size_t      _offset_current;
-		SourceLocation   _current_location;
+		std::size_t _offset_start;
+		std::size_t _offset_current;
+		SourceLocation _current_location;
 
 		public:
 		[[nodiscard]] static std::vector<Token> tokenize(std::string_view script);
@@ -31,8 +31,8 @@ namespace soul::lexer
 		std::vector<Token> tokenize();
 
 		std::string_view current_token(std::size_t exclude_start = 0, std::size_t exclude_end = 0);
-		Token            create_token(Token::Type type, std::string_view data);
-		Token            scan_token();
+		Token create_token(Token::Type type, std::string_view data);
+		Token scan_token();
 
 		CodePoint::ValueType peek_at(std::size_t n) const;
 		CodePoint::ValueType advance();

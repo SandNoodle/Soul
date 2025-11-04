@@ -49,9 +49,9 @@ namespace soul::types
 		public:
 		constexpr PrimitiveType(Kind type = Kind::Unknown) : type(type) {}
 
-		bool                 operator==(const PrimitiveType&) const noexcept = default;
-		std::strong_ordering operator<=>(const PrimitiveType&) const         = default;
-		explicit             operator std::string() const;
+		bool operator==(const PrimitiveType&) const noexcept         = default;
+		std::strong_ordering operator<=>(const PrimitiveType&) const = default;
+		explicit operator std::string() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const PrimitiveType&);
 	};
@@ -69,11 +69,11 @@ namespace soul::types
 		ArrayType(const ArrayType&) noexcept;
 		ArrayType(ArrayType&&) noexcept;
 
-		ArrayType&           operator=(const ArrayType&) noexcept;
-		ArrayType&           operator=(ArrayType&&) noexcept;
-		bool                 operator==(const ArrayType&) const noexcept = default;
+		ArrayType& operator=(const ArrayType&) noexcept;
+		ArrayType& operator=(ArrayType&&) noexcept;
+		bool operator==(const ArrayType&) const noexcept = default;
 		std::strong_ordering operator<=>(const ArrayType&) const;
-		explicit             operator std::string() const;
+		explicit operator std::string() const;
 
 		const Type& data_type() const noexcept;
 
@@ -94,9 +94,9 @@ namespace soul::types
 		public:
 		StructType(ContainedTypes types);
 
-		bool                 operator==(const StructType&) const noexcept = default;
+		bool operator==(const StructType&) const noexcept = default;
 		std::strong_ordering operator<=>(const StructType&) const;
-		explicit             operator std::string() const;
+		explicit operator std::string() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const StructType& type);
 	};
@@ -120,10 +120,10 @@ namespace soul::types
 		explicit constexpr Type(Variant&& type) noexcept : _type(std::move(type)) {}
 		constexpr Type(PrimitiveType::Kind type) : _type(PrimitiveType(type)) {}
 
-		Type&          operator=(const Type&) noexcept        = default;
-		Type&          operator=(Type&&) noexcept             = default;
+		Type& operator=(const Type&) noexcept                 = default;
+		Type& operator=(Type&&) noexcept                      = default;
 		constexpr bool operator==(const Type&) const noexcept = default;
-		explicit       operator std::string() const;
+		explicit operator std::string() const;
 
 		/**
 		 * @brief Verifies if a Type is of a given TypeKind's type.
@@ -145,7 +145,7 @@ namespace soul::types
 			return std::get<T>(_type);
 		}
 
-		friend std::ostream&                  operator<<(std::ostream& os, const Type& type);
+		friend std::ostream& operator<<(std::ostream& os, const Type& type);
 		friend constexpr std::strong_ordering operator<=>(const Type&, const Type&);
 	};
 

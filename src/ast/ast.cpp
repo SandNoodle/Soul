@@ -174,10 +174,10 @@ namespace soul::ast
 		return std::make_unique<FunctionCallNode>(std::move(name), std::move(parameters));
 	}
 
-	FunctionDeclarationNode::FunctionDeclarationNode(Identifier   identifier,
-	                                                 Identifier   return_type_identifier,
+	FunctionDeclarationNode::FunctionDeclarationNode(Identifier identifier,
+	                                                 Identifier return_type_identifier,
 	                                                 Dependencies parameters,
-	                                                 ScopeBlock   statements)
+	                                                 ScopeBlock statements)
 		: name(std::move(identifier)),
 		  type_identifier(std::move(return_type_identifier)),
 		  parameters(std::move(parameters)),
@@ -185,10 +185,10 @@ namespace soul::ast
 	{
 	}
 
-	FunctionDeclarationNode::Dependency FunctionDeclarationNode::create(Identifier   name,
-	                                                                    Identifier   return_type,
+	FunctionDeclarationNode::Dependency FunctionDeclarationNode::create(Identifier name,
+	                                                                    Identifier return_type,
 	                                                                    Dependencies parameters,
-	                                                                    ScopeBlock   statements)
+	                                                                    ScopeBlock statements)
 	{
 		return std::make_unique<FunctionDeclarationNode>(
 			std::move(name), std::move(return_type), std::move(parameters), std::move(statements));
@@ -261,7 +261,7 @@ namespace soul::ast
 	VariableDeclarationNode::Dependency VariableDeclarationNode::create(Identifier name,
 	                                                                    Identifier type,
 	                                                                    Dependency expr,
-	                                                                    bool       is_mutable)
+	                                                                    bool is_mutable)
 	{
 		return std::make_unique<VariableDeclarationNode>(std::move(name), std::move(type), std::move(expr), is_mutable);
 	}

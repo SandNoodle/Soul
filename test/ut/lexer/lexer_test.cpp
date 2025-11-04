@@ -22,7 +22,7 @@ namespace soul::lexer::ut
 	TEST_F(LexerTest, Literals_Identifiers)
 	{
 		static constexpr auto k_input_string = "my_identifier invalid_variable this_should_work"sv;
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token(Token::Type::LiteralIdentifier, "my_identifier"sv, SourceLocation{ 1, 0 }),
@@ -153,7 +153,7 @@ namespace soul::lexer::ut
 	TEST_F(LexerTest, Literals_Strings)
 	{
 		static constexpr auto k_input_string = "\"my_value\"\"no space after previous one\" \"520\""sv;
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token(Token::Type::LiteralString, "my_value"sv, SourceLocation{ 1, 2 }),
@@ -170,8 +170,8 @@ namespace soul::lexer::ut
 
 	TEST_F(LexerTest, Literals_Strings_UnterminatedString)
 	{
-		const std::string_view string        = "\"this is an unterminated string, how sad :c";
-		const auto             result_tokens = Lexer::tokenize(string);
+		const std::string_view string = "\"this is an unterminated string, how sad :c";
+		const auto result_tokens      = Lexer::tokenize(string);
 
 		ASSERT_EQ(result_tokens.size(), 1);
 		EXPECT_EQ(result_tokens[0],
@@ -183,7 +183,7 @@ namespace soul::lexer::ut
 	TEST_F(LexerTest, Compressed)
 	{
 		static constexpr auto k_input_string = "let variable:int=320;";
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token(Token::Type::KeywordLet, "let"sv, SourceLocation{ 1, 0 }),
@@ -242,14 +242,14 @@ namespace soul::lexer::ut
 	TEST_F(LexerTest, WhitespacesAndComments)
 	{
 		static constexpr auto k_input_string = "\t\n\f     # this is a comment \n #and another one"sv;
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 		ASSERT_TRUE(result_tokens.empty());
 	}
 
 	TEST_F(LexerTest, SymbolsDelimitedByComments)
 	{
 		static constexpr auto k_input_string = "\t;\n\f+# this is a comment \n+=#and another one"sv;
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token(Token::Type::SymbolSemicolon, ";"sv, SourceLocation{ 1, 1 }),
@@ -267,7 +267,7 @@ namespace soul::lexer::ut
 	TEST_F(LexerTest, PrimitiveTypes)
 	{
 		static constexpr auto k_input_string = "bool chr f32 f64 i32 i64 str void"sv;
-		const auto            result_tokens  = Lexer::tokenize(k_input_string);
+		const auto result_tokens             = Lexer::tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token(Token::Type::LiteralIdentifier, "bool"sv, SourceLocation{ 1, 0 }),

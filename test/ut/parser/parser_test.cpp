@@ -18,7 +18,7 @@ namespace soul::parser::ut
 
 	struct Case
 	{
-		std::string           name;
+		std::string name;
 		std::filesystem::path script_path;
 		std::filesystem::path expected_output_path;
 	};

@@ -56,7 +56,7 @@ namespace soul
 		}
 
 		const auto& first_type = _values[0].type();
-		const bool  is_same_type
+		const bool is_same_type
 			= std::ranges::any_of(_values, [&first_type](const auto& v) -> bool { return v.type() != first_type; });
 		if (!is_same_type) [[unlikely]] {
 			// NOTE: We expect all array values to have the same type.

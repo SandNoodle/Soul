@@ -47,9 +47,9 @@ namespace soul::parser
 
 		public:
 		Precedence precedence = Precedence::None;
-		PrefixFn   prefix     = nullptr;
-		InfixFn    infix      = nullptr;
-		SuffixFn   suffix     = nullptr;
+		PrefixFn prefix       = nullptr;
+		InfixFn infix         = nullptr;
+		SuffixFn suffix       = nullptr;
 	};
 
 	Parser::Parser(std::string_view module_name, std::span<const Token> tokens)
@@ -484,7 +484,7 @@ namespace soul::parser
 		}
 
 		if (token->type == Token::Type::LiteralFloat) {
-			f64        v{};
+			f64 v{};
 			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
 			if (!result) {
 				return create_error(std::format("failed to parse float expression, because: '{}'",
@@ -497,7 +497,7 @@ namespace soul::parser
 		}
 
 		if (token->type == Token::Type::LiteralInteger) {
-			i64        v{};
+			i64 v{};
 			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
 			if (!result) {
 				return create_error(std::format("failed to parse integer expression, because: '{}'",

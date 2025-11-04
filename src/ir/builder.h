@@ -22,10 +22,10 @@ namespace soul::ir
 
 		private:
 		std::unique_ptr<Module> _module{};
-		BasicBlock*             _current_block{};
-		BasicBlock::Label       _next_block_version{ 0 };
-		Instruction::Version    _next_instruction_version{ 0 };
-		StackSlotsMapping       _slots_mapping{};
+		BasicBlock* _current_block{};
+		BasicBlock::Label _next_block_version{ 0 };
+		Instruction::Version _next_instruction_version{ 0 };
+		StackSlotsMapping _slots_mapping{};
 
 		public:
 		constexpr IRBuilder();
@@ -44,13 +44,13 @@ namespace soul::ir
 		 * @brief Creates a new function in the module (with a single basic block initialized).
 		 * @warning Switches the current basic block to a newly initialized one.
 		 */
-		constexpr void       create_function(std::string_view         identifier,
-		                                     types::Type              return_type,
-		                                     std::vector<types::Type> parameters);
+		constexpr void create_function(std::string_view identifier,
+		                               types::Type return_type,
+		                               std::vector<types::Type> parameters);
 		constexpr StackSlot* reserve_slot(std::string_view identifier, types::Type type);
 		constexpr StackSlot* get_slot(std::string_view identifier);
 
-		constexpr void        switch_to(BasicBlock* block);
+		constexpr void switch_to(BasicBlock* block);
 		constexpr BasicBlock* create_basic_block();
 		constexpr BasicBlock* current_basic_block() const noexcept;
 

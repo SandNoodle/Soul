@@ -22,9 +22,9 @@ namespace soul::parser
 		enum class Precedence : u8;
 
 		private:
-		std::span<const Token>           _tokens        = {};
+		std::span<const Token> _tokens                  = {};
 		std::span<const Token>::iterator _current_token = {};
-		std::string_view                 _module_name   = {};
+		std::string_view _module_name                   = {};
 
 		public:
 		/**
@@ -33,7 +33,7 @@ namespace soul::parser
 		 * @param tokens Tokens to be parsed.
 		 * @return Module with parsed statements.
 		 */
-		[[nodiscard]] static ast::ASTNode::Dependency parse(std::string_view       module_name,
+		[[nodiscard]] static ast::ASTNode::Dependency parse(std::string_view module_name,
 		                                                    std::span<const Token> tokens);
 
 		private:
@@ -60,7 +60,7 @@ namespace soul::parser
 		ast::ASTNode::Dependency parse_while_loop();
 
 		ast::ASTNode::Dependencies parse_block_statement();
-		ast::ASTNode::Dependency   parse_parameter_declaration();
+		ast::ASTNode::Dependency parse_parameter_declaration();
 
 		/**
 		 * @brief Creates new Error node in the AST and resynchronizes the parser.
@@ -70,7 +70,7 @@ namespace soul::parser
 		std::optional<Token> require(Token::Type type);
 		std::optional<Token> require(std::span<const Token::Type> types);
 		std::optional<Token> peek(std::ptrdiff_t n);
-		bool                 match(Token::Type type);
+		bool match(Token::Type type);
 
 		PrecedenceRule precedence_rule(Token::Type type) const noexcept;
 

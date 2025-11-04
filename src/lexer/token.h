@@ -17,9 +17,9 @@ namespace soul
 		enum class Type : u8;
 
 		public:
-		Type             type;
+		Type type;
 		std::string_view data;
-		SourceLocation   location;
+		SourceLocation location;
 
 		constexpr bool operator==(const Token& other) const noexcept
 		{

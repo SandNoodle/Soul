@@ -41,8 +41,8 @@ namespace soul::ast::visitors
 		auto& for_loop = _current_clone->as<ForLoopNode>();
 
 		// WhileNode(condition, BlockNode({..., update}))
-		auto&& for_loop_statements   = for_loop.statements->as<BlockNode>().statements;
-		auto   while_node_statements = ASTNode::Dependencies{};
+		auto&& for_loop_statements = for_loop.statements->as<BlockNode>().statements;
+		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.reserve(for_loop_statements.size() + 1);
 		while_node_statements.insert(while_node_statements.end(),
 		                             std::make_move_iterator(for_loop_statements.begin()),

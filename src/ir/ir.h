@@ -14,9 +14,9 @@ namespace soul::ir
 	struct Function
 	{
 		public:
-		std::string                              name;
-		types::Type                              return_type;
-		std::vector<types::Type>                 parameters;
+		std::string name;
+		types::Type return_type;
+		std::vector<types::Type> parameters;
 		std::vector<std::unique_ptr<BasicBlock>> basic_blocks;
 
 		public:
@@ -26,7 +26,7 @@ namespace soul::ir
 	struct Module
 	{
 		public:
-		std::string                            name;
+		std::string name;
 		std::vector<std::unique_ptr<Function>> functions;
 
 		public:

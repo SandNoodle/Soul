@@ -66,7 +66,7 @@ namespace soul::ast
 
 		static std::string_view name(const Operator op) noexcept;
 		static std::string_view internal_name(const Operator op) noexcept;
-		static Operator         as_operator(Token::Type) noexcept;
+		static Operator as_operator(Token::Type) noexcept;
 	};
 
 	/**
@@ -130,7 +130,7 @@ namespace soul::ast
 	class BinaryNode final : public VisitorAcceptor<BinaryNode>
 	{
 		public:
-		Operator   op  = Operator::Unknown;
+		Operator op    = Operator::Unknown;
 		Dependency lhs = nullptr;
 		Dependency rhs = nullptr;
 
@@ -285,7 +285,7 @@ namespace soul::ast
 	class FunctionCallNode final : public VisitorAcceptor<FunctionCallNode>
 	{
 		public:
-		Identifier   name;
+		Identifier name;
 		Dependencies parameters;
 
 		public:
@@ -308,16 +308,16 @@ namespace soul::ast
 	class FunctionDeclarationNode final : public VisitorAcceptor<FunctionDeclarationNode>
 	{
 		public:
-		Identifier   name;
-		Identifier   type_identifier;
+		Identifier name;
+		Identifier type_identifier;
 		Dependencies parameters;
-		ScopeBlock   statements;
+		ScopeBlock statements;
 
 		public:
-		explicit FunctionDeclarationNode(Identifier   identifier,
-		                                 Identifier   return_type_identifier,
+		explicit FunctionDeclarationNode(Identifier identifier,
+		                                 Identifier return_type_identifier,
 		                                 Dependencies parameters,
-		                                 ScopeBlock   statements);
+		                                 ScopeBlock statements);
 		~FunctionDeclarationNode() override = default;
 
 		/**
@@ -328,10 +328,10 @@ namespace soul::ast
 		 * @param statements [Optional] Statements this function executes.
 		 * @return New 'Function Declaration' statement node.
 		 */
-		static Dependency create(Identifier   name,
-		                         Identifier   return_type,
+		static Dependency create(Identifier name,
+		                         Identifier return_type,
 		                         Dependencies parameters,
-		                         ScopeBlock   statements);
+		                         ScopeBlock statements);
 	};
 
 	/**
@@ -415,7 +415,7 @@ namespace soul::ast
 	class ModuleNode : public VisitorAcceptor<ModuleNode>
 	{
 		public:
-		Identifier   name;
+		Identifier name;
 		Dependencies statements;
 
 		public:
@@ -458,7 +458,7 @@ namespace soul::ast
 	class StructDeclarationNode final : public VisitorAcceptor<StructDeclarationNode>
 	{
 		public:
-		Identifier   name;
+		Identifier name;
 		Dependencies parameters;
 
 		public:
@@ -481,7 +481,7 @@ namespace soul::ast
 	class UnaryNode final : public VisitorAcceptor<UnaryNode>
 	{
 		public:
-		Operator   op;
+		Operator op;
 		Dependency expression;
 
 		public:
@@ -507,7 +507,7 @@ namespace soul::ast
 		Identifier name            = {};
 		Identifier type_identifier = {};
 		Dependency expression      = nullptr;
-		bool       is_mutable      = false;
+		bool is_mutable            = false;
 
 		public:
 		explicit VariableDeclarationNode(Identifier name, Identifier type, Dependency expr, bool is_mutable);

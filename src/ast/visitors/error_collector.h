@@ -24,7 +24,7 @@ namespace soul::ast::visitors
 		private:
 		std::size_t _depth_current;
 		std::size_t _depth_max;
-		Errors      _errors;
+		Errors _errors;
 
 		public:
 		ErrorCollectorVisitor(std::size_t max_depth = k_depth_max);

@@ -23,9 +23,9 @@ namespace soul::ast::visitors
 			= std::vector<std::pair<ir::BasicBlock* /* continuation */, ir::BasicBlock* /* termination */>>;
 
 		private:
-		ir::IRBuilder    _builder{};
+		ir::IRBuilder _builder{};
 		ir::Instruction* _current_instruction{ nullptr };
-		LoopJumpTargets  _loop_jump_targets{};
+		LoopJumpTargets _loop_jump_targets{};
 
 		public:
 		/** @brief Returns IR representation equivalent to the AST. */

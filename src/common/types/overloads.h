@@ -12,9 +12,9 @@ namespace soul::types
 	 */
 	struct OperatorOverload
 	{
-		ast::ASTNode::Operator   op;
+		ast::ASTNode::Operator op;
 		std::vector<types::Type> input_types;
-		types::Type              return_type;
+		types::Type return_type;
 
 		/** @brief Returns list of all builtin operations between types. */
 		static std::span<const OperatorOverload> all() noexcept;

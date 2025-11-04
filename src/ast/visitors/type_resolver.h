@@ -27,14 +27,14 @@ namespace soul::ast::visitors
 		struct FunctionDeclaration
 		{
 			std::vector<types::Type> input_types;
-			types::Type              return_type;
+			types::Type return_type;
 		};
 
 		using VariableContext = std::vector<std::pair<std::string, types::Type>>;
 		using FunctionContext = std::vector<std::pair<std::string, FunctionDeclaration>>;
 
 		private:
-		TypeMap         _registered_types;
+		TypeMap _registered_types;
 		VariableContext _variables_in_scope;
 		FunctionContext _functions_in_module;
 
@@ -69,12 +69,12 @@ namespace soul::ast::visitors
 		void visit(const WhileNode&) override;
 
 		private:
-		types::Type                        get_type_or_default(std::string_view type_identifier) const noexcept;
-		std::optional<types::Type>         get_variable_type(std::string_view name) const noexcept;
-		types::Type                        get_type_for_operator(ASTNode::Operator                      op,
-		                                                         const std::ranges::forward_range auto& input_types) const noexcept;
+		types::Type get_type_or_default(std::string_view type_identifier) const noexcept;
+		std::optional<types::Type> get_variable_type(std::string_view name) const noexcept;
+		types::Type get_type_for_operator(ASTNode::Operator op,
+		                                  const std::ranges::forward_range auto& input_types) const noexcept;
 		std::optional<FunctionDeclaration> get_function_declaration(
-			std::string_view                       name,
+			std::string_view name,
 			const std::ranges::forward_range auto& want_types) const noexcept;
 	};
 }  // namespace soul::ast::visitors

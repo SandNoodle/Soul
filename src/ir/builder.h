@@ -25,16 +25,16 @@ namespace soul::ir
 		BasicBlock*             _current_block{};
 		BasicBlock::Label       _next_block_version{ 0 };
 		Instruction::Version    _next_instruction_version{ 0 };
-		StackSlotsMapping       _slots_mapping;
+		StackSlotsMapping       _slots_mapping{};
 
 		public:
 		constexpr IRBuilder();
-		constexpr IRBuilder(const IRBuilder&)     = delete;
-		constexpr IRBuilder(IRBuilder&&) noexcept = default;
-		constexpr ~IRBuilder()                    = default;
+		IRBuilder(const IRBuilder&)     = delete;
+		IRBuilder(IRBuilder&&) noexcept = default;
+		~IRBuilder()                    = default;
 
-		constexpr IRBuilder& operator=(const IRBuilder&)     = delete;
-		constexpr IRBuilder& operator=(IRBuilder&&) noexcept = default;
+		IRBuilder& operator=(const IRBuilder&)     = delete;
+		IRBuilder& operator=(IRBuilder&&) noexcept = default;
 
 		constexpr std::unique_ptr<Module> build() noexcept;
 
@@ -52,11 +52,7 @@ namespace soul::ir
 
 		constexpr void        switch_to(BasicBlock* block);
 		constexpr BasicBlock* create_basic_block();
-		constexpr BasicBlock* current_basic_block() const noexcept { return _current_block; }
-
-		constexpr void connect(const std::ranges::forward_range auto& predecessors, BasicBlock* successor);
-		constexpr void connect(BasicBlock* predecessor, const std::ranges::forward_range auto& successors);
-		constexpr void connect(BasicBlock* predecessor, BasicBlock* successor);
+		constexpr BasicBlock* current_basic_block() const noexcept;
 
 		/**
 		 * @brief Constructs new Instruction and appends it to the end of the current BasicBlock.

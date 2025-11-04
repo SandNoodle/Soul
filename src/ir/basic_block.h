@@ -23,10 +23,10 @@ namespace soul::ir
 
 		static constexpr Label k_invalid_label = std::numeric_limits<Label>::max();
 
-		private:
-		Label        _label{ k_invalid_label };
-		BasicBlocks  _successors{};
-		Instructions _instructions{};
+		public:
+		Label        label{ k_invalid_label };
+		BasicBlocks  successors{};
+		Instructions instructions{};
 
 		public:
 		constexpr BasicBlock() = default;
@@ -39,10 +39,6 @@ namespace soul::ir
 		constexpr BasicBlock& operator=(BasicBlock&&) noexcept                    = default;
 		constexpr bool        operator==(const BasicBlock& other) const noexcept  = default;
 		constexpr auto        operator<=>(const BasicBlock& other) const noexcept = default;
-
-		[[nodiscard]] constexpr Label               label() const noexcept;
-		[[nodiscard]] constexpr const Instructions& instructions() const noexcept;
-		[[nodiscard]] constexpr const BasicBlocks&  successors() const noexcept;
 
 		friend IRBuilder;
 	};

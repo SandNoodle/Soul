@@ -8,7 +8,7 @@
 namespace soul
 {
 	/**
-	 * @brief
+	 * @brief Represents some relative position into a source file.
 	 */
 	struct SourceLocation
 	{

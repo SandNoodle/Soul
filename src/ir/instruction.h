@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/source_location.h"
 #include "common/types/type.h"
 #include "common/value.h"
 #include "core/types.h"
@@ -12,7 +13,7 @@ namespace soul::ir
 {
 	/**
 	 * @brief Represents a single Instruction in the language's Intermediate Representation.
-	 * @detials Represented in Static Single-Assignment (SSA) Three-Address Code (TAC) form.
+	 * @details Represented in Static Single-Assignment (SSA) Three-Address Code (TAC) form.
 	 */
 	struct Instruction
 	{
@@ -220,7 +221,7 @@ namespace soul::ir
 	};
 
 	/**
-	 * @brief GetArgument instruction: @TODO
+	 * @brief GetArgument instruction: similarly to Const instruction, it holds an (immediate) value of a parameter.
 	 */
 	struct GetArgument final : public Instruction
 	{

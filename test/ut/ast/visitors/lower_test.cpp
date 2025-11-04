@@ -76,6 +76,12 @@ namespace soul::ast::visitors::ut
 			lower_visitor.accept(desugar_visitor_root.get());
 			return lower_visitor.get();
 		}
+
+		template <PrimitiveType::Kind T>
+		ir::Instruction* emit_const(ir::IRBuilder& builder, detail::PrimitiveKindToValueType<T> value)
+		{
+			return builder.emit<Const>(T, Scalar::create<T>(std::move(value)));
+		}
 	};
 
 	TEST_F(LowerVisitorTest, Block)
@@ -103,17 +109,13 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Int32, {});
 		auto* inner_block = expected_ir_builder.create_basic_block();
-		expected_ir_builder.connect(expected_ir_builder.current_basic_block(), inner_block);
 		expected_ir_builder.emit<Jump>(inner_block);
 		expected_ir_builder.switch_to(inner_block);
-		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Boolean },
-		                                Scalar::create<PrimitiveType::Kind::Boolean>(true));
-		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::String },
-		                                Scalar::create<PrimitiveType::Kind::String>("my_string"));
-		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int64 },
-		                                Scalar::create<PrimitiveType::Kind::Int64>(123));
+		emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
+		emit_const<PrimitiveType::Kind::String>(expected_ir_builder, "my_string");
+		emit_const<PrimitiveType::Kind::Int64>(expected_ir_builder, 123);
 		const auto& expected_ir = expected_ir_builder.build();
 
 		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
@@ -139,10 +141,9 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
-		auto* instr = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-		                                              Scalar::create<PrimitiveType::Kind::Int32>(123));
-		expected_ir_builder.emit<Cast>(Type{ PrimitiveType::Kind::String }, instr);
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Int32, {});
+		auto* instr = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 123);
+		expected_ir_builder.emit<Cast>(PrimitiveType::Kind::String, instr);
 		const auto& expected_ir = expected_ir_builder.build();
 
 		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
@@ -194,30 +195,26 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(
-			k_function_to_call,
-			Type{ PrimitiveType::Kind::Int32 },
-			{ Type{ PrimitiveType::Kind::String }, Type{ PrimitiveType::Kind::Boolean } });
+		expected_ir_builder.create_function(k_function_to_call,
+		                                    PrimitiveType::Kind::Int32,
+		                                    { PrimitiveType::Kind::String, PrimitiveType::Kind::Boolean });
 		{
 			auto* first_slot  = expected_ir_builder.reserve_slot("a", PrimitiveType::Kind::String);
 			auto* second_slot = expected_ir_builder.reserve_slot("b", PrimitiveType::Kind::Boolean);
-			auto* first_arg   = expected_ir_builder.emit<GetArgument>(Type{ PrimitiveType::Kind::String }, 0);
+			auto* first_arg   = expected_ir_builder.emit<GetArgument>(PrimitiveType::Kind::String, 0);
 			expected_ir_builder.emit<StackStore>(first_slot, first_arg);
-			auto* second_arg = expected_ir_builder.emit<GetArgument>(Type{ PrimitiveType::Kind::Boolean }, 1);
+			auto* second_arg = expected_ir_builder.emit<GetArgument>(PrimitiveType::Kind::Boolean, 1);
 			expected_ir_builder.emit<StackStore>(second_slot, second_arg);
-			auto* return_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-			                                                     Scalar::create<PrimitiveType::Kind::Int32>(1));
+			auto* return_value = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 1);
 			expected_ir_builder.emit<Return>(return_value);
 		}
 
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* slot  = expected_ir_builder.reserve_slot("variable", Type{ PrimitiveType::Kind::Int32 });
-		auto* v1    = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::String },
-                                                   Value{ Scalar::create<PrimitiveType::Kind::String>("my_string") });
-		auto* v2    = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Boolean },
-                                                   Value{ Scalar::create<PrimitiveType::Kind::Boolean>(true) });
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Void, {});
+		auto* slot  = expected_ir_builder.reserve_slot("variable", PrimitiveType::Kind::Int32);
+		auto* v1    = emit_const<PrimitiveType::Kind::String>(expected_ir_builder, "my_string");
+		auto* v2    = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
 		auto* value = expected_ir_builder.emit<Call>(
-			Type{ PrimitiveType::Kind::Int32 }, k_function_to_call, std::vector<Instruction*>{ v1, v2 });
+			PrimitiveType::Kind::Int32, k_function_to_call, std::vector<Instruction*>{ v1, v2 });
 		expected_ir_builder.emit<StackStore>(slot, value);
 
 		const auto& expected_ir = expected_ir_builder.build();
@@ -255,26 +252,23 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
-		auto* input_block  = expected_ir_builder.current_basic_block();
-		auto* then_block   = expected_ir_builder.create_basic_block();
-		auto* else_block   = expected_ir_builder.create_basic_block();
-		auto* output_block = expected_ir_builder.create_basic_block();
-		expected_ir_builder.connect(input_block, std::array{ then_block, else_block });
-		expected_ir_builder.connect(std::array{ then_block, else_block }, output_block);
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Int32, {});
 
-		auto* condition = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Boolean },
-		                                                  Scalar::create<PrimitiveType::Kind::Boolean>(true));
+		auto* input_block = expected_ir_builder.current_basic_block();
+		expected_ir_builder.switch_to(input_block);
+		auto* condition = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
+
+		auto* then_block = expected_ir_builder.create_basic_block();
+		auto* else_block = expected_ir_builder.create_basic_block();
 		expected_ir_builder.emit<JumpIf>(condition, then_block, else_block);
 
 		expected_ir_builder.switch_to(then_block);
-		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::String },
-		                                Scalar::create<PrimitiveType::Kind::String>("then_branch_string"));
+		emit_const<PrimitiveType::Kind::String>(expected_ir_builder, "then_branch_string");
+		auto* output_block = expected_ir_builder.create_basic_block();
 		expected_ir_builder.emit<Jump>(output_block);
 
 		expected_ir_builder.switch_to(else_block);
-		expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Boolean },
-		                                Scalar::create<PrimitiveType::Kind::Boolean>(false));
+		emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, false);
 		expected_ir_builder.emit<Jump>(output_block);
 		const auto& expected_ir = expected_ir_builder.build();
 
@@ -284,20 +278,14 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(LowerVisitorTest, Literals)
 	{
-		static const std::array k_input_values = {
-			std::make_tuple(Type{ PrimitiveType::Kind::Boolean },
-			                Value{ Scalar::create<PrimitiveType::Kind::Boolean>(true) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Char }, Value{ Scalar::create<PrimitiveType::Kind::Char>('c') }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Float32 },
-			                Value{ Scalar::create<PrimitiveType::Kind::Float32>(3.14f) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Float64 },
-			                Value{ Scalar::create<PrimitiveType::Kind::Float64>(5.46) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Int32 },
-			                Value{ Scalar::create<PrimitiveType::Kind::Int32>(123) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::Int64 },
-			                Value{ Scalar::create<PrimitiveType::Kind::Int64>(456L) }),
-			std::make_tuple(Type{ PrimitiveType::Kind::String },
-			                Value{ Scalar::create<PrimitiveType::Kind::String>("my_string") }),
+		static constexpr std::array<std::pair<PrimitiveType::Kind, Value>, 7> k_input_values = {
+			std::make_tuple(PrimitiveType::Kind::Boolean, Scalar::create<PrimitiveType::Kind::Boolean>(true)),
+			std::make_tuple(PrimitiveType::Kind::Char, Scalar::create<PrimitiveType::Kind::Char>('c')),
+			std::make_tuple(PrimitiveType::Kind::Float32, Scalar::create<PrimitiveType::Kind::Float32>(3.14f)),
+			std::make_tuple(PrimitiveType::Kind::Float64, Scalar::create<PrimitiveType::Kind::Float64>(5.46)),
+			std::make_tuple(PrimitiveType::Kind::Int32, Scalar::create<PrimitiveType::Kind::Int32>(123)),
+			std::make_tuple(PrimitiveType::Kind::Int64, Scalar::create<PrimitiveType::Kind::Int64>(456L)),
+			std::make_tuple(PrimitiveType::Kind::String, Scalar::create<PrimitiveType::Kind::String>("my_string")),
 		};
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
@@ -319,7 +307,7 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Int32, {});
 		for (const auto& [type, value] : k_input_values) {
 			expected_ir_builder.emit<Const>(type, value);
 		}
@@ -368,21 +356,16 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Int32 }, {});
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Int32, {});
 		auto* input_block     = expected_ir_builder.current_basic_block();
 		auto* condition_block = expected_ir_builder.create_basic_block();
 		auto* body_block      = expected_ir_builder.create_basic_block();
 		auto* output_block    = expected_ir_builder.create_basic_block();
 
-		expected_ir_builder.connect(input_block, condition_block);
-		expected_ir_builder.connect(condition_block, std::array{ body_block, output_block });
-		expected_ir_builder.connect(body_block, condition_block);
-
 		expected_ir_builder.switch_to(input_block);
 		{
-			auto* slot          = expected_ir_builder.reserve_slot(k_variable_name, Type{ PrimitiveType::Kind::Int32 });
-			auto* initial_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-			                                                      Scalar::create<PrimitiveType::Kind::Int32>(0));
+			auto* slot          = expected_ir_builder.reserve_slot(k_variable_name, PrimitiveType::Kind::Int32);
+			auto* initial_value = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 0);
 			expected_ir_builder.emit<StackStore>(slot, initial_value);
 			expected_ir_builder.emit<Jump>(condition_block);
 		}
@@ -390,8 +373,7 @@ namespace soul::ast::visitors::ut
 		expected_ir_builder.switch_to(condition_block);
 		{
 			auto* lhs       = expected_ir_builder.emit<StackLoad>(expected_ir_builder.get_slot(k_variable_name));
-			auto* rhs       = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-                                                        Scalar::create<PrimitiveType::Kind::Int32>(10));
+			auto* rhs       = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 10);
 			auto* condition = expected_ir_builder.emit<Less>(lhs, rhs);
 			expected_ir_builder.emit<JumpIf>(condition, body_block, output_block);
 		}
@@ -400,9 +382,8 @@ namespace soul::ast::visitors::ut
 		{
 			auto* slot       = expected_ir_builder.get_slot(k_variable_name);
 			auto* lhs        = expected_ir_builder.emit<StackLoad>(slot);
-			auto* rhs        = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-                                                        Scalar::create<PrimitiveType::Kind::Int32>(1));
-			auto* expression = expected_ir_builder.emit<Add>(Type{ PrimitiveType::Kind::Int32 }, lhs, rhs);
+			auto* rhs        = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 1);
+			auto* expression = expected_ir_builder.emit<Add>(PrimitiveType::Kind::Int32, lhs, rhs);
 			expected_ir_builder.emit<StackStore>(slot, expression);
 			expected_ir_builder.emit<Jump>(condition_block);
 		}
@@ -412,14 +393,130 @@ namespace soul::ast::visitors::ut
 		ASSERT_EQ(expected_string, result_string);
 	}
 
+	TEST_F(LowerVisitorTest, While_BreakAndContinue)
+	{
+		auto while_node_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
+		auto while_node_statements = ASTNode::Dependencies{};
+		while_node_statements.reserve(2);
+		while_node_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
+		while_node_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Continue));
+		auto while_node
+			= WhileNode::create(std::move(while_node_condition), BlockNode::create(std::move(while_node_statements)));
+
+		auto function_declaration_parameters = ASTNode::Dependencies{};
+		auto function_declaration_statements = ASTNode::Dependencies{};
+		function_declaration_statements.push_back(std::move(while_node));
+		auto function_declaration
+			= FunctionDeclarationNode::create(k_function_name,
+		                                      "void",
+		                                      std::move(function_declaration_parameters),
+		                                      BlockNode::create(std::move(function_declaration_statements)));
+
+		auto module_statements = ASTNode::Dependencies{};
+		module_statements.push_back(std::move(function_declaration));
+		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		ASSERT_TRUE(result_ir);
+
+		IRBuilder expected_ir_builder{};
+		expected_ir_builder.set_module_name(k_module_name);
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Void, {});
+		auto* input_block     = expected_ir_builder.current_basic_block();
+		auto* condition_block = expected_ir_builder.create_basic_block();
+		auto* body_block      = expected_ir_builder.create_basic_block();
+		auto* output_block    = expected_ir_builder.create_basic_block();
+
+		expected_ir_builder.switch_to(input_block);
+		expected_ir_builder.emit<Jump>(condition_block);
+
+		expected_ir_builder.switch_to(condition_block);
+		auto* condition = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
+		expected_ir_builder.emit<JumpIf>(condition, body_block, output_block);
+
+		expected_ir_builder.switch_to(body_block);
+		expected_ir_builder.emit<Jump>(output_block);     // Break
+		expected_ir_builder.emit<Jump>(condition_block);  // Continue
+		expected_ir_builder.emit<Jump>(condition_block);  // Fallthrough
+
+		const auto& expected_ir = expected_ir_builder.build();
+
+		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		ASSERT_EQ(expected_string, result_string);
+	}
+
+	TEST_F(LowerVisitorTest, While_NestedLoops)
+	{
+		auto inner_while_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
+		auto inner_while_statements = ASTNode::Dependencies{};
+		auto inner_while_node
+			= WhileNode::create(std::move(inner_while_condition), BlockNode::create(std::move(inner_while_statements)));
+
+		auto outer_while_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false));
+		auto outer_while_statements = ASTNode::Dependencies{};
+		outer_while_statements.push_back(std::move(inner_while_node));
+		auto outer_while_node
+			= WhileNode::create(std::move(outer_while_condition), BlockNode::create(std::move(outer_while_statements)));
+
+		auto function_declaration_parameters = ASTNode::Dependencies{};
+		auto function_declaration_statements = ASTNode::Dependencies{};
+		function_declaration_statements.push_back(std::move(outer_while_node));
+		auto function_declaration
+			= FunctionDeclarationNode::create(k_function_name,
+		                                      "void",
+		                                      std::move(function_declaration_parameters),
+		                                      BlockNode::create(std::move(function_declaration_statements)));
+
+		auto module_statements = ASTNode::Dependencies{};
+		module_statements.push_back(std::move(function_declaration));
+		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		ASSERT_TRUE(result_ir);
+
+		IRBuilder expected_ir_builder{};
+		expected_ir_builder.set_module_name(k_module_name);
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Void, {});
+
+		auto* outer_while_input_block = expected_ir_builder.current_basic_block();
+		expected_ir_builder.switch_to(outer_while_input_block);
+		auto* outer_while_condition_block = expected_ir_builder.create_basic_block();
+		expected_ir_builder.emit<Jump>(outer_while_condition_block);
+
+		expected_ir_builder.switch_to(outer_while_condition_block);
+		auto* outer_while_condition_value = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, false);
+		auto* outer_while_body_block      = expected_ir_builder.create_basic_block();
+		auto* outer_while_output_block    = expected_ir_builder.create_basic_block();
+		expected_ir_builder.emit<JumpIf>(outer_while_condition_value, outer_while_body_block, outer_while_output_block);
+
+		expected_ir_builder.switch_to(outer_while_body_block);  // Becomes inner while's input block.
+		auto* inner_while_condition_block = expected_ir_builder.create_basic_block();
+		expected_ir_builder.emit<Jump>(inner_while_condition_block);
+
+		expected_ir_builder.switch_to(inner_while_condition_block);
+		auto* inner_while_condition_value = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
+		auto* inner_while_body_block      = expected_ir_builder.create_basic_block();
+		auto* inner_while_output_block    = expected_ir_builder.create_basic_block();
+		expected_ir_builder.emit<JumpIf>(inner_while_condition_value, inner_while_body_block, inner_while_output_block);
+
+
+		expected_ir_builder.switch_to(inner_while_body_block);
+		expected_ir_builder.emit<Jump>(inner_while_condition_block);
+
+		expected_ir_builder.switch_to(inner_while_output_block);
+		expected_ir_builder.emit<Jump>(outer_while_condition_block);
+
+		expected_ir_builder.switch_to(outer_while_output_block);
+
+		const auto& expected_ir               = expected_ir_builder.build();
+		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		ASSERT_EQ(expected_string, result_string);
+	}
+
 	TEST_F(LowerVisitorTest, Module_Empty)
 	{
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		auto expected_ir = expected_ir_builder.build();
-		auto result_ir   = build(ModuleNode::create(k_module_name, ASTNode::Dependencies{}));
+		const auto& result_ir = build(ModuleNode::create(k_module_name, ASTNode::Dependencies{}));
 		ASSERT_TRUE(result_ir);
 
+		const auto& expected_ir               = expected_ir_builder.build();
 		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
@@ -444,11 +541,10 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(this->k_module_name);
-		expected_ir_builder.create_function(this->k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* expression = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Boolean },
-		                                                   Scalar::create<PrimitiveType::Kind::Boolean>(true));
+		expected_ir_builder.create_function(this->k_function_name, PrimitiveType::Kind::Void, {});
+		auto* expression = emit_const<PrimitiveType::Kind::Boolean>(expected_ir_builder, true);
 		expected_ir_builder.emit<Not>(expression);
-		auto expected_ir = expected_ir_builder.build();
+		const auto& expected_ir = expected_ir_builder.build();
 		ASSERT_TRUE(expected_ir);
 
 		auto [expected_string, result_string] = this->compare(*expected_ir, *result_ir);
@@ -489,20 +585,16 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* first_slot = expected_ir_builder.reserve_slot(k_first_variable_name, Type{ PrimitiveType::Kind::Int32 });
-		auto* second_slot
-			= expected_ir_builder.reserve_slot(k_second_variable_name, Type{ PrimitiveType::Kind::Int32 });
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Void, {});
+		auto* first_slot  = expected_ir_builder.reserve_slot(k_first_variable_name, PrimitiveType::Kind::Int32);
+		auto* second_slot = expected_ir_builder.reserve_slot(k_second_variable_name, PrimitiveType::Kind::Int32);
 
-		auto* first_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-		                                                    Scalar::create<PrimitiveType::Kind::Int32>(1));
-		expected_ir_builder.emit<StackStore>(first_slot, first_value);
-		auto* second_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-		                                                     Scalar::create<PrimitiveType::Kind::Int32>(3));
-		expected_ir_builder.emit<StackStore>(first_slot, second_value);
-		auto* third_value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-		                                                    Scalar::create<PrimitiveType::Kind::Int32>(5));
-		expected_ir_builder.emit<StackStore>(second_slot, third_value);
+		expected_ir_builder.emit<StackStore>(first_slot,
+		                                     emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 1));
+		expected_ir_builder.emit<StackStore>(first_slot,
+		                                     emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 3));
+		expected_ir_builder.emit<StackStore>(second_slot,
+		                                     emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 5));
 		auto* first_slot_value = expected_ir_builder.emit<StackLoad>(first_slot);
 		expected_ir_builder.emit<StackStore>(second_slot, first_slot_value);
 
@@ -544,16 +636,14 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(k_module_name);
-		expected_ir_builder.create_function(k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* first_slot = expected_ir_builder.reserve_slot(k_first_variable_name, Type{ PrimitiveType::Kind::Int32 });
-		auto* second_slot
-			= expected_ir_builder.reserve_slot(k_second_variable_name, Type{ PrimitiveType::Kind::Int32 });
-		auto* value = expected_ir_builder.emit<Const>(Type{ PrimitiveType::Kind::Int32 },
-		                                              Scalar::create<PrimitiveType::Kind::Int32>(1));
+		expected_ir_builder.create_function(k_function_name, PrimitiveType::Kind::Void, {});
+		auto* first_slot  = expected_ir_builder.reserve_slot(k_first_variable_name, PrimitiveType::Kind::Int32);
+		auto* second_slot = expected_ir_builder.reserve_slot(k_second_variable_name, PrimitiveType::Kind::Int32);
+		auto* value       = emit_const<PrimitiveType::Kind::Int32>(expected_ir_builder, 1);
 		expected_ir_builder.emit<StackStore>(first_slot, value);
 		auto* lhs    = expected_ir_builder.emit<StackLoad>(first_slot);
 		auto* rhs    = expected_ir_builder.emit<StackLoad>(first_slot);
-		auto* result = expected_ir_builder.emit<Mul>(Type{ PrimitiveType::Kind::Int32 }, lhs, rhs);
+		auto* result = expected_ir_builder.emit<Mul>(PrimitiveType::Kind::Int32, lhs, rhs);
 		expected_ir_builder.emit<StackStore>(second_slot, result);
 		auto expected_ir = expected_ir_builder.build();
 		ASSERT_TRUE(expected_ir);
@@ -628,11 +718,11 @@ namespace soul::ast::visitors::ut
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.set_module_name(this->k_module_name);
-		expected_ir_builder.create_function(this->k_function_name, Type{ PrimitiveType::Kind::Void }, {});
-		auto* v1 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<k_type>(1));
-		auto* v2 = expected_ir_builder.emit<Const>(Type{ k_type }, Scalar::create<k_type>(2));
+		expected_ir_builder.create_function(this->k_function_name, PrimitiveType::Kind::Void, {});
+		auto* v1 = expected_ir_builder.emit<Const>(k_type, Scalar::create<k_type>(1));
+		auto* v2 = expected_ir_builder.emit<Const>(k_type, Scalar::create<k_type>(2));
 		if constexpr (std::is_constructible_v<InstructionCase, types::Type, Instruction*, Instruction*>) {
-			expected_ir_builder.emit<InstructionCase>(Type{ k_type }, v1, v2);
+			expected_ir_builder.emit<InstructionCase>(k_type, v1, v2);
 		} else if constexpr (std::is_constructible_v<InstructionCase, Instruction*, Instruction*>) {
 			expected_ir_builder.emit<InstructionCase>(v1, v2);
 		} else {

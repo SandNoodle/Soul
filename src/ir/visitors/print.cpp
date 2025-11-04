@@ -17,7 +17,7 @@ namespace soul::ir::visitors
 
 	void PrintVisitor::accept(const Module& module)
 	{
-		_ss << std::format("module @{};\n\n", module.name);
+		_ss << std::format("module @{}\n\n", module.name);
 		for (const auto& function : module.functions) {
 			if (!function) {
 				_ss << std::format("@fn {}() :: {} {{}}", k_nullptr, std::string(types::Type{}));
@@ -29,7 +29,7 @@ namespace soul::ir::visitors
 			for (std::size_t parameter_index = 0; parameter_index < function->parameters.size(); ++parameter_index) {
 				_ss << std::format("%{}::{}", parameter_index, std::string(function->parameters[parameter_index]));
 				if (parameter_index != function->parameters.size() - 1) {
-					_ss << ", ";
+					_ss << k_separator;
 				}
 			}
 			_ss << ")";
@@ -40,8 +40,8 @@ namespace soul::ir::visitors
 					_ss << std::format("\t#{}:", k_nullptr);
 					continue;
 				}
-				_ss << std::format("\t#{}:\n", basic_block->label());
-				for (const auto& instruction : basic_block->instructions()) {
+				_ss << std::format("\t#{}:\n", basic_block->label);
+				for (const auto& instruction : basic_block->instructions) {
 					if (!instruction) {
 						_ss << k_nullptr;
 						continue;
@@ -56,13 +56,12 @@ namespace soul::ir::visitors
 					_ss << std::format(" :: {}\n", std::string(instruction->type));
 				}
 				_ss << "\t\t; successors: [";
-				for (std::size_t index = 0; index < basic_block->successors().size(); ++index) {
-					_ss << std::format("#{}",
-					                   basic_block->successors()[index]
-					                       ? std::to_string(basic_block->successors()[index]->label())
-					                       : k_nullptr);
-					if (index != basic_block->successors().size() - 1) {
-						_ss << ", ";
+				for (auto successor = std::begin(basic_block->successors);
+				     successor != std::end(basic_block->successors);
+				     ++successor) {
+					_ss << std::format("#{}", *successor ? std::to_string((*successor)->label) : k_nullptr);
+					if (std::next(successor) != basic_block->successors.end()) {
+						_ss << k_separator;
 					}
 				}
 				_ss << "]\n";
@@ -99,15 +98,15 @@ namespace soul::ir::visitors
 
 	void PrintVisitor::visit(const Jump& instruction)
 	{
-		_ss << std::format("Jump(#{})", instruction.target ? std::to_string(instruction.target->label()) : k_nullptr);
+		_ss << std::format("Jump(#{})", instruction.target ? std::to_string(instruction.target->label) : k_nullptr);
 	}
 
 	void PrintVisitor::visit(const JumpIf& instruction)
 	{
 		_ss << std::format("JumpIf(%{}, #{}, #{})",
 		                   instruction.args[0] ? instruction.args[0]->version : Instruction::k_invalid_version,
-		                   instruction.then_block ? instruction.then_block->label() : Instruction::k_invalid_version,
-		                   instruction.else_block ? instruction.else_block->label() : Instruction::k_invalid_version);
+		                   instruction.then_block ? instruction.then_block->label : Instruction::k_invalid_version,
+		                   instruction.else_block ? instruction.else_block->label : Instruction::k_invalid_version);
 	}
 
 	void PrintVisitor::visit(const Return& instruction)

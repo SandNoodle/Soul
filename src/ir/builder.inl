@@ -6,7 +6,37 @@ namespace soul::ir
 {
 	constexpr IRBuilder::IRBuilder() : _module(std::make_unique<Module>("")) {}
 
-	constexpr auto IRBuilder::build() noexcept -> std::unique_ptr<Module> { return std::move(_module); }
+	constexpr auto IRBuilder::build() noexcept -> std::unique_ptr<Module>
+	{
+		// Patch basic block's successors.
+		for (auto& function : _module->functions) {
+			const auto emplace_if_unique = [](auto& container, BasicBlock* target) -> void {
+				if (std::find(container.begin(), container.end(), target) != container.end()) {
+					return;
+				}
+				container.emplace_back(target);
+			};
+
+			for (auto& basic_block : function->basic_blocks) {
+				basic_block->successors.clear();
+				for (auto& instruction : basic_block->instructions) {
+					if (instruction->is<Jump>()) {
+						emplace_if_unique(basic_block->successors, instruction->as<Jump>().target);
+					}
+					if (instruction->is<JumpIf>()) {
+						emplace_if_unique(basic_block->successors, instruction->as<JumpIf>().then_block);
+						emplace_if_unique(basic_block->successors, instruction->as<JumpIf>().else_block);
+					}
+				}
+
+				std::sort(basic_block->successors.begin(),
+				          basic_block->successors.end(),
+				          [](BasicBlock* lhs, BasicBlock* rhs) -> bool { return lhs->label < rhs->label; });
+			}
+		}
+
+		return std::move(_module);
+	}
 
 	constexpr auto IRBuilder::set_module_name(std::string_view name) -> void { _module->name = std::string(name); }
 
@@ -47,30 +77,7 @@ namespace soul::ir
 		return current_function->basic_blocks.back().get();
 	}
 
-	constexpr auto IRBuilder::connect(const std::ranges::forward_range auto& predecessors, BasicBlock* successor)
-		-> void
-	{
-		for (const auto& predecessor : predecessors) {
-			connect(predecessor, successor);
-		}
-	}
-
-	constexpr auto IRBuilder::connect(BasicBlock* predecessor, const std::ranges::forward_range auto& successors)
-		-> void
-	{
-		assert(predecessor && "invalid predecessor (BasicBlock) was passed (nullptr)");
-		predecessor->_successors.reserve(predecessor->_successors.size() + successors.size());
-		for (const auto& successor : successors) {
-			connect(predecessor, successor);
-		}
-	}
-
-	constexpr auto IRBuilder::connect(BasicBlock* predecessor, BasicBlock* successor) -> void
-	{
-		assert(predecessor && "invalid predecessor (BasicBlock) was passed (nullptr)");
-		assert(successor && "invalid successor (BasicBlock) was passed (nullptr)");
-		predecessor->_successors.emplace_back(successor);
-	}
+	constexpr auto IRBuilder::current_basic_block() const noexcept -> BasicBlock* { return _current_block; }
 
 	template <InstructionKind Inst, typename... Args>
 		requires(!(std::is_same_v<Inst, Upsilon> || std::is_same_v<Inst, Phi>))
@@ -84,9 +91,9 @@ namespace soul::ir
 	constexpr auto IRBuilder::emit_impl(Args&&... args) -> Instruction*
 	{
 		assert(_current_block && "_current_block was not initialized properly (nullptr)");
-		assert(_current_block->_label != BasicBlock::k_invalid_label && "_current_block is invalid (k_invalid_label)");
-		_current_block->_instructions.emplace_back(std::make_unique<Inst>(std::forward<Args>(args)...));
-		_current_block->_instructions.back()->version = _next_instruction_version++;
-		return static_cast<Inst*>(_current_block->_instructions.back().get());
+		assert(_current_block->label != BasicBlock::k_invalid_label && "_current_block is invalid (k_invalid_label)");
+		_current_block->instructions.emplace_back(std::make_unique<Inst>(std::forward<Args>(args)...));
+		_current_block->instructions.back()->version = _next_instruction_version++;
+		return static_cast<Inst*>(_current_block->instructions.back().get());
 	}
 }  // namespace soul::ir

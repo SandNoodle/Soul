@@ -19,8 +19,13 @@ namespace soul::ast::visitors
 	class LowerVisitor : public DefaultTraverseVisitor
 	{
 		private:
+		using LoopJumpTargets
+			= std::vector<std::pair<ir::BasicBlock* /* continuation */, ir::BasicBlock* /* termination */>>;
+
+		private:
 		ir::IRBuilder    _builder{};
 		ir::Instruction* _current_instruction{ nullptr };
+		LoopJumpTargets  _loop_jump_targets{};
 
 		public:
 		/** @brief Returns IR representation equivalent to the AST. */
@@ -40,6 +45,7 @@ namespace soul::ast::visitors
 		void visit(const FunctionDeclarationNode&) override;
 		void visit(const IfNode&) override;
 		void visit(const LiteralNode&) override;
+		void visit(const LoopControlNode&) override;
 		void visit(const ModuleNode&) override;
 		void visit(const ReturnNode&) override;
 		void visit(const StructDeclarationNode&) override;
@@ -62,6 +68,7 @@ namespace soul::ast::visitors
 		ir::Instruction* emit(const FunctionDeclarationNode&);
 		ir::Instruction* emit(const IfNode&);
 		ir::Instruction* emit(const LiteralNode&);
+		ir::Instruction* emit(const LoopControlNode&);
 		ir::Instruction* emit(const ModuleNode&);
 		ir::Instruction* emit(const ReturnNode&);
 		ir::Instruction* emit(const StructDeclarationNode&);

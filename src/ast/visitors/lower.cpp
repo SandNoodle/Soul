@@ -35,7 +35,6 @@ namespace soul::ast::visitors
 	void LowerVisitor::visit(const BlockNode& node)
 	{
 		auto* output_block = _builder.create_basic_block();
-		_builder.connect(_builder.current_basic_block(), output_block);
 		_builder.emit<Jump>(output_block);
 		_builder.switch_to(output_block);
 		for (const auto& statement : node.statements) {
@@ -47,15 +46,12 @@ namespace soul::ast::visitors
 
 	void LowerVisitor::visit(const ForLoopNode& node)
 	{
-		auto* input_block     = _builder.current_basic_block();
 		auto* condition_block = _builder.create_basic_block();
 		auto* body_block      = _builder.create_basic_block();
 		auto* update_block    = _builder.create_basic_block();
 		auto* output_block    = _builder.create_basic_block();
 
-		_builder.connect(std::array{ input_block, update_block }, condition_block);
-		_builder.connect(condition_block, std::array{ body_block, output_block });
-		_builder.connect(body_block, update_block);
+		_loop_jump_targets.emplace_back(std::make_pair(update_block, output_block));
 
 		emit(node.initialization.get());
 		_builder.emit<Jump>(condition_block);
@@ -75,6 +71,7 @@ namespace soul::ast::visitors
 		_builder.emit<Jump>(condition_block);
 
 		_builder.switch_to(output_block);
+		_loop_jump_targets.pop_back();
 	}
 
 	void LowerVisitor::visit(const ForeachLoopNode& node) { _current_instruction = emit(node); }
@@ -118,9 +115,6 @@ namespace soul::ast::visitors
 		auto* else_block   = _builder.create_basic_block();
 		auto* output_block = _builder.create_basic_block();
 
-		_builder.connect(input_block, std::array{ then_block, else_block });
-		_builder.connect(std::array{ then_block, else_block }, output_block);
-
 		_builder.switch_to(input_block);
 		_builder.emit<JumpIf>(emit(node.condition.get()), then_block, else_block);
 
@@ -140,6 +134,7 @@ namespace soul::ast::visitors
 	}
 
 	void LowerVisitor::visit(const LiteralNode& node) { _current_instruction = emit(node); }
+	void LowerVisitor::visit(const LoopControlNode& node) { _current_instruction = emit(node); }
 
 	void LowerVisitor::visit(const ModuleNode& node)
 	{
@@ -159,26 +154,21 @@ namespace soul::ast::visitors
 
 	void LowerVisitor::visit(const WhileNode& node)
 	{
-		auto* input_block     = _builder.current_basic_block();
 		auto* condition_block = _builder.create_basic_block();
-		auto* body_block      = _builder.create_basic_block();
-		auto* output_block    = _builder.create_basic_block();
-
-		_builder.connect(input_block, condition_block);
-		_builder.connect(condition_block, std::array{ body_block, output_block });
-		_builder.connect(body_block, condition_block);
-
-		_builder.switch_to(input_block);
 		_builder.emit<Jump>(condition_block);
 
 		_builder.switch_to(condition_block);
+		auto* body_block   = _builder.create_basic_block();
+		auto* output_block = _builder.create_basic_block();
 		_builder.emit<JumpIf>(emit(node.condition.get()), body_block, output_block);
 
 		_builder.switch_to(body_block);
+		_loop_jump_targets.emplace_back(std::make_pair(condition_block, output_block));
 		for (const auto& statement : node.statements->as<BlockNode>().statements) {
 			accept(statement.get());
 		}
 		_builder.emit<Jump>(condition_block);
+		_loop_jump_targets.pop_back();
 
 		_builder.switch_to(output_block);
 	}
@@ -206,7 +196,7 @@ namespace soul::ast::visitors
 				return _builder.emit<StackStore>(slot, value);
 			}
 
-			// 2. For the RHS, we can (safely) assume that all operations will be a READ operation.
+			// 2. For the RHS, we can (safely) assume that all operations will be READ operations.
 			return emit(node.rhs.get());
 		}
 
@@ -301,13 +291,31 @@ namespace soul::ast::visitors
 
 	ir::Instruction* LowerVisitor::emit(const LiteralNode& node)
 	{
-		// IMPORTANT: We assume that visiting LiteralNode will always result in the READ operation for Identifiers, as
+		// IMPORTANT: We assume that visiting LiteralNode will always result in a READ operation for Identifiers, as
 		// any special (i.e. writing) logic will be handled beforehand.
 		if (node.value.is<Identifier>()) {
 			auto* slot = _builder.get_slot(node.value.as<Identifier>());
 			return _builder.emit<StackLoad>(slot);
 		}
 		return _builder.emit<Const>(node.type, node.value);
+	}
+
+	ir::Instruction* LowerVisitor::emit(const LoopControlNode& node)
+	{
+		if (_loop_jump_targets.empty()) [[unlikely]] {
+			return _builder.emit<Unreachable>();
+		}
+
+		const auto& [continuation_block, termination_block] = _loop_jump_targets.back();
+		auto* current_block                                 = _builder.current_basic_block();
+		if (node.control_type == LoopControlNode::Type::Break) {
+			return _builder.emit<Jump>(termination_block);
+		}
+		if (node.control_type == LoopControlNode::Type::Continue) {
+			return _builder.emit<Jump>(continuation_block);
+		}
+		// NOTE: unhandled case
+		return _builder.emit<Unreachable>();
 	}
 
 	ir::Instruction* LowerVisitor::emit(const ModuleNode&)

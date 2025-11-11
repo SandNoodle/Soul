@@ -1,13 +1,12 @@
 #pragma once
 
-#include "ast/ast.h"
 #include "ast/ast_fwd.h"
 #include "ast/visitors/copy.h"
 
 namespace soul::ast::visitors
 {
 	/**
-	 * @brief DesugarVisitor traverse the AST while substituting high-level nodes (such as ForNode or ForeachNode)
+	 * @brief DesugarVisitor traverses the AST while substituting high-level nodes (such as ForNode or ForeachNode)
 	 * into a lower-level ones (such as WhileNode).
 	 */
 	class DesugarVisitor : public CopyVisitor

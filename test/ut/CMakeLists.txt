@@ -21,6 +21,7 @@ add_executable(
         ast/visitors/desugar_test.cpp
         ast/visitors/error_collector_test.cpp
         ast/visitors/lower_test.cpp
+        ast/visitors/semantic_analyzer_test.cpp
         ast/visitors/type_discoverer_test.cpp
         ast/visitors/type_resolver_test.cpp
         lexer/lexer_test.cpp

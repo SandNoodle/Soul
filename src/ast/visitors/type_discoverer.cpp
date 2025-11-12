@@ -3,8 +3,6 @@
 #include "common/types/type.h"
 #include "core/types.h"
 
-#include <ranges>
-
 namespace soul::ast::visitors
 {
 	using namespace soul::types;

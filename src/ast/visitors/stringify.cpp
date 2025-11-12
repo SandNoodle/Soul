@@ -1,7 +1,5 @@
 #include "ast/visitors/stringify.h"
 
-#include <ranges>
-
 namespace soul::ast::visitors
 {
 	using namespace soul::types;

@@ -11,19 +11,6 @@ namespace soul::parser
 	using namespace soul::ast;
 	using namespace soul::types;
 
-	static constexpr std::array k_literal_types
-		= { Token::Type::LiteralFloat,  Token::Type::LiteralIdentifier, Token::Type::LiteralInteger,
-		    Token::Type::LiteralString, Token::Type::KeywordTrue,       Token::Type::KeywordFalse };
-
-	static constexpr std::array k_compare_types = { Token::Type::SymbolLess,
-		                                            Token::Type::SymbolLessEqual,
-		                                            Token::Type::SymbolGreater,
-		                                            Token::Type::SymbolGreaterEqual };
-
-	static constexpr std::array k_assign_types
-		= { Token::Type::SymbolEqual,     Token::Type::SymbolPlusEqual,  Token::Type::SymbolMinusEqual,
-		    Token::Type::SymbolStarEqual, Token::Type::SymbolSlashEqual, Token::Type::SymbolPercentEqual };
-
 	enum class Parser::Precedence : u8
 	{
 		None,
@@ -850,25 +837,33 @@ namespace soul::parser
 
 	Parser::PrecedenceRule Parser::precedence_rule(Token::Type type) const noexcept
 	{
-		if (type == Token::Type::SymbolParenLeft) {
-			return { Precedence::Call, &Parser::parse_grouping, &Parser::parse_function_call, nullptr };
-		}
-
-		if (std::ranges::contains(k_literal_types, type)) {
-			return { Precedence::None, &Parser::parse_literal, nullptr, nullptr };
-		}
-
-		if (std::ranges::contains(k_compare_types, type)) {
-			return { Precedence::Compare, nullptr, &Parser::parse_binary, nullptr };
-		}
-
-		if (std::ranges::contains(k_assign_types, type)) {
-			return { Parser::Precedence::Assign, nullptr, &Parser::parse_binary, nullptr };
-		}
-
 		switch (type) {
-			case Token::Type::KeywordCast:
-				return { Precedence::None, &Parser::parse_cast, nullptr, nullptr };
+			// Assignment
+			case Token::Type::SymbolEqual:
+			case Token::Type::SymbolPlusEqual:
+			case Token::Type::SymbolMinusEqual:
+			case Token::Type::SymbolStarEqual:
+			case Token::Type::SymbolSlashEqual:
+			case Token::Type::SymbolPercentEqual:
+				return { Parser::Precedence::Assign, nullptr, &Parser::parse_binary, nullptr };
+
+			// Comparison
+			case Token::Type::SymbolLess:
+			case Token::Type::SymbolLessEqual:
+			case Token::Type::SymbolGreater:
+			case Token::Type::SymbolGreaterEqual:
+				return { Precedence::Compare, nullptr, &Parser::parse_binary, nullptr };
+
+			// Literals
+			case Token::Type::LiteralFloat:
+			case Token::Type::LiteralIdentifier:
+			case Token::Type::LiteralInteger:
+			case Token::Type::LiteralString:
+			case Token::Type::KeywordTrue:
+			case Token::Type::KeywordFalse:
+				return { Precedence::None, &Parser::parse_literal, nullptr, nullptr };
+
+			// Arithmetic
 			case Token::Type::SymbolMinus:
 				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary, nullptr };
 			case Token::Type::SymbolPlus:
@@ -876,6 +871,12 @@ namespace soul::parser
 			case Token::Type::SymbolStar:
 			case Token::Type::SymbolSlash:
 				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary, nullptr };
+
+			// Other
+			case Token::Type::KeywordCast:
+				return { Precedence::None, &Parser::parse_cast, nullptr, nullptr };
+			case Token::Type::SymbolParenLeft:
+				return { Precedence::Call, &Parser::parse_grouping, &Parser::parse_function_call, nullptr };
 			default:
 				break;
 		}

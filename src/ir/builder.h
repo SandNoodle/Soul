@@ -5,7 +5,6 @@
 #include "ir/ir.h"
 
 #include <memory>
-#include <ranges>
 #include <unordered_map>
 #include <vector>
 

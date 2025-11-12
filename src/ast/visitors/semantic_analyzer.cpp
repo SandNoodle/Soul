@@ -2,8 +2,6 @@
 
 #include "ast/ast.h"
 
-#include <ranges>
-
 namespace soul::ast::visitors
 {
 	void SemanticAnalyzerVisitor::visit(const BinaryNode& node)
@@ -110,12 +108,11 @@ namespace soul::ast::visitors
 
 	VariableDeclarationNode* SemanticAnalyzerVisitor::get_variable(std::string_view identifier)
 	{
-		const auto it = std::ranges::find_if(
-			_variables_in_scope,
-			[identifier](VariableDeclarationNode* variable) -> bool { return variable->name == identifier; });
-		if (it == std::end(_variables_in_scope)) [[unlikely]] {
-			return nullptr;
+		for (auto* variable : _variables_in_scope) {
+			if (variable->name == identifier) {
+				return variable;
+			}
 		}
-		return *it;
+		return nullptr;
 	}
 }  // namespace soul::ast::visitors

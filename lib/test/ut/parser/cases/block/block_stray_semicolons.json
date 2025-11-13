@@ -1,0 +1,10 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "scope_block",
+      "statements": []
+    }
+  ]
+}

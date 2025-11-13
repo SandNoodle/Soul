@@ -1,0 +1,15 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "unary",
+      "operator": "operator_decrement",
+      "expression": {
+        "node": "literal",
+        "value_type": "value_type_identifier",
+        "value": "index"
+      }
+    }
+  ]
+}

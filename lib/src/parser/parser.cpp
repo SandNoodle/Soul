@@ -11,6 +11,7 @@ namespace soul::parser
 	using namespace soul::ast;
 	using namespace soul::types;
 
+	/** @brief Operator precedence (LOWEST to HIGHEST) */
 	enum class Parser::Precedence : u8
 	{
 		None,
@@ -21,8 +22,8 @@ namespace soul::parser
 		Compare,         // < > <= >=
 		Additive,        // + -
 		Multiplicative,  // * /
-		Unary,           // ! -
-		Call,            // ()
+		Prefix,          // ! -
+		Postfix,         // ()
 	};
 
 	struct Parser::PrecedenceRule
@@ -617,7 +618,28 @@ namespace soul::parser
 		return StructDeclarationNode::create(std::string(name_identifier->data), std::move(parameters));
 	}
 
-	ASTNode::Dependency Parser::parse_unary() { return create_error("Parser::parse_unary is not implemented yet."); }
+	ASTNode::Dependency Parser::parse_unary()
+	{
+		// <unary_expression> ::= <unary_operator> <expression>
+
+		// <unary_operator>
+		static constexpr std::array k_unary_operators = {
+			Token::Type::SymbolBang,
+			Token::Type::SymbolMinus,
+			Token::Type::SymbolMinusMinus,
+			Token::Type::SymbolPlusPlus,
+		};
+		auto unary_operator = require(k_unary_operators);
+		if (!unary_operator) {
+			return create_error(
+				std::format("expected unary operator, but got: '{}'", std::string(current_token_or_default().data)));
+		}
+
+		// <expression>
+		auto expression = parse_expression(Precedence::Prefix);
+
+		return UnaryNode::create(std::move(expression), ASTNode::as_operator(unary_operator->type));
+	}
 
 	ASTNode::Dependency Parser::parse_variable_declaration()
 	{
@@ -718,9 +740,37 @@ namespace soul::parser
 				break;
 			}
 
+			// NOTE: We might be looking at a stray semicolon(s). Consume until nothing is left.
+			while (match(Token::Type::SymbolSemicolon)) {
+				// ...
+			}
+			if (match(Token::Type::SymbolBraceRight)) {
+				break;
+			}
+
 			statements.emplace_back(parse_statement());
 
-			if (current_token_or_default().type != Token::Type::SymbolBraceRight) {
+			// NOTE: If a statement ends with a BlockNode then consumption of a semicolon is not required.
+			const bool must_consume_semicolon = [](ASTNode::Reference node) -> bool {
+				if (!node) [[unlikely]] {
+					return false;
+				}
+
+				// NOTE: [Explicit] ErrorNodes are synchronized separately, thus we should not interfere.
+				if (node->is<ErrorNode>()) {
+					return false;
+				}
+
+				const bool has_body_block = node->is<BlockNode>() || node->is<ForLoopNode>()
+				                         || node->is<ForeachLoopNode>() || node->is<WhileNode>() || node->is<IfNode>();
+				if (!has_body_block) {
+					return true;
+				}
+
+				return false;
+			}(statements.back().get());
+
+			if (must_consume_semicolon && current_token_or_default().type != Token::Type::SymbolBraceRight) {
 				// ';'
 				if (!require(Token::Type::SymbolSemicolon)) {
 					statements.emplace_back(create_error(std::format("expected '{}', but got: '{}'",
@@ -820,7 +870,7 @@ namespace soul::parser
 
 	std::optional<Token> Parser::peek(std::ptrdiff_t n)
 	{
-		if ((_current_token + n) != std::end(_tokens)) {
+		if ((_current_token + n) != std::end(_tokens)) [[likely]] {
 			return *(_current_token + n);
 		}
 		return std::nullopt;
@@ -854,6 +904,10 @@ namespace soul::parser
 			case Token::Type::SymbolGreaterEqual:
 				return { Precedence::Compare, nullptr, &Parser::parse_binary, nullptr };
 
+			// Logical
+			case Token::Type::SymbolBang:
+				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr, nullptr };
+
 			// Literals
 			case Token::Type::LiteralFloat:
 			case Token::Type::LiteralIdentifier:
@@ -865,18 +919,24 @@ namespace soul::parser
 
 			// Arithmetic
 			case Token::Type::SymbolMinus:
+				// TODO: Unary minus (ex. -index) should have PREFIX precedence!
 				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary, nullptr };
 			case Token::Type::SymbolPlus:
 				return { Parser::Precedence::Additive, nullptr, &Parser::parse_binary, nullptr };
-			case Token::Type::SymbolStar:
+			case Token::Type::SymbolPercent:
 			case Token::Type::SymbolSlash:
+			case Token::Type::SymbolStar:
 				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary, nullptr };
+			case Token::Type::SymbolPlusPlus:
+			case Token::Type::SymbolMinusMinus:
+				// TODO: Precedence depends on the context (Prefix or Postfix).
+				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr, nullptr };
 
 			// Other
 			case Token::Type::KeywordCast:
 				return { Precedence::None, &Parser::parse_cast, nullptr, nullptr };
 			case Token::Type::SymbolParenLeft:
-				return { Precedence::Call, &Parser::parse_grouping, &Parser::parse_function_call, nullptr };
+				return { Precedence::Postfix, &Parser::parse_grouping, &Parser::parse_function_call, nullptr };
 			default:
 				break;
 		}

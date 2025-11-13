@@ -1,0 +1,121 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "scope_block",
+      "statements": [
+        {
+          "node": "variable_declaration",
+          "name": "index",
+          "type_identifier": "i32",
+          "is_mutable": "true",
+          "expression": {
+            "node": "literal",
+            "value_type": "value_type_int32",
+            "value": "123"
+          }
+        },
+        {
+          "node": "binary",
+          "operator": "operator_assign",
+          "lhs": {
+            "node": "literal",
+            "value_type": "value_type_identifier",
+            "value": "index"
+          },
+          "rhs": {
+            "node": "literal",
+            "value_type": "value_type_int32",
+            "value": "2"
+          }
+        },
+        {
+          "node": "unary",
+          "operator": "operator_increment",
+          "expression": {
+            "node": "literal",
+            "value_type": "value_type_identifier",
+            "value": "index"
+          }
+        },
+        {
+          "node": "literal",
+          "value_type": "value_type_identifier",
+          "value": "index"
+        },
+        {
+          "node": "function_call",
+          "name": "function_to_call",
+          "parameters": []
+        },
+        {
+          "node": "for_loop",
+          "initialization": null,
+          "condition": null,
+          "update": null,
+          "statements": {
+            "node": "scope_block",
+            "statements": []
+          }
+        },
+        {
+          "node": "while_loop",
+          "condition": {
+            "node": "literal",
+            "value_type": "value_type_boolean",
+            "value": "true"
+          },
+          "statements": {
+            "node": "scope_block",
+            "statements": []
+          }
+        },
+        {
+          "node": "if",
+          "expression": {
+            "node": "literal",
+            "value_type": "value_type_boolean",
+            "value": "true"
+          },
+          "then_statements": {
+            "node": "scope_block",
+            "statements": []
+          },
+          "else_statements": {
+            "node": "scope_block",
+            "statements": []
+          }
+        },
+        {
+          "node": "if",
+          "expression": {
+            "node": "literal",
+            "value_type": "value_type_boolean",
+            "value": "true"
+          },
+          "then_statements": {
+            "node": "scope_block",
+            "statements": []
+          },
+          "else_statements": {
+            "node": "scope_block",
+            "statements": []
+          }
+        },
+        {
+          "node": "return",
+          "expression": {
+            "node": "literal",
+            "value_type": "value_type_identifier",
+            "value": "index"
+          }
+        },
+        {
+          "node": "scope_block",
+          "statements": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+    let mut index: i32 = 123;     # [REQUIRED]
+    index = 2;                    # [REQUIRED]
+    ++index;                      # [REQUIRED]
+    index;                        # [REQUIRED]
+    function_to_call();           # [REQUIRED]
+    for (;;) {}                   # []
+    while(true) {}                # []
+    if (true) {}                  # []
+    if (true) {} else {}          # []
+    return index;                 # [REQUIRED]
+    {}                            # []
+}

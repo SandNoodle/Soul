@@ -159,6 +159,30 @@ namespace soul::ast::visitors::ut
 		ASSERT_EQ(expected_string, result_string);
 	}
 
+	TEST_F(SemanticAnalyzerVisitorTest, LoopControlNode_InNestedLoop)
+	{
+		auto result_module
+			= build(parse("for (;;) { for (;;) { # This shouldn't throw off the analyzer\n } break; }"), true);
+		ASSERT_TRUE(result_module);
+
+		auto inner_for_loop_statements = ASTNode::Dependencies{};
+		auto inner_for_loop
+			= ForLoopNode::create(nullptr, nullptr, nullptr, BlockNode::create(std::move(inner_for_loop_statements)));
+
+		auto outer_for_loop_statements = ASTNode::Dependencies{};
+		outer_for_loop_statements.push_back(std::move(inner_for_loop));
+		outer_for_loop_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
+		auto outer_for_loop
+			= ForLoopNode::create(nullptr, nullptr, nullptr, BlockNode::create(std::move(outer_for_loop_statements)));
+
+		auto module_statements = ASTNode::Dependencies{};
+		module_statements.push_back(std::move(outer_for_loop));
+		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+
+		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		ASSERT_EQ(expected_string, result_string);
+	}
+
 	TEST_F(SemanticAnalyzerVisitorTest, FunctionDeclaration_ImplicitVoidReturn)
 	{
 		auto result_module = build(parse(""), true);

@@ -44,16 +44,18 @@ namespace soul::ast::visitors
 
 	void SemanticAnalyzerVisitor::visit(const ForLoopNode& node)
 	{
+		const bool was_in_loop = _is_in_loop;
 		_is_in_loop = true;
 		CopyVisitor::visit(node);
-		_is_in_loop = false;
+		_is_in_loop = was_in_loop;
 	}
 
 	void SemanticAnalyzerVisitor::visit(const ForeachLoopNode& node)
 	{
+		const bool was_in_loop = _is_in_loop;
 		_is_in_loop = true;
 		CopyVisitor::visit(node);
-		_is_in_loop = false;
+		_is_in_loop = was_in_loop;
 	}
 
 	void SemanticAnalyzerVisitor::visit(const FunctionDeclarationNode& node)
@@ -101,9 +103,10 @@ namespace soul::ast::visitors
 
 	void SemanticAnalyzerVisitor::visit(const WhileNode& node)
 	{
+		const bool was_in_loop = _is_in_loop;
 		_is_in_loop = true;
 		CopyVisitor::visit(node);
-		_is_in_loop = false;
+		_is_in_loop = was_in_loop;
 	}
 
 	VariableDeclarationNode* SemanticAnalyzerVisitor::get_variable(std::string_view identifier)

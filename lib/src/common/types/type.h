@@ -11,10 +11,7 @@
 
 namespace soul::types
 {
-	/**
-	 * @brief TypeKind is a concept that specifies (and is satisfied by) types in the language's type system that
-	 * it supports.
-	 */
+	/** @brief TypeKind is a concept that specifies types present in the language's type system. */
 	template <typename T>
 	concept TypeKind = std::same_as<T, PrimitiveType>  //
 	                || std::same_as<T, ArrayType>      //

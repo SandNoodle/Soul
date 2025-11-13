@@ -9,6 +9,12 @@ namespace soul::ast
 		using namespace std::string_view_literals;
 		static const std::unordered_map<ASTNode::Operator, std::string_view> k_operators = {
 			{ Operator::Unknown,      "__unknown__"sv },
+			{ Operator::Assign,       "="sv           },
+			{ Operator::AddAssign,    "+="sv          },
+			{ Operator::SubAssign,    "-="sv          },
+			{ Operator::MulAssign,    "*="sv          },
+			{ Operator::DivAssign,    "/="sv          },
+			{ Operator::ModAssign,    "%="sv          },
 			{ Operator::Add,          "+"sv           },
 			{ Operator::Sub,          "-"sv           },
 			{ Operator::Mul,          "*"sv           },

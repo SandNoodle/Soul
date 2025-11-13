@@ -29,10 +29,7 @@ namespace soul::ast
 	SOUL_AST_NODES
 #undef SOUL_AST_NODE
 
-	/**
-	 * @brief NodeKind is a concept that specifies (and is satisfied by) nodes that can be represented in the
-	 * Abstract Syntax Tree (AST).
-	 */
+	/** @brief NodeKind is a concept that specifies nodes that can be represented in the Abstract Syntax Tree (AST). */
 	template <typename T>
 	concept NodeKind = std::same_as<T, BinaryNode>               //
 	                || std::same_as<T, BlockNode>                //

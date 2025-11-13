@@ -9,8 +9,6 @@
 #include "ast/visitors/type_discoverer.h"
 #include "ast/visitors/type_resolver.h"
 
-#include <format>
-
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;

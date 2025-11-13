@@ -1,0 +1,31 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "scope_block",
+      "statements": [
+        {
+          "node": "literal",
+          "value_type": "value_type_identifier",
+          "value": "index"
+        },
+        {
+          "node": "scope_block",
+          "statements": [
+            {
+              "node": "literal",
+              "value_type": "value_type_identifier",
+              "value": "index"
+            }
+          ]
+        },
+        {
+          "node": "literal",
+          "value_type": "value_type_identifier",
+          "value": "index"
+        }
+      ]
+    }
+  ]
+}

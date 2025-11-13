@@ -1,0 +1,28 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "binary",
+      "operator": "operator_sub",
+      "lhs": {
+        "node": "unary",
+        "operator": "operator_sub",
+        "expression": {
+          "node": "literal",
+          "value_type": "value_type_identifier",
+          "value": "index"
+        }
+      },
+      "rhs": {
+        "node": "unary",
+        "operator": "operator_sub",
+        "expression": {
+          "node": "literal",
+          "value_type": "value_type_identifier",
+          "value": "index"
+        }
+      }
+    }
+  ]
+}

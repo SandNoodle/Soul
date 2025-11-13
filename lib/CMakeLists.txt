@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 # ----- [ Project ] -----
-project(SoulLib VERSION 0.1 LANGUAGES CXX)
+project(SoulLib VERSION ${SOUL_VERSION_MAJOR}.${SOUL_VERSION_MINOR}.${SOUL_VERSION_PATCH} LANGUAGES CXX)
 
 # ----- [ Globals ] -----
 set(CMAKE_CXX_STANDARD 26)

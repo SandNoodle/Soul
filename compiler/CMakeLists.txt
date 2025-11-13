@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 # ----- [ Project ] -----
-project(Soul VERSION 0.1 LANGUAGES CXX)
+project(Soul VERSION ${SOUL_VERSION_MAJOR}.${SOUL_VERSION_MINOR}.${SOUL_VERSION_PATCH} LANGUAGES CXX)
 
 # ----- [ Globals ] -----
 set(CMAKE_CXX_STANDARD 26)
@@ -23,6 +23,14 @@ target_include_directories(Soul PUBLIC
 )
 target_link_libraries(Soul PRIVATE SoulLib)
 
+# ----- [ DEFINES ] -----
+target_compile_definitions(Soul PRIVATE
+        SOUL_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        SOUL_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        SOUL_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+)
+
+# ----- [ TESTS ] -----
 if (SOUL_BUILD_TESTS)
     add_subdirectory(test)
 endif ()

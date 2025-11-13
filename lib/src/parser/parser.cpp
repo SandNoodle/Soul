@@ -919,7 +919,6 @@ namespace soul::parser
 
 			// Arithmetic
 			case Token::Type::SymbolMinus:
-				// TODO: Unary minus (ex. -index) should have PREFIX precedence!
 				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary, nullptr };
 			case Token::Type::SymbolPlus:
 				return { Parser::Precedence::Additive, nullptr, &Parser::parse_binary, nullptr };
@@ -929,7 +928,6 @@ namespace soul::parser
 				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary, nullptr };
 			case Token::Type::SymbolPlusPlus:
 			case Token::Type::SymbolMinusMinus:
-				// TODO: Precedence depends on the context (Prefix or Postfix).
 				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr, nullptr };
 
 			// Other

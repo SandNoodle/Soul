@@ -1,4 +1,4 @@
-#include "ast/visitors/semantic_analizer.h"
+#include "ast/visitors/semantic_analyzer.h"
 
 #include <gtest/gtest.h>
 

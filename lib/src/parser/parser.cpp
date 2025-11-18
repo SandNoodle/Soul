@@ -31,13 +31,11 @@ namespace soul::parser
 		public:
 		typedef ASTNode::Dependency (Parser::*PrefixFn)();
 		typedef ASTNode::Dependency (Parser::*InfixFn)(ASTNode::Dependency);
-		typedef ASTNode::Dependency (Parser::*SuffixFn)();
 
 		public:
 		Precedence precedence = Precedence::None;
 		PrefixFn prefix       = nullptr;
 		InfixFn infix         = nullptr;
-		SuffixFn suffix       = nullptr;
 	};
 
 	Parser::Parser(std::string_view module_name, std::span<const Token> tokens)
@@ -895,18 +893,18 @@ namespace soul::parser
 			case Token::Type::SymbolStarEqual:
 			case Token::Type::SymbolSlashEqual:
 			case Token::Type::SymbolPercentEqual:
-				return { Parser::Precedence::Assign, nullptr, &Parser::parse_binary, nullptr };
+				return { Parser::Precedence::Assign, nullptr, &Parser::parse_binary };
 
 			// Comparison
 			case Token::Type::SymbolLess:
 			case Token::Type::SymbolLessEqual:
 			case Token::Type::SymbolGreater:
 			case Token::Type::SymbolGreaterEqual:
-				return { Precedence::Compare, nullptr, &Parser::parse_binary, nullptr };
+				return { Precedence::Compare, nullptr, &Parser::parse_binary };
 
 			// Logical
 			case Token::Type::SymbolBang:
-				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr, nullptr };
+				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr };
 
 			// Literals
 			case Token::Type::LiteralFloat:
@@ -915,31 +913,31 @@ namespace soul::parser
 			case Token::Type::LiteralString:
 			case Token::Type::KeywordTrue:
 			case Token::Type::KeywordFalse:
-				return { Precedence::None, &Parser::parse_literal, nullptr, nullptr };
+				return { Precedence::None, &Parser::parse_literal, nullptr };
 
 			// Arithmetic
 			case Token::Type::SymbolMinus:
-				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary, nullptr };
+				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary };
 			case Token::Type::SymbolPlus:
-				return { Parser::Precedence::Additive, nullptr, &Parser::parse_binary, nullptr };
+				return { Parser::Precedence::Additive, nullptr, &Parser::parse_binary };
 			case Token::Type::SymbolPercent:
 			case Token::Type::SymbolSlash:
 			case Token::Type::SymbolStar:
-				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary, nullptr };
+				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary };
 			case Token::Type::SymbolPlusPlus:
 			case Token::Type::SymbolMinusMinus:
-				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr, nullptr };
+				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr };
 
 			// Other
 			case Token::Type::KeywordCast:
-				return { Precedence::None, &Parser::parse_cast, nullptr, nullptr };
+				return { Precedence::None, &Parser::parse_cast, nullptr };
 			case Token::Type::SymbolParenLeft:
-				return { Precedence::Postfix, &Parser::parse_grouping, &Parser::parse_function_call, nullptr };
+				return { Precedence::Postfix, &Parser::parse_grouping, &Parser::parse_function_call };
 			default:
 				break;
 		}
 
-		return { Precedence::None, nullptr, nullptr, nullptr };  // No precedence.
+		return { Precedence::None, nullptr, nullptr };  // No precedence.
 	}
 
 	Token Parser::current_token_or_default() const noexcept

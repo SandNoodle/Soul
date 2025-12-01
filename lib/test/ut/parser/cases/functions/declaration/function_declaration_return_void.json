@@ -5,7 +5,7 @@
     {
       "node": "function_declaration",
       "name": "should_return_nothing",
-      "type_identifier": "void",
+      "type_specifier": "void",
       "parameters": [],
       "statements": {
         "node": "scope_block",

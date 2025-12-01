@@ -51,6 +51,10 @@ namespace soul
 
 	constexpr Identifier::Identifier(ViewType value) : _value(std::move(value)) {}
 
+	constexpr Identifier::operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
+
+	constexpr auto Identifier::create(ViewType value) -> Identifier { return Identifier(std::move(value)); }
+
 	constexpr Array::Array(Values values) : _values(std::move(values)) {}
 
 	constexpr Struct::Struct(Members members) : _members(std::move(members)) {}

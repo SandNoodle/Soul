@@ -4,6 +4,8 @@
 
 namespace soul::ast
 {
+	using namespace soul::parser;
+
 	std::string_view ASTNode::name(const ASTNode::Operator op) noexcept
 	{
 		using namespace std::string_view_literals;
@@ -121,14 +123,14 @@ namespace soul::ast
 		return std::make_unique<BlockNode>(std::move(statements));
 	}
 
-	CastNode::CastNode(Dependency expression, Identifier type_identifier)
-		: expression(std::move(expression)), type_identifier(std::move(type_identifier))
+	CastNode::CastNode(Dependency expression, TypeSpecifier type_specifier)
+		: expression(std::move(expression)), type_specifier(std::move(type_specifier))
 	{
 	}
 
-	CastNode::Dependency CastNode::create(Dependency expression, Identifier type_identifier)
+	CastNode::Dependency CastNode::create(Dependency expression, TypeSpecifier type_specifier)
 	{
-		return std::make_unique<CastNode>(std::move(expression), std::move(type_identifier));
+		return std::make_unique<CastNode>(std::move(expression), std::move(type_specifier));
 	}
 
 	ErrorNode::ErrorNode(ErrorNode::Message message) : message(std::move(message)) {}
@@ -181,18 +183,18 @@ namespace soul::ast
 	}
 
 	FunctionDeclarationNode::FunctionDeclarationNode(Identifier identifier,
-	                                                 Identifier return_type_identifier,
+	                                                 TypeSpecifier return_type_specifier,
 	                                                 Dependencies parameters,
 	                                                 ScopeBlock statements)
 		: name(std::move(identifier)),
-		  type_identifier(std::move(return_type_identifier)),
+		  type_specifier(std::move(return_type_specifier)),
 		  parameters(std::move(parameters)),
 		  statements(std::move(statements))
 	{
 	}
 
 	FunctionDeclarationNode::Dependency FunctionDeclarationNode::create(Identifier name,
-	                                                                    Identifier return_type,
+	                                                                    TypeSpecifier return_type,
 	                                                                    Dependencies parameters,
 	                                                                    ScopeBlock statements)
 	{
@@ -259,17 +261,24 @@ namespace soul::ast
 		return std::make_unique<UnaryNode>(std::move(expr), op);
 	}
 
-	VariableDeclarationNode::VariableDeclarationNode(Identifier name, Identifier type, Dependency expr, bool is_mutable)
-		: name(std::move(name)), type_identifier(std::move(type)), expression(std::move(expr)), is_mutable(is_mutable)
+	VariableDeclarationNode::VariableDeclarationNode(Identifier name,
+	                                                 TypeSpecifier type_specifier,
+	                                                 Dependency expr,
+	                                                 bool is_mutable)
+		: name(std::move(name)),
+		  type_specifier(std::move(type_specifier)),
+		  expression(std::move(expr)),
+		  is_mutable(is_mutable)
 	{
 	}
 
 	VariableDeclarationNode::Dependency VariableDeclarationNode::create(Identifier name,
-	                                                                    Identifier type,
+	                                                                    TypeSpecifier type_specifier,
 	                                                                    Dependency expr,
 	                                                                    bool is_mutable)
 	{
-		return std::make_unique<VariableDeclarationNode>(std::move(name), std::move(type), std::move(expr), is_mutable);
+		return std::make_unique<VariableDeclarationNode>(
+			std::move(name), std::move(type_specifier), std::move(expr), is_mutable);
 	}
 
 	WhileNode::WhileNode(ASTNode::Dependency condition, ASTNode::ScopeBlock statements) noexcept

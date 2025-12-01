@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/source_location.h"
-#include "common/types/type.h"
+#include "types/type.h"
 #include "common/value.h"
 #include "core/types.h"
 #include "ir/instruction_fwd.h"

@@ -7,6 +7,7 @@
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 
 	class ErrorCollectorTest : public ::testing::Test
 	{
@@ -16,9 +17,12 @@ namespace soul::ast::visitors::ut
 	{
 		auto struct_declaration_members = ASTNode::Dependencies{};
 		struct_declaration_members.reserve(3);
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_str", "str", nullptr, false));
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_float", "f64", nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_str", k_base_specifier_str, nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_float", k_base_specifier_f64, nullptr, false));
 		auto struct_declaration = StructDeclarationNode::create("my_struct", std::move(struct_declaration_members));
 
 		auto if_node_true_statements = ASTNode::Dependencies{};
@@ -33,7 +37,7 @@ namespace soul::ast::visitors::ut
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
 		auto for_loop_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
@@ -52,11 +56,13 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(for_loop));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(2);
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "chr", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("b", k_base_specifier_chr, nullptr, false));
 		auto function_declaration
 			= FunctionDeclarationNode::create("my_function",
-		                                      "my_struct",
+		                                      BaseTypeSpecifier{ "my_struct" },
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -76,8 +82,10 @@ namespace soul::ast::visitors::ut
 	{
 		auto struct_declaration_members = ASTNode::Dependencies{};
 		struct_declaration_members.reserve(3);
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_str", "str", nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_str", k_base_specifier_str, nullptr, false));
 		struct_declaration_members.emplace_back(ErrorNode::create("struct_declaration_error"));
 		auto struct_declaration = StructDeclarationNode::create("my_struct", std::move(struct_declaration_members));
 
@@ -93,7 +101,7 @@ namespace soul::ast::visitors::ut
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
 		auto for_loop_condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                                             ErrorNode::create("for_loop_condition_binary_rhs_expr_error"),
 		                                             ASTNode::Operator::LessEqual);
@@ -111,11 +119,13 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(for_loop));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(2);
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "chr", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("b", k_base_specifier_chr, nullptr, false));
 		auto function_declaration
 			= FunctionDeclarationNode::create("my_function",
-		                                      "my_struct",
+		                                      BaseTypeSpecifier{ "my_struct" },
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -151,8 +161,10 @@ namespace soul::ast::visitors::ut
 	{
 		auto struct_declaration_members = ASTNode::Dependencies{};
 		struct_declaration_members.reserve(3);
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
-		struct_declaration_members.emplace_back(VariableDeclarationNode::create("my_str", "str", nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		struct_declaration_members.emplace_back(
+			VariableDeclarationNode::create("my_str", k_base_specifier_str, nullptr, false));
 		struct_declaration_members.emplace_back(ErrorNode::create("struct_declaration_error"));
 		auto struct_declaration = StructDeclarationNode::create("my_struct", std::move(struct_declaration_members));
 
@@ -168,7 +180,7 @@ namespace soul::ast::visitors::ut
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), false);
 		auto for_loop_condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                                             ErrorNode::create("for_loop_condition_binary_rhs_expr_error"),
 		                                             ASTNode::Operator::LessEqual);
@@ -186,11 +198,13 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(for_loop));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(2);
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "chr", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("b", k_base_specifier_chr, nullptr, false));
 		auto function_declaration
 			= FunctionDeclarationNode::create("my_function",
-		                                      "my_struct",
+		                                      BaseTypeSpecifier{ "my_struct" },
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 

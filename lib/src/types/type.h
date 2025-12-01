@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/types/types_fwd.h"
+#include "types/types_fwd.h"
 #include "core/types.h"
 
 #include <concepts>
@@ -14,6 +14,7 @@ namespace soul::types
 	/** @brief TypeKind is a concept that specifies types present in the language's type system. */
 	template <typename T>
 	concept TypeKind = std::same_as<T, PrimitiveType>  //
+	                || std::same_as<T, PointerType>    //
 	                || std::same_as<T, ArrayType>      //
 	                || std::same_as<T, StructType>     //
 		;
@@ -51,6 +52,30 @@ namespace soul::types
 		explicit operator std::string() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const PrimitiveType&);
+	};
+
+	/**
+	 * @brief Represents a memory pointer of a given type.
+	 */
+	class PointerType
+	{
+		private:
+		std::unique_ptr<Type> _type;
+
+		public:
+		PointerType(const Type& type);
+		PointerType(const PointerType&) noexcept;
+		PointerType(PointerType&&) noexcept;
+
+		PointerType& operator=(const PointerType&) noexcept;
+		PointerType& operator=(PointerType&&) noexcept;
+		bool operator==(const PointerType&) const noexcept = default;
+		std::strong_ordering operator<=>(const PointerType&) const;
+		explicit operator std::string() const;
+
+		const Type& data_type() const noexcept;
+
+		friend std::ostream& operator<<(std::ostream& os, const StructType& type);
 	};
 
 	/**
@@ -105,7 +130,7 @@ namespace soul::types
 	class Type
 	{
 		public:
-		using Variant = std::variant<PrimitiveType, ArrayType, StructType>;
+		using Variant = std::variant<PrimitiveType, PointerType, ArrayType, StructType>;
 
 		private:
 		Variant _type = PrimitiveType::Kind::Unknown;

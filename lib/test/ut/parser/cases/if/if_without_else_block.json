@@ -15,7 +15,7 @@
           {
             "node": "variable_declaration",
             "name": "some_var",
-            "type_identifier": "bool",
+            "type_specifier": "bool",
             "is_mutable": "false",
             "expression": {
               "node": "literal",

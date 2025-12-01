@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/types/type.h"
+#include "types/type.h"
 #include "ir/basic_block.h"
 
 #include <string>

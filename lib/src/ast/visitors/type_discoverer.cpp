@@ -1,17 +1,21 @@
 #include "ast/visitors/type_discoverer.h"
 
-#include "common/types/type.h"
 #include "core/types.h"
+#include "types/type.h"
 
 namespace soul::ast::visitors
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 
-	TypeDiscovererVisitor::TypeMap TypeDiscovererVisitor::discovered_types() noexcept { return _registered_types; }
+	TypeDiscovererVisitor::Types TypeDiscovererVisitor::discovered_types() noexcept { return _registered_types; }
 
 	void TypeDiscovererVisitor::visit(const StructDeclarationNode& node)
 	{
-		if (_registered_types.contains(node.name)) {
+		BaseTypeSpecifier type_specifier = BaseTypeSpecifier{ node.name };
+		const auto type_it{ std::ranges::find(
+			_registered_types, type_specifier, &decltype(_registered_types)::value_type::first) };
+		if (type_it != std::end(_registered_types)) {
 			_current_clone = ErrorNode::create(std::format("redefinition of type '{}'", node.name));
 			return;
 		}
@@ -29,28 +33,30 @@ namespace soul::ast::visitors
 				continue;
 			}
 			const auto& param = node.parameters[index]->as<VariableDeclarationNode>();
-			if (!_registered_types.contains(param.type_identifier)) {
-				struct_declaration.parameters[index] = ErrorNode::create(
-					std::format("cannot resolve type '{}', because no such type exists", param.type_identifier));
+			const auto it{ std::ranges::find(
+				_registered_types, param.type_specifier, &decltype(_registered_types)::value_type::first) };
+			if (it == std::end(_registered_types)) {
+				struct_declaration.parameters[index] = ErrorNode::create(std::format(
+					"cannot resolve type '{}', because no such type exists", std::string(param.type_specifier)));
 				continue;
 			}
-			contained_types.push_back(_registered_types.at(param.type_identifier));
+			contained_types.push_back(it->second);
 		}
-		_registered_types[node.name] = Type{ StructType{ std::move(contained_types) } };
+		_registered_types.emplace_back(
+			std::make_pair(type_specifier, Type{ StructType{ std::move(contained_types) } }));
 	}
-	TypeDiscovererVisitor::TypeMap TypeDiscovererVisitor::basic_types() noexcept
+	TypeDiscovererVisitor::Types TypeDiscovererVisitor::basic_types() noexcept
 	{
-		// IMPORTANT: Must match keywords defined in Lexer::scan_token.
 		using namespace std::string_view_literals;
-		static const TypeDiscovererVisitor::TypeMap k_basic_types = {
-			{ "bool"sv, types::PrimitiveType::Kind::Boolean },
-            { "chr"sv,  types::PrimitiveType::Kind::Char    },
-			{ "f32"sv,  types::PrimitiveType::Kind::Float32 },
-            { "f64"sv,  types::PrimitiveType::Kind::Float64 },
-			{ "i32"sv,  types::PrimitiveType::Kind::Int32   },
-            { "i64"sv,  types::PrimitiveType::Kind::Int64   },
-			{ "str"sv,  types::PrimitiveType::Kind::String  },
-            { "void"sv, types::PrimitiveType::Kind::Void    },
+		static const TypeDiscovererVisitor::Types k_basic_types = {
+			std::make_pair(k_base_specifier_bool, types::PrimitiveType::Kind::Boolean),
+			std::make_pair(k_base_specifier_chr, types::PrimitiveType::Kind::Char),
+			std::make_pair(k_base_specifier_f32, types::PrimitiveType::Kind::Float32),
+			std::make_pair(k_base_specifier_f64, types::PrimitiveType::Kind::Float64),
+			std::make_pair(k_base_specifier_i32, types::PrimitiveType::Kind::Int32),
+			std::make_pair(k_base_specifier_i64, types::PrimitiveType::Kind::Int64),
+			std::make_pair(k_base_specifier_str, types::PrimitiveType::Kind::String),
+			std::make_pair(k_base_specifier_void, types::PrimitiveType::Kind::Void),
 		};
 		return k_basic_types;
 	}

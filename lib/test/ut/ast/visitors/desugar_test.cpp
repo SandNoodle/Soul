@@ -12,6 +12,7 @@
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 
 	class DesugarVisitorTest : public ::testing::Test
 	{
@@ -124,7 +125,7 @@ namespace soul::ast::visitors::ut
 	{
 		// Get a ForLoop node...
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
 		auto for_loop_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
@@ -135,8 +136,11 @@ namespace soul::ast::visitors::ut
 			= UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment);
 
 		auto for_loop_statements = ASTNode::Dependencies{};
-		for_loop_statements.push_back(VariableDeclarationNode::create(
-			"inner", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)), false));
+		for_loop_statements.push_back(
+			VariableDeclarationNode::create("inner",
+		                                    k_base_specifier_f32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)),
+		                                    false));
 
 		auto for_loop = ForLoopNode::create(std::move(for_loop_initialization),
 		                                    std::move(for_loop_condition),
@@ -152,7 +156,7 @@ namespace soul::ast::visitors::ut
 
 		// ...and verify the results.
 		auto while_node_initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
 		auto while_node_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
@@ -161,8 +165,11 @@ namespace soul::ast::visitors::ut
 
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.reserve(2);
-		while_node_statements.push_back(VariableDeclarationNode::create(
-			"inner", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)), false));
+		while_node_statements.push_back(
+			VariableDeclarationNode::create("inner",
+		                                    k_base_specifier_f32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)),
+		                                    false));
 		while_node_statements.push_back(
 			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment));
 

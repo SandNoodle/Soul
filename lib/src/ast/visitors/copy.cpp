@@ -110,7 +110,7 @@ namespace soul::ast::visitors
 
 	ASTNode::Dependency CopyVisitor::clone(const CastNode& node)
 	{
-		return CastNode::create(clone(node.expression.get()), node.type_identifier);
+		return CastNode::create(clone(node.expression.get()), node.type_specifier);
 	}
 
 	ASTNode::Dependency CopyVisitor::clone(const ErrorNode& node) { return ErrorNode::create(node.message); }
@@ -143,7 +143,7 @@ namespace soul::ast::visitors
 		auto cloned_parameters{ clone(node.parameters) };
 		auto statements{ clone(node.statements.get()) };
 		return FunctionDeclarationNode::create(
-			node.name, node.type_identifier, std::move(cloned_parameters), std::move(statements));
+			node.name, node.type_specifier, std::move(cloned_parameters), std::move(statements));
 	}
 
 	ASTNode::Dependency CopyVisitor::clone(const IfNode& node)
@@ -184,7 +184,7 @@ namespace soul::ast::visitors
 	ASTNode::Dependency CopyVisitor::clone(const VariableDeclarationNode& node)
 	{
 		return VariableDeclarationNode::create(
-			node.name, node.type_identifier, clone(node.expression.get()), node.is_mutable);
+			node.name, node.type_specifier, clone(node.expression.get()), node.is_mutable);
 	}
 
 	ASTNode::Dependency CopyVisitor::clone(const WhileNode& node)

@@ -21,17 +21,9 @@ namespace soul
 		std::string_view data;
 		SourceLocation location;
 
-		constexpr bool operator==(const Token& other) const noexcept
-		{
-			return std::tie(type, data) == std::tie(other.type, other.data);
-		}
-
-		constexpr std::strong_ordering operator<=>(const Token& other) const noexcept
-		{
-			return std::tie(type, data) <=> std::tie(other.type, other.data);
-		}
-
-		explicit operator std::string() const { return std::format("<{}:\"{}\">", internal_name(type), data); }
+		bool operator==(const Token& other) const noexcept;
+		std::strong_ordering operator<=>(const Token& other) const noexcept;
+		explicit operator std::string() const;
 
 		static std::string_view name(Token::Type type) noexcept;
 		static std::string_view internal_name(Token::Type type) noexcept;
@@ -60,6 +52,7 @@ namespace soul
 		KeywordLet,
 		KeywordMut,
 		KeywordNative,
+		KeywordNull,
 		KeywordReturn,
 		KeywordStruct,
 		KeywordTrue,

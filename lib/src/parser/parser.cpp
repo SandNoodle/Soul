@@ -176,7 +176,7 @@ namespace soul::parser
 
 	ASTNode::Dependency Parser::parse_cast()
 	{
-		// <cast_expression> ::= <keyword_cast> '<' <identifier> '>' '(' <expression> ')'
+		// <cast_expression> ::= <keyword_cast> '<' <type_specifier> '>' '(' <expression> ')'
 
 		// <keyword_cast>
 		if (!require(Token::Type::KeywordCast)) {
@@ -192,11 +192,10 @@ namespace soul::parser
 			                                std::string(current_token_or_default().data)));
 		}
 
-		// <identifier>
-		auto type_identifier = require(Token::Type::LiteralIdentifier);
-		if (!type_identifier) {
-			return create_error(
-				std::format("expected type identifier, but got: '{}'", std::string(current_token_or_default().data)));
+		// <type_specifier>
+		auto type_specifier = parse_type_specifier();
+		if (!type_specifier) {
+			return create_error("expected type specifier");
 		}
 
 		// '>'
@@ -223,7 +222,7 @@ namespace soul::parser
 			                                std::string(current_token_or_default().data)));
 		}
 
-		return CastNode::create(std::move(expression), std::string(type_identifier->data));
+		return CastNode::create(std::move(expression), std::move(*type_specifier));
 	}
 
 	ASTNode::Dependency Parser::parse_for_loop()
@@ -332,7 +331,7 @@ namespace soul::parser
 
 	ASTNode::Dependency Parser::parse_function_declaration()
 	{
-		// <function_declaration> ::= <keyword_fn> <identifier> [ <parameter_declaration>, ... ] '::' <identifier>
+		// <function_declaration> ::= <keyword_fn> <identifier> [ <parameter_declaration>, ... ] '::' <type_specifier>
 		// <block_statement>
 
 		// <keyword_fn>
@@ -374,16 +373,15 @@ namespace soul::parser
 		}
 
 		// <identifier>
-		auto type_identifier = require(Token::Type::LiteralIdentifier);
-		if (!type_identifier) {
-			return create_error(
-				std::format("expected type identifier, but got: '{}'", std::string(current_token_or_default().data)));
+		auto type_specifier = parse_type_specifier();
+		if (!type_specifier) {
+			return create_error("expected type specifier");
 		}
 
 		auto statements = parse_block_statement();
 
 		return FunctionDeclarationNode::create(std::string(name_identifier->data),
-		                                       std::string(type_identifier->data),
+		                                       std::move(*type_specifier),
 		                                       std::move(parameters),
 		                                       BlockNode::create(std::move(statements)));
 	}
@@ -459,6 +457,7 @@ namespace soul::parser
 		// <literal> ::= <integer_literal>  | <float_literal> | <string_literal> | <keyword_true> | <keyword_false>
 
 		const auto& token = require(std::array{ Token::Type::KeywordFalse,
+		                                        Token::Type::KeywordNull,
 		                                        Token::Type::KeywordTrue,
 		                                        Token::Type::LiteralFloat,
 		                                        Token::Type::LiteralIdentifier,
@@ -509,6 +508,10 @@ namespace soul::parser
 
 		if (token->type == Token::Type::KeywordFalse) {
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false));
+		}
+
+		if (token->type == Token::Type::KeywordNull) {
+			return LiteralNode::create({});
 		}
 
 		return ErrorNode::create("[INTERNAL] unknown literal");
@@ -641,7 +644,7 @@ namespace soul::parser
 
 	ASTNode::Dependency Parser::parse_variable_declaration()
 	{
-		// <variable_declaration> ::= <keyword_let> [ <keyword_mut> ] <identifier> ':' <identifier> '=' <expression>
+		// <variable_declaration> ::= <keyword_let> [ <keyword_mut> ] <identifier> ':' <type_specifier> '=' <expression>
 
 		// <keyword_let>
 		if (!require(Token::Type::KeywordLet)) {
@@ -667,11 +670,10 @@ namespace soul::parser
 			                                std::string(current_token_or_default().data)));
 		}
 
-		// <identifier>
-		auto type_identifier = require(Token::Type::LiteralIdentifier);
-		if (!type_identifier) {
-			return create_error(
-				std::format("expected type identifier, but got: '{}'", std::string(current_token_or_default().data)));
+		// <type_specifier>
+		auto type_specifier = parse_type_specifier();
+		if (!type_specifier) {
+			return create_error("expected type specifier");
 		}
 
 		// '='
@@ -685,7 +687,7 @@ namespace soul::parser
 		auto expression = parse_expression();
 
 		return VariableDeclarationNode::create(
-			std::string(name_identifier->data), std::string(type_identifier->data), std::move(expression), is_mutable);
+			std::string(name_identifier->data), std::move(*type_specifier), std::move(expression), is_mutable);
 	}
 
 	ASTNode::Dependency Parser::parse_while_loop()
@@ -792,7 +794,7 @@ namespace soul::parser
 
 	ASTNode::Dependency Parser::parse_parameter_declaration()
 	{
-		// <parameter_declaration> ::= <identifier> ':' <identifier> [ '=' <expression> ]
+		// <parameter_declaration> ::= <identifier> ':' <type_specifier> [ '=' <expression> ]
 
 		// <identifier>
 		auto name_identifier = require(Token::Type::LiteralIdentifier);
@@ -808,11 +810,10 @@ namespace soul::parser
 			                                std::string(current_token_or_default().data)));
 		}
 
-		// <identifier>
-		auto type_identifier = require(Token::Type::LiteralIdentifier);
-		if (!type_identifier) {
-			return create_error(
-				std::format("expected type identifier, but got: '{}'", std::string(current_token_or_default().data)));
+		// <type_specifier>
+		auto type_specifier = parse_type_specifier();
+		if (!type_specifier) {
+			return create_error("expected type specifier");
 		}
 
 		// [ '=' <expression> ]
@@ -822,7 +823,49 @@ namespace soul::parser
 		}
 
 		return VariableDeclarationNode::create(
-			std::string(name_identifier->data), std::string(type_identifier->data), std::move(expression), false);
+			std::string(name_identifier->data), std::move(*type_specifier), std::move(expression), false);
+	}
+
+	std::optional<TypeSpecifier> Parser::parse_type_specifier()
+	{
+		// <type_specifier> ::= [ <pointer_type_specifier> ] <type_specifier> [ <array_type_specifier> ]
+		//                    | <base_type_specifier>
+
+		const auto current_token = peek(0);
+		if (!current_token) {
+			return std::nullopt;  // [ERROR]: End of File!
+		}
+
+		// <base_type_specifier> ::= <identifier>
+		if (current_token->type == Token::Type::LiteralIdentifier) {
+			require(Token::Type::LiteralIdentifier);
+			return TypeSpecifier(BaseTypeSpecifier(std::string(current_token->data)));
+		}
+
+#if 0
+		// <array_type_specifier> ::=  '[' <type_specifier> [ ',' <integer_literal> ] ']'
+		if (current_token->type == Token::Type::SymbolBracketLeft) {
+			require(Token::Type::SymbolBracketLeft);
+			auto type_specifier = parse_type_specifier();
+			if (!type_specifier) {
+				return std::nullopt;
+			}
+			return TypeSpecifier(ArrayTypeSpecifier(std::move(*type_specifier)));
+		}
+
+		// <pointer_type_specifier> ::= '*' <type_specifier>
+		if (current_token->type == Token::Type::SymbolStar) {
+			require(Token::Type::SymbolStar);
+			auto type_specifier = parse_type_specifier();
+			if (!type_specifier) {
+				return std::nullopt;
+			}
+			return TypeSpecifier(PointerTypeSpecifier(std::move(*type_specifier)));
+		}
+#endif
+
+		// [INTERNAL]: invalid type specifier
+		return std::nullopt;
 	}
 
 	ASTNode::Dependency Parser::create_error(ErrorNode::Message error_message)
@@ -913,6 +956,7 @@ namespace soul::parser
 			case Token::Type::LiteralString:
 			case Token::Type::KeywordTrue:
 			case Token::Type::KeywordFalse:
+			case Token::Type::KeywordNull:
 				return { Precedence::None, &Parser::parse_literal, nullptr };
 
 			// Arithmetic

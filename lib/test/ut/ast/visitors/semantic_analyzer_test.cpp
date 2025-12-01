@@ -16,6 +16,7 @@
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 
 	class SemanticAnalyzerVisitorTest : public ::testing::Test
 	{
@@ -96,12 +97,12 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			"a", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), false));
+			"a", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), false));
 		function_declaration_statements.emplace_back(
 			ErrorNode::create("cannot assign to variable 'a', because it is not mutable."));
 		auto function_declaration
 			= FunctionDeclarationNode::create("test_function",
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 

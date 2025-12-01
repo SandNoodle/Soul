@@ -1,7 +1,7 @@
 #include "ast/visitors/type_resolver.h"
 
-#include "common/types/type.h"
 #include "core/types.h"
+#include "types/type.h"
 
 #include <array>
 #include <format>
@@ -9,11 +9,12 @@
 namespace soul::ast::visitors
 {
 	using namespace soul::ast;
+	using namespace soul::parser;
 	using namespace soul::types;
 
 	CastNode::Type get_cast_type(const Type& from_type, const Type& to_type);
 
-	TypeResolverVisitor::TypeResolverVisitor(TypeMap type_map) : _registered_types(std::move(type_map)) {}
+	TypeResolverVisitor::TypeResolverVisitor(Types type_map) : _registered_types(std::move(type_map)) {}
 
 	void TypeResolverVisitor::visit(const BinaryNode& node)
 	{
@@ -66,7 +67,7 @@ namespace soul::ast::visitors
 
 		const auto& cast_node = _current_clone->as<CastNode>();
 		const auto from_type  = cast_node.expression->type;
-		const auto to_type    = get_type_or_default(cast_node.type_identifier);
+		const auto to_type    = get_type_or_default(cast_node.type_specifier);
 		if (get_cast_type(from_type, to_type) == CastNode::Type::Impossible) {
 			_current_clone = ErrorNode::create(
 				std::format("cannot cast from type '{}' to '{}'", std::string(from_type), std::string(to_type)));
@@ -177,7 +178,7 @@ namespace soul::ast::visitors
 			}
 		}
 
-		_current_clone->type = get_type_or_default(node.type_identifier);
+		_current_clone->type = get_type_or_default(node.type_specifier);
 		_functions_in_module.emplace_back(
 			node.name,
 			FunctionDeclaration{
@@ -245,7 +246,7 @@ namespace soul::ast::visitors
 	void TypeResolverVisitor::visit(const StructDeclarationNode& node)
 	{
 		CopyVisitor::visit(node);
-		_current_clone->type = get_type_or_default(node.name);
+		_current_clone->type = get_type_or_default(BaseTypeSpecifier{ node.name });
 	}
 
 	void TypeResolverVisitor::visit(const UnaryNode& node)
@@ -278,7 +279,7 @@ namespace soul::ast::visitors
 			return;
 		}
 
-		_current_clone->type = get_type_or_default(node.type_identifier);
+		_current_clone->type = get_type_or_default(node.type_specifier);
 		_variables_in_scope.emplace_back(std::make_pair(node.name, _current_clone->type));
 	}
 
@@ -396,8 +397,13 @@ namespace soul::ast::visitors
 		}
 
 		if (from_type.is<ArrayType>() && to_type.is<ArrayType>()) {
-			// Arrays can be cast only if their data types are castable.
+			// Arrays can only be cast if their data types are castable.
 			return get_cast_type(from_type.as<ArrayType>().data_type(), to_type.as<ArrayType>().data_type());
+		}
+
+		if (from_type.is<PointerType>() && to_type.is<PointerType>()) {
+			// Pointers can only be cast if their data types are castable.
+			return get_cast_type(from_type.as<PointerType>().data_type(), to_type.as<PointerType>().data_type());
 		}
 
 		if (from_type.is<StructType>() || to_type.is<StructType>()) {
@@ -408,10 +414,12 @@ namespace soul::ast::visitors
 		return CastNode::Type::Impossible;
 	}
 
-	types::Type TypeResolverVisitor::get_type_or_default(std::string_view type_identifier) const noexcept
+	types::Type TypeResolverVisitor::get_type_or_default(const TypeSpecifier& type_specifier) const noexcept
 	{
-		if (_registered_types.contains(type_identifier)) {
-			return _registered_types.at(type_identifier);
+		const auto it{ std::ranges::find(
+			_registered_types, type_specifier, &decltype(_registered_types)::value_type::first) };
+		if (it != std::end(_registered_types)) {
+			return it->second;
 		}
 		return types::Type{};
 	}

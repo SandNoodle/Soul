@@ -5,7 +5,7 @@
     {
       "node": "variable_declaration",
       "name": "variable",
-      "type_identifier": "str",
+      "type_specifier": "str",
       "is_mutable": "false",
       "expression": {
         "node": "function_call",

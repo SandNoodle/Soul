@@ -8,9 +8,6 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS False)
 
-# ----- [ Options ] -----
-option(SOUL_BUILD_TESTS "Build tests" ON)
-
 # ----- [ Files ] -----
 set(Soul_SOURCES
         src/main.cpp

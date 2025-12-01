@@ -1,4 +1,4 @@
-#include "common/types/type.h"
+#include "types/type.h"
 
 #include <sstream>
 #include <unordered_map>
@@ -34,6 +34,38 @@ namespace soul::types
 	}
 
 	std::ostream& operator<<(std::ostream& os, const PrimitiveType& type) { return os << std::string(type); }
+
+	PointerType::PointerType(const Type& type) : _type(std::make_unique<Type>(type)) {}
+
+	PointerType::PointerType(const PointerType& other) noexcept : _type(std::make_unique<Type>(*other._type.get())) {}
+
+	PointerType::PointerType(PointerType&& other) noexcept : _type(std::make_unique<Type>(*other._type.get())) {}
+
+	PointerType& PointerType::operator=(const PointerType& other) noexcept
+	{
+		if (this == &other) {
+			return *this;
+		}
+		_type = std::make_unique<Type>(*other._type.get());
+		return *this;
+	}
+
+	PointerType& PointerType::operator=(PointerType&& other) noexcept
+	{
+		if (this == &other) {
+			return *this;
+		}
+		*_type = std::move(*other._type.get());
+		return *this;
+	}
+
+	std::strong_ordering PointerType::operator<=>(const PointerType& other) const { return *_type <=> *other._type; }
+
+	PointerType::operator std::string() const { return "*" + std::string(*_type); }
+
+	const Type& PointerType::data_type() const noexcept { return *_type; }
+
+	std::ostream& operator<<(std::ostream& os, const PointerType& type) { return os << std::string(type); }
 
 	ArrayType::ArrayType(const Type& contained_type) : _type(std::make_unique<Type>(contained_type)) {}
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/compile_time_dictionary.h"
-#include "common/types/type.h"
+#include "types/type.h"
 #include "core/types.h"
 
 #include <concepts>
@@ -122,10 +122,10 @@ namespace soul
 		constexpr Identifier(ViewType value);
 		constexpr bool operator==(const Identifier& other) const noexcept  = default;
 		constexpr auto operator<=>(const Identifier& other) const noexcept = default;
-		constexpr operator ViewType() const noexcept { return static_cast<ViewType>(_value); }
+		constexpr operator ViewType() const noexcept;
 		explicit operator std::string() const;
 
-		static auto create(ViewType value) { return Identifier(std::move(value)); }
+		static constexpr Identifier create(ViewType value);
 
 		[[nodiscard]] types::Type type() const noexcept;
 	};

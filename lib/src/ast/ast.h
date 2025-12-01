@@ -2,10 +2,11 @@
 
 #include "ast/ast_fwd.h"
 #include "ast/visitors/visitor.h"
-#include "common/types/type.h"
+#include "types/type.h"
 #include "common/value.h"
 #include "core/types.h"
 #include "lexer/token.h"
+#include "parser/type_specifier.h"
 
 #include <memory>
 #include <string>
@@ -182,20 +183,20 @@ namespace soul::ast
 		};
 
 		public:
-		Dependency expression      = nullptr;
-		Identifier type_identifier = {};
+		Dependency expression = nullptr;
+		parser::TypeSpecifier type_specifier;
 
 		public:
-		explicit CastNode(Dependency expression, Identifier type_identifier);
+		explicit CastNode(Dependency expression, parser::TypeSpecifier type_specifier);
 		~CastNode() override = default;
 
 		/**
 		 * @brief Constructs new Cast expression node.
 		 * @param expr Expression to cast.
-		 * @param type_identifier Type to cast to.
+		 * @param type_specifier Type to cast to.
 		 * @return New 'Cast' expression node.
 		 */
-		static Dependency create(Dependency expr, Identifier type_identifier);
+		static Dependency create(Dependency expression, parser::TypeSpecifier type_specifier);
 	};
 
 	/**
@@ -309,13 +310,13 @@ namespace soul::ast
 	{
 		public:
 		Identifier name;
-		Identifier type_identifier;
+		parser::TypeSpecifier type_specifier;
 		Dependencies parameters;
 		ScopeBlock statements;
 
 		public:
 		explicit FunctionDeclarationNode(Identifier identifier,
-		                                 Identifier return_type_identifier,
+		                                 parser::TypeSpecifier return_type_specifier,
 		                                 Dependencies parameters,
 		                                 ScopeBlock statements);
 		~FunctionDeclarationNode() override = default;
@@ -323,13 +324,13 @@ namespace soul::ast
 		/**
 		 * @brief Constructs new Function Declaration statement node.
 		 * @param name Name of the function.
-		 * @param return_type Type which this function returns.
+		 * @param return_type_specifier Type which this function returns.
 		 * @param parameters [Optional] Parameters this function takes.
 		 * @param statements [Optional] Statements this function executes.
 		 * @return New 'Function Declaration' statement node.
 		 */
 		static Dependency create(Identifier name,
-		                         Identifier return_type,
+								 parser::TypeSpecifier return_type_specifier,
 		                         Dependencies parameters,
 		                         ScopeBlock statements);
 	};
@@ -504,24 +505,24 @@ namespace soul::ast
 	class VariableDeclarationNode final : public VisitorAcceptor<VariableDeclarationNode>
 	{
 		public:
-		Identifier name            = {};
-		Identifier type_identifier = {};
-		Dependency expression      = nullptr;
-		bool is_mutable            = false;
+		Identifier name{};
+		parser::TypeSpecifier type_specifier;
+		Dependency expression{};
+		bool is_mutable{};
 
 		public:
-		explicit VariableDeclarationNode(Identifier name, Identifier type, Dependency expr, bool is_mutable);
+		explicit VariableDeclarationNode(Identifier name, parser::TypeSpecifier type_specifier, Dependency expr, bool is_mutable);
 		~VariableDeclarationNode() override = default;
 
 		/**
 		 * @brief Constructs new Variable Declaration statement node.
 		 * @param name Name of the Variable to be identified by.
-		 * @param type String Type of the variable. Used for Type checking.
+		 * @param type_specifier Type of the variable.
 		 * @param expr Expression this variable evaluates to.
 		 * @param is_mutable Can the value of the expression be reassigned, i.e. is const?
 		 * @return New 'Variable Declaration' statement node.
 		 */
-		static Dependency create(Identifier name, Identifier type, Dependency expr, bool is_mutable);
+		static Dependency create(Identifier name, parser::TypeSpecifier type_specifier, Dependency expr, bool is_mutable);
 	};
 
 	/**

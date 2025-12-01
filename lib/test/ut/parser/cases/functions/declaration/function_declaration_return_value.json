@@ -5,7 +5,7 @@
     {
       "node": "function_declaration",
       "name": "should_return_value",
-      "type_identifier": "str",
+      "type_specifier": "str",
       "parameters": [],
       "statements": {
         "node": "scope_block",

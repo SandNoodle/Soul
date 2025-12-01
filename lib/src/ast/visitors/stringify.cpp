@@ -44,7 +44,7 @@ namespace soul::ast::visitors
 	{
 		encode("node", "cast");
 		encode_type(node.type);
-		encode("type_identifier", node.type_identifier);
+		encode("type_specifier", std::string(node.type_specifier));
 		encode("expression", node.expression.get(), false);
 	}
 
@@ -87,7 +87,7 @@ namespace soul::ast::visitors
 		encode("node", "function_declaration");
 		encode_type(node.type);
 		encode("name", node.name);
-		encode("type_identifier", node.type_identifier);
+		encode("type_specifier", std::string(node.type_specifier));
 		encode("parameters", node.parameters);
 		encode("statements", node.statements.get(), false);
 	}
@@ -156,7 +156,7 @@ namespace soul::ast::visitors
 		encode("node", "variable_declaration");
 		encode_type(node.type);
 		encode("name", node.name);
-		encode("type_identifier", node.type_identifier);
+		encode("type_specifier", std::string(node.type_specifier));
 		encode("is_mutable", node.is_mutable ? "true" : "false");
 		encode("expression", node.expression.get(), false);
 	}

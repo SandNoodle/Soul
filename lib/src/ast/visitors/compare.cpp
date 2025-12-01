@@ -72,7 +72,7 @@ namespace soul::ast::visitors
 			return;
 		}
 
-		_ordering = lhs.type_identifier <=> rhs.type_identifier;
+		_ordering = lhs.type_specifier <=> rhs.type_specifier;
 		if (_ordering != std::partial_ordering::equivalent) {
 			return;
 		}
@@ -189,7 +189,7 @@ namespace soul::ast::visitors
 			return;
 		}
 
-		_ordering = lhs.type_identifier <=> rhs.type_identifier;
+		_ordering = lhs.type_specifier <=> rhs.type_specifier;
 		if (_ordering != std::partial_ordering::equivalent) {
 			return;
 		}
@@ -366,7 +366,7 @@ namespace soul::ast::visitors
 			return;
 		}
 
-		_ordering = lhs.type_identifier <=> rhs.type_identifier;
+		_ordering = lhs.type_specifier <=> rhs.type_specifier;
 		if (_ordering != std::partial_ordering::equivalent) {
 			return;
 		}

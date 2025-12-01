@@ -3,13 +3,13 @@
 #include <gtest/gtest.h>
 
 #include "ast/ast.h"
-#include "ast/visitors/stringify.h"
 
 #include <format>
 
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 	using namespace std::string_view_literals;
 
 	class TypeDiscovererTest : public ::testing::Test
@@ -21,16 +21,20 @@ namespace soul::ast::visitors::ut
 		// Prepare the types...
 		auto first_struct_members = ASTNode::Dependencies{};
 		first_struct_members.reserve(3);
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_float", "f64", nullptr, false));
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_string", "str", nullptr, false));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_float", k_base_specifier_f64, nullptr, false));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_string", k_base_specifier_str, nullptr, false));
 		auto first_struct = StructDeclarationNode::create("first_struct", std::move(first_struct_members));
 
 		auto second_struct_members = ASTNode::Dependencies{};
 		second_struct_members.reserve(2);
 		second_struct_members.emplace_back(
-			VariableDeclarationNode::create("my_struct", "first_struct", nullptr, false));
-		second_struct_members.emplace_back(VariableDeclarationNode::create("my_bool", "bool", nullptr, false));
+			VariableDeclarationNode::create("my_struct", BaseTypeSpecifier{ "first_struct"sv }, nullptr, false));
+		second_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_bool", k_base_specifier_bool, nullptr, false));
 		auto second_struct = StructDeclarationNode::create("second_struct", std::move(second_struct_members));
 
 		auto module_statements = ASTNode::Dependencies{};
@@ -47,29 +51,36 @@ namespace soul::ast::visitors::ut
 			 { PrimitiveType::Kind::Int32, PrimitiveType::Kind::Float64, PrimitiveType::Kind::String } } };
 		auto second_struct_type = Type{ StructType{ { first_struct_type, PrimitiveType::Kind::Boolean } } };
 
-		auto k_expected_types               = TypeDiscovererVisitor::basic_types();
-		k_expected_types["first_struct"sv]  = first_struct_type;
-		k_expected_types["second_struct"sv] = second_struct_type;
+		auto k_expected_types = TypeDiscovererVisitor::basic_types();
+		k_expected_types.emplace_back(std::make_pair(BaseTypeSpecifier{ "first_struct"sv }, first_struct_type));
+		k_expected_types.emplace_back(std::make_pair(BaseTypeSpecifier{ "second_struct"sv }, second_struct_type));
 		ASSERT_EQ(k_expected_types, type_discoverer.discovered_types());
 	}
 
 	TEST_F(TypeDiscovererTest, RedefinitionOfType)
 	{
-		static const auto k_struct_name = "first_struct";
+		static const auto k_base_specifier_struct_name = "first_struct";
 
 		// Prepare the types...
 		auto first_struct_members = ASTNode::Dependencies{};
 		first_struct_members.reserve(3);
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_float", "f64", nullptr, false));
-		first_struct_members.emplace_back(VariableDeclarationNode::create("my_string", "str", nullptr, false));
-		auto first_struct = StructDeclarationNode::create(k_struct_name, std::move(first_struct_members));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_float", k_base_specifier_f64, nullptr, false));
+		first_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_string", k_base_specifier_str, nullptr, false));
+		auto first_struct
+			= StructDeclarationNode::create(k_base_specifier_struct_name, std::move(first_struct_members));
 
 		auto second_struct_members = ASTNode::Dependencies{};
 		second_struct_members.reserve(2);
-		second_struct_members.emplace_back(VariableDeclarationNode::create("my_string", "str", nullptr, false));
-		second_struct_members.emplace_back(VariableDeclarationNode::create("my_bool", "bool", nullptr, false));
-		auto first_struct_redeclared = StructDeclarationNode::create(k_struct_name, std::move(second_struct_members));
+		second_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_string", k_base_specifier_str, nullptr, false));
+		second_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_bool", k_base_specifier_bool, nullptr, false));
+		auto first_struct_redeclared
+			= StructDeclarationNode::create(k_base_specifier_struct_name, std::move(second_struct_members));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(std::move(first_struct));
@@ -81,9 +92,11 @@ namespace soul::ast::visitors::ut
 		type_discoverer.accept(expected_module.get());
 
 		// ...and verify the results.
-		auto k_expected_types              = TypeDiscovererVisitor::basic_types();
-		k_expected_types["first_struct"sv] = Type{ StructType{
-			{ PrimitiveType::Kind::Int32, PrimitiveType::Kind::Float64, PrimitiveType::Kind::String } } };
+		auto k_expected_types = TypeDiscovererVisitor::basic_types();
+		k_expected_types.emplace_back(std::make_pair(
+			BaseTypeSpecifier{ "first_struct"sv },
+			Type{ StructType{
+				{ PrimitiveType::Kind::Int32, PrimitiveType::Kind::Float64, PrimitiveType::Kind::String } } }));
 		EXPECT_EQ(k_expected_types, type_discoverer.discovered_types());
 
 		const auto& result_module = type_discoverer.cloned();
@@ -98,27 +111,27 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_struct_declaration.parameters[0]->is<VariableDeclarationNode>());
 		const auto& first_parameter = as_struct_declaration.parameters[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(first_parameter.name, "my_int");
-		EXPECT_EQ(first_parameter.type_identifier, "i32");
+		EXPECT_EQ(first_parameter.type_specifier, k_base_specifier_i32);
 		EXPECT_FALSE(first_parameter.expression);
 		EXPECT_FALSE(first_parameter.is_mutable);
 
 		ASSERT_TRUE(as_struct_declaration.parameters[1]->is<VariableDeclarationNode>());
 		const auto& second_parameter = as_struct_declaration.parameters[1]->as<VariableDeclarationNode>();
 		EXPECT_EQ(second_parameter.name, "my_float");
-		EXPECT_EQ(second_parameter.type_identifier, "f64");
+		EXPECT_EQ(second_parameter.type_specifier, k_base_specifier_f64);
 		EXPECT_FALSE(second_parameter.expression);
 		EXPECT_FALSE(second_parameter.is_mutable);
 
 		ASSERT_TRUE(as_struct_declaration.parameters[2]->is<VariableDeclarationNode>());
 		const auto& third_parameter = as_struct_declaration.parameters[2]->as<VariableDeclarationNode>();
 		EXPECT_EQ(third_parameter.name, "my_string");
-		EXPECT_EQ(third_parameter.type_identifier, "str");
+		EXPECT_EQ(third_parameter.type_specifier, k_base_specifier_str);
 		EXPECT_FALSE(third_parameter.expression);
 		EXPECT_FALSE(third_parameter.is_mutable);
 
 		ASSERT_TRUE(as_result_module.statements[1]->is<ErrorNode>());
 		const auto& as_error_node = as_result_module.statements[1]->as<ErrorNode>();
-		EXPECT_EQ(as_error_node.message, std::format("redefinition of type '{}'", k_struct_name));
+		EXPECT_EQ(as_error_node.message, std::format("redefinition of type '{}'", k_base_specifier_struct_name));
 	}
 
 	TEST_F(TypeDiscovererTest, TypeNotRegistered)
@@ -126,10 +139,12 @@ namespace soul::ast::visitors::ut
 		// Prepare the types...
 		auto invalid_type_struct_members = ASTNode::Dependencies{};
 		invalid_type_struct_members.reserve(3);
-		invalid_type_struct_members.emplace_back(VariableDeclarationNode::create("my_int", "i32", nullptr, false));
 		invalid_type_struct_members.emplace_back(
-			VariableDeclarationNode::create("non_existing", "non_existing_type", nullptr, false));
-		invalid_type_struct_members.emplace_back(VariableDeclarationNode::create("my_float", "f64", nullptr, false));
+			VariableDeclarationNode::create("my_int", k_base_specifier_i32, nullptr, false));
+		invalid_type_struct_members.emplace_back(
+			VariableDeclarationNode::create("non_existing", BaseTypeSpecifier{ "non_existing_type" }, nullptr, false));
+		invalid_type_struct_members.emplace_back(
+			VariableDeclarationNode::create("my_float", k_base_specifier_f64, nullptr, false));
 		auto invalid_type_struct = StructDeclarationNode::create("my_struct", std::move(invalid_type_struct_members));
 
 		auto module_statements = ASTNode::Dependencies{};
@@ -153,7 +168,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_struct_declaration.parameters[0]->is<VariableDeclarationNode>());
 		const auto& first_parameter = as_struct_declaration.parameters[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(first_parameter.name, "my_int");
-		EXPECT_EQ(first_parameter.type_identifier, "i32");
+		EXPECT_EQ(first_parameter.type_specifier, k_base_specifier_i32);
 		EXPECT_FALSE(first_parameter.expression);
 		EXPECT_FALSE(first_parameter.is_mutable);
 
@@ -164,7 +179,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_struct_declaration.parameters[2]->is<VariableDeclarationNode>());
 		const auto& third_parameter = as_struct_declaration.parameters[2]->as<VariableDeclarationNode>();
 		EXPECT_EQ(third_parameter.name, "my_float");
-		EXPECT_EQ(third_parameter.type_identifier, "f64");
+		EXPECT_EQ(third_parameter.type_specifier, k_base_specifier_f64);
 		EXPECT_FALSE(third_parameter.expression);
 		EXPECT_FALSE(third_parameter.is_mutable);
 	}

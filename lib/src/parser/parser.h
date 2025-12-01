@@ -2,9 +2,10 @@
 
 #include "ast/ast.h"
 #include "ast/ast_fwd.h"
-#include "common/types/types_fwd.h"
+#include "types/types_fwd.h"
 #include "core/types.h"
 #include "lexer/token.h"
+#include "parser/type_specifier.h"
 
 #include <span>
 #include <string_view>
@@ -61,6 +62,7 @@ namespace soul::parser
 
 		ast::ASTNode::Dependencies parse_block_statement();
 		ast::ASTNode::Dependency parse_parameter_declaration();
+		std::optional<TypeSpecifier> parse_type_specifier();
 
 		/**
 		 * @brief Creates new Error node in the AST and resynchronizes the parser.

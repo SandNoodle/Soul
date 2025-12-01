@@ -8,9 +8,6 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS False)
 
-# ----- [ Options ] -----
-option(SOUL_LIB_BUILD_TESTS "Build tests" ON)
-
 # ----- [ Files ] -----
 set(SoulLib_SOURCES
         src/ast/ast.cpp
@@ -39,11 +36,11 @@ set(SoulLib_SOURCES
         src/ast/visitors/visitor.h
         src/common/compile_time_dictionary.h
         src/common/source_location.h
-        src/common/types/overloads.cpp
-        src/common/types/overloads.h
-        src/common/types/type.cpp
-        src/common/types/type.h
-        src/common/types/types_fwd.h
+        src/types/overloads.cpp
+        src/types/overloads.h
+        src/types/type.cpp
+        src/types/type.h
+        src/types/types_fwd.h
         src/common/value.cpp
         src/common/value.h
         src/core/types.h
@@ -60,7 +57,10 @@ set(SoulLib_SOURCES
         src/lexer/token.cpp
         src/lexer/token.h
         src/parser/parser.cpp
-        src/parser/parser.h)
+        src/parser/parser.h
+        src/parser/type_specifier.cpp
+        src/parser/type_specifier.h
+)
 
 add_library(SoulLib STATIC ${SoulLib_SOURCES})
 set_target_properties(SoulLib PROPERTIES LINKER_LANGUAGE CXX)
@@ -69,6 +69,6 @@ target_include_directories(SoulLib PUBLIC
         $<INSTALL_INTERFACE:soul>
 )
 
-if (SOUL_LIB_BUILD_TESTS)
+if (SOUL_BUILD_TESTS)
     add_subdirectory(test)
 endif ()

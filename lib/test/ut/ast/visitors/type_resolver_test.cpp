@@ -7,12 +7,11 @@
 
 #include <format>
 #include <string_view>
-#include <unordered_map>
 
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
-	using namespace std::string_view_literals;
+	using namespace soul::parser;
 
 	class TypeResolverTest : public ::testing::Test
 	{
@@ -194,15 +193,21 @@ namespace soul::ast::visitors::ut
 	{
 		auto block_node_statements = ASTNode::Dependencies{};
 		block_node_statements.emplace_back(VariableDeclarationNode::create(
-			"in_scope", "f32", LiteralNode::create(Identifier::create("before_scope")), false));
+			"in_scope", k_base_specifier_f32, LiteralNode::create(Identifier::create("before_scope")), false));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(3);
-		module_statements.emplace_back(VariableDeclarationNode::create(
-			"before_scope", "f32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(1.0)), false));
+		module_statements.emplace_back(
+			VariableDeclarationNode::create("before_scope",
+		                                    k_base_specifier_f32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(1.0)),
+		                                    false));
 		module_statements.emplace_back(BlockNode::create(std::move(block_node_statements)));
-		module_statements.emplace_back(VariableDeclarationNode::create(
-			"after_scope", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)), false));
+		module_statements.emplace_back(
+			VariableDeclarationNode::create("after_scope",
+		                                    k_base_specifier_i32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)),
+		                                    false));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
@@ -215,7 +220,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_before_scope_variable = as_module.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_before_scope_variable.name, "before_scope");
-		EXPECT_EQ(as_before_scope_variable.type_identifier, "f32");
+		EXPECT_EQ(as_before_scope_variable.type_specifier, k_base_specifier_f32);
 		EXPECT_TRUE(as_before_scope_variable.expression);
 		{
 			ASSERT_TRUE(as_before_scope_variable.expression->is<LiteralNode>());
@@ -234,7 +239,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_block.statements[0]->is<VariableDeclarationNode>());
 			const auto& as_in_scope_variable = as_block.statements[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_in_scope_variable.name, "in_scope");
-			EXPECT_EQ(as_in_scope_variable.type_identifier, "f32");
+			EXPECT_EQ(as_in_scope_variable.type_specifier, k_base_specifier_f32);
 			EXPECT_TRUE(as_in_scope_variable.expression);
 			{
 				ASSERT_TRUE(as_in_scope_variable.expression->is<LiteralNode>());
@@ -249,7 +254,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[2]->is<VariableDeclarationNode>());
 		const auto& as_after_scope_variable = as_module.statements[2]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_after_scope_variable.name, "after_scope");
-		EXPECT_EQ(as_after_scope_variable.type_identifier, "i32");
+		EXPECT_EQ(as_after_scope_variable.type_specifier, k_base_specifier_i32);
 		EXPECT_TRUE(as_after_scope_variable.expression);
 		{
 			ASSERT_TRUE(as_after_scope_variable.expression->is<LiteralNode>());
@@ -263,7 +268,8 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(TypeResolverTest, Cast_BasicType)
 	{
-		auto cast_node = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)), "i32");
+		auto cast_node         = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)),
+                                          k_base_specifier_i32);
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
@@ -277,7 +283,7 @@ namespace soul::ast::visitors::ut
 
 		ASSERT_TRUE(as_module.statements[0]->is<CastNode>());
 		const auto& as_cast = as_module.statements[0]->as<CastNode>();
-		EXPECT_EQ(as_cast.type_identifier, "i32");
+		EXPECT_EQ(as_cast.type_specifier, k_base_specifier_i32);
 		EXPECT_EQ(as_cast.type, PrimitiveType::Kind::Int32);
 
 		ASSERT_TRUE(as_cast.expression->is<LiteralNode>());
@@ -288,7 +294,8 @@ namespace soul::ast::visitors::ut
 
 	TEST_F(TypeResolverTest, Cast_Impossible)
 	{
-		auto cast_node = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)), "chr");
+		auto cast_node         = CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(128L)),
+                                          k_base_specifier_chr);
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
@@ -311,7 +318,7 @@ namespace soul::ast::visitors::ut
 	TEST_F(TypeResolverTest, ForLoop)
 	{
 		auto initialization = VariableDeclarationNode::create(
-			"index", "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
 
 		auto condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
@@ -344,7 +351,7 @@ namespace soul::ast::visitors::ut
 		const auto& as_initialization = as_for_loop.initialization->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_initialization.type, PrimitiveType::Kind::Int32);
 		EXPECT_EQ(as_initialization.name, "index");
-		EXPECT_EQ(as_initialization.type_identifier, "i32");
+		EXPECT_EQ(as_initialization.type_specifier, k_base_specifier_i32);
 		EXPECT_TRUE(as_initialization.is_mutable);
 		ASSERT_TRUE(as_initialization.expression);
 		{
@@ -423,9 +430,10 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_function_name = "my_function";
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "str", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_str, nullptr, false));
 		auto function_declaration = FunctionDeclarationNode::create(k_function_name,
-		                                                            "f32",
+		                                                            k_base_specifier_f32,
 		                                                            std::move(function_declaration_parameters),
 		                                                            BlockNode::create(ASTNode::Dependencies{}));
 
@@ -473,9 +481,10 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_function_name = "my_function";
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "str", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_str, nullptr, false));
 		auto function_declaration = FunctionDeclarationNode::create(k_function_name,
-		                                                            "f32",
+		                                                            k_base_specifier_f32,
 		                                                            std::move(function_declaration_parameters),
 		                                                            BlockNode::create(ASTNode::Dependencies{}));
 
@@ -499,14 +508,14 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<FunctionDeclarationNode>());
 		const auto& as_function_declaration = as_module.statements[0]->as<FunctionDeclarationNode>();
 		EXPECT_EQ(as_function_declaration.name, k_function_name);
-		EXPECT_EQ(as_function_declaration.type_identifier, "f32");
+		EXPECT_EQ(as_function_declaration.type_specifier, k_base_specifier_f32);
 		EXPECT_EQ(as_function_declaration.parameters.size(), 1);
 		EXPECT_TRUE(as_function_declaration.statements->as<BlockNode>().statements.empty());
 		{
 			ASSERT_TRUE(as_function_declaration.parameters[0]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_function_declaration.parameters[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "a");
-			EXPECT_EQ(as_parameter.type_identifier, "str");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_str);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 		}
@@ -520,15 +529,18 @@ namespace soul::ast::visitors::ut
 	{
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(3);
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "f64", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("c", "chr", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("b", k_base_specifier_f64, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("c", k_base_specifier_chr, nullptr, false));
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(
-			VariableDeclarationNode::create("d", "chr", LiteralNode::create(Identifier::create("c")), false));
+		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
+			"d", k_base_specifier_chr, LiteralNode::create(Identifier::create("c")), false));
 		auto function_declaration
 			= FunctionDeclarationNode::create("my_function",
-		                                      "str",
+		                                      k_base_specifier_str,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -546,13 +558,13 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<FunctionDeclarationNode>());
 		const auto& as_function_declaration = as_module.statements[0]->as<FunctionDeclarationNode>();
 		EXPECT_EQ(as_function_declaration.name, "my_function");
-		EXPECT_EQ(as_function_declaration.type_identifier, "str");
+		EXPECT_EQ(as_function_declaration.type_specifier, k_base_specifier_str);
 		ASSERT_EQ(as_function_declaration.parameters.size(), 3);
 		{
 			ASSERT_TRUE(as_function_declaration.parameters[0]->is<VariableDeclarationNode>());
 			const auto& as_variable_declaration = as_function_declaration.parameters[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_variable_declaration.name, "a");
-			EXPECT_EQ(as_variable_declaration.type_identifier, "i32");
+			EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_i32);
 			EXPECT_FALSE(as_variable_declaration.expression);
 			EXPECT_FALSE(as_variable_declaration.is_mutable);
 			EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Int32);
@@ -561,7 +573,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_function_declaration.parameters[1]->is<VariableDeclarationNode>());
 			const auto& as_variable_declaration = as_function_declaration.parameters[1]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_variable_declaration.name, "b");
-			EXPECT_EQ(as_variable_declaration.type_identifier, "f64");
+			EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_f64);
 			EXPECT_FALSE(as_variable_declaration.expression);
 			EXPECT_FALSE(as_variable_declaration.is_mutable);
 			EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Float64);
@@ -570,7 +582,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_function_declaration.parameters[2]->is<VariableDeclarationNode>());
 			const auto& as_variable_declaration = as_function_declaration.parameters[2]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_variable_declaration.name, "c");
-			EXPECT_EQ(as_variable_declaration.type_identifier, "chr");
+			EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_chr);
 			EXPECT_FALSE(as_variable_declaration.expression);
 			EXPECT_FALSE(as_variable_declaration.is_mutable);
 			EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Char);
@@ -583,7 +595,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_statements.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_variable_declaration = as_statements.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_variable_declaration.name, "d");
-		EXPECT_EQ(as_variable_declaration.type_identifier, "chr");
+		EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_chr);
 		EXPECT_TRUE(as_variable_declaration.expression);
 		{
 			ASSERT_TRUE(as_variable_declaration.expression->is<LiteralNode>());
@@ -599,10 +611,12 @@ namespace soul::ast::visitors::ut
 	{
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		function_declaration_parameters.reserve(2);
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "str", nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_str, nullptr, false));
 		auto function_declaration = FunctionDeclarationNode::create("my_function",
-		                                                            "i32",
+		                                                            k_base_specifier_i32,
 		                                                            std::move(function_declaration_parameters),
 		                                                            BlockNode::create(ASTNode::Dependencies{}));
 
@@ -624,7 +638,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_function_declaration.parameters[0]->is<VariableDeclarationNode>());
 		const auto& as_parameter = as_function_declaration.parameters[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_parameter.name, "a");
-		EXPECT_EQ(as_parameter.type_identifier, "i32");
+		EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_i32);
 		EXPECT_FALSE(as_parameter.expression);
 		EXPECT_FALSE(as_parameter.is_mutable);
 
@@ -638,9 +652,9 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_function_name = "my_function";
 
 		auto first_function_declaration = FunctionDeclarationNode::create(
-			k_function_name, "i32", ASTNode::Dependencies{}, BlockNode::create(ASTNode::Dependencies{}));
+			k_function_name, k_base_specifier_i32, ASTNode::Dependencies{}, BlockNode::create(ASTNode::Dependencies{}));
 		auto second_function_declaration = FunctionDeclarationNode::create(
-			k_function_name, "i32", ASTNode::Dependencies{}, BlockNode::create(ASTNode::Dependencies{}));
+			k_function_name, k_base_specifier_i32, ASTNode::Dependencies{}, BlockNode::create(ASTNode::Dependencies{}));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(2);
@@ -658,7 +672,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<FunctionDeclarationNode>());
 		const auto& as_function_declaration = as_module.statements[0]->as<FunctionDeclarationNode>();
 		EXPECT_EQ(as_function_declaration.name, k_function_name);
-		EXPECT_EQ(as_function_declaration.type_identifier, "i32");
+		EXPECT_EQ(as_function_declaration.type_specifier, k_base_specifier_i32);
 		EXPECT_EQ(as_function_declaration.parameters.size(), 0);
 		EXPECT_EQ(as_function_declaration.statements->as<BlockNode>().statements.size(), 0);
 		EXPECT_EQ(as_function_declaration.type, PrimitiveType::Kind::Int32);
@@ -673,19 +687,20 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_function_name = "my_function";
 
 		auto first_function_declaration_parameters = ASTNode::Dependencies{};
-		first_function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
+		first_function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
 		auto first_function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(first_function_declaration_parameters),
 		                                      BlockNode::create(ASTNode::Dependencies{}));
 
 		auto second_function_declaration_parameters = ASTNode::Dependencies{};
 		second_function_declaration_parameters.emplace_back(
-			VariableDeclarationNode::create("a", "f32", nullptr, false));
+			VariableDeclarationNode::create("a", k_base_specifier_f32, nullptr, false));
 		auto second_function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(second_function_declaration_parameters),
 		                                      BlockNode::create(ASTNode::Dependencies{}));
 
@@ -706,7 +721,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_module.statements[0]->is<FunctionDeclarationNode>());
 			const auto& as_function_declaration = as_module.statements[0]->as<FunctionDeclarationNode>();
 			EXPECT_EQ(as_function_declaration.name, k_function_name);
-			EXPECT_EQ(as_function_declaration.type_identifier, "i32");
+			EXPECT_EQ(as_function_declaration.type_specifier, k_base_specifier_i32);
 			EXPECT_EQ(as_function_declaration.parameters.size(), 1);
 			EXPECT_EQ(as_function_declaration.statements->as<BlockNode>().statements.size(), 0);
 			EXPECT_EQ(as_function_declaration.type, PrimitiveType::Kind::Int32);
@@ -714,7 +729,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_function_declaration.parameters[0]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_function_declaration.parameters[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "a");
-			EXPECT_EQ(as_parameter.type_identifier, "i32");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_i32);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 			EXPECT_EQ(as_parameter.type, PrimitiveType::Kind::Int32);
@@ -723,7 +738,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_module.statements[1]->is<FunctionDeclarationNode>());
 			const auto& as_function_declaration = as_module.statements[1]->as<FunctionDeclarationNode>();
 			EXPECT_EQ(as_function_declaration.name, k_function_name);
-			EXPECT_EQ(as_function_declaration.type_identifier, "i32");
+			EXPECT_EQ(as_function_declaration.type_specifier, k_base_specifier_i32);
 			EXPECT_EQ(as_function_declaration.parameters.size(), 1);
 			EXPECT_EQ(as_function_declaration.statements->as<BlockNode>().statements.size(), 0);
 			EXPECT_EQ(as_function_declaration.type, PrimitiveType::Kind::Int32);
@@ -731,7 +746,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_function_declaration.parameters[0]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_function_declaration.parameters[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "a");
-			EXPECT_EQ(as_parameter.type_identifier, "f32");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_f32);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 			EXPECT_EQ(as_parameter.type, PrimitiveType::Kind::Float32);
@@ -769,7 +784,7 @@ namespace soul::ast::visitors::ut
 		};
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(k_literal_types.size() + 2);
-		module_statements.emplace_back(VariableDeclarationNode::create("index", "f32", nullptr, false));
+		module_statements.emplace_back(VariableDeclarationNode::create("index", k_base_specifier_f32, nullptr, false));
 		module_statements.emplace_back(LiteralNode::create(Identifier::create("index")));
 		for (const auto type : k_literal_types) {
 			module_statements.emplace_back(LiteralNode::create(get_value(type)));
@@ -786,7 +801,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_variable_declaration = as_module.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_variable_declaration.name, "index");
-		EXPECT_EQ(as_variable_declaration.type_identifier, "f32");
+		EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_f32);
 		EXPECT_FALSE(as_variable_declaration.expression);
 		EXPECT_FALSE(as_variable_declaration.is_mutable);
 		EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Float32);
@@ -890,9 +905,12 @@ namespace soul::ast::visitors::ut
 	TEST_F(TypeResolverTest, StructDeclarationNode)
 	{
 		auto struct_declaration_parameters = ASTNode::Dependencies{};
-		struct_declaration_parameters.push_back(VariableDeclarationNode::create("a", "i32", nullptr, false));
-		struct_declaration_parameters.push_back(VariableDeclarationNode::create("b", "f32", nullptr, false));
-		struct_declaration_parameters.push_back(VariableDeclarationNode::create("c", "bool", nullptr, false));
+		struct_declaration_parameters.push_back(
+			VariableDeclarationNode::create("a", k_base_specifier_i32, nullptr, false));
+		struct_declaration_parameters.push_back(
+			VariableDeclarationNode::create("b", k_base_specifier_f32, nullptr, false));
+		struct_declaration_parameters.push_back(
+			VariableDeclarationNode::create("c", k_base_specifier_bool, nullptr, false));
 		auto struct_declaration = StructDeclarationNode::create("my_struct", std::move(struct_declaration_parameters));
 
 		auto module_statements = ASTNode::Dependencies{};
@@ -921,7 +939,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_struct_declaration.parameters[0]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_struct_declaration.parameters[0]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "a");
-			EXPECT_EQ(as_parameter.type_identifier, "i32");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_i32);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 		}
@@ -929,7 +947,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_struct_declaration.parameters[1]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_struct_declaration.parameters[1]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "b");
-			EXPECT_EQ(as_parameter.type_identifier, "f32");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_f32);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 		}
@@ -937,7 +955,7 @@ namespace soul::ast::visitors::ut
 			ASSERT_TRUE(as_struct_declaration.parameters[2]->is<VariableDeclarationNode>());
 			const auto& as_parameter = as_struct_declaration.parameters[2]->as<VariableDeclarationNode>();
 			EXPECT_EQ(as_parameter.name, "c");
-			EXPECT_EQ(as_parameter.type_identifier, "bool");
+			EXPECT_EQ(as_parameter.type_specifier, k_base_specifier_bool);
 			EXPECT_FALSE(as_parameter.expression);
 			EXPECT_FALSE(as_parameter.is_mutable);
 		}
@@ -1028,8 +1046,8 @@ namespace soul::ast::visitors::ut
 	{
 		static constexpr auto k_variable_name = "variable_to_be_shadowed";
 
-		auto first_variable  = VariableDeclarationNode::create(k_variable_name, "f32", nullptr, true);
-		auto second_variable = VariableDeclarationNode::create(k_variable_name, "i32", nullptr, false);
+		auto first_variable  = VariableDeclarationNode::create(k_variable_name, k_base_specifier_f32, nullptr, true);
+		auto second_variable = VariableDeclarationNode::create(k_variable_name, k_base_specifier_i32, nullptr, false);
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(2);
@@ -1047,7 +1065,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_variable_declaration = as_module.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_variable_declaration.name, k_variable_name);
-		EXPECT_EQ(as_variable_declaration.type_identifier, "f32");
+		EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_f32);
 		EXPECT_FALSE(as_variable_declaration.expression);
 		EXPECT_TRUE(as_variable_declaration.is_mutable);
 		EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Float32);
@@ -1061,10 +1079,11 @@ namespace soul::ast::visitors::ut
 	{
 		static constexpr auto k_variable_name = "variable_to_be_shadowed";
 
-		auto first_variable = VariableDeclarationNode::create(k_variable_name, "f32", nullptr, true);
+		auto first_variable = VariableDeclarationNode::create(k_variable_name, k_base_specifier_f32, nullptr, true);
 
 		auto inner_scope_statements = ASTNode::Dependencies{};
-		inner_scope_statements.emplace_back(VariableDeclarationNode::create(k_variable_name, "i32", nullptr, false));
+		inner_scope_statements.emplace_back(
+			VariableDeclarationNode::create(k_variable_name, k_base_specifier_i32, nullptr, false));
 		auto inner_scope = BlockNode::create(std::move(inner_scope_statements));
 
 		auto module_statements = ASTNode::Dependencies{};
@@ -1083,7 +1102,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_variable_declaration = as_module.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_variable_declaration.name, k_variable_name);
-		EXPECT_EQ(as_variable_declaration.type_identifier, "f32");
+		EXPECT_EQ(as_variable_declaration.type_specifier, k_base_specifier_f32);
 		EXPECT_FALSE(as_variable_declaration.expression);
 		EXPECT_TRUE(as_variable_declaration.is_mutable);
 		EXPECT_EQ(as_variable_declaration.type, PrimitiveType::Kind::Float32);
@@ -1103,10 +1122,11 @@ namespace soul::ast::visitors::ut
 		static constexpr auto k_variable_name = "variable_to_be_shadowed";
 
 		auto inner_scope_statements = ASTNode::Dependencies{};
-		inner_scope_statements.emplace_back(VariableDeclarationNode::create(k_variable_name, "i32", nullptr, false));
+		inner_scope_statements.emplace_back(
+			VariableDeclarationNode::create(k_variable_name, k_base_specifier_i32, nullptr, false));
 		auto inner_scope = BlockNode::create(std::move(inner_scope_statements));
 
-		auto outer_variable = VariableDeclarationNode::create(k_variable_name, "f32", nullptr, true);
+		auto outer_variable = VariableDeclarationNode::create(k_variable_name, k_base_specifier_f32, nullptr, true);
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.reserve(2);
@@ -1129,7 +1149,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_inner_scope.statements[0]->is<VariableDeclarationNode>());
 		const auto& as_inner_variable = as_inner_scope.statements[0]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_inner_variable.name, k_variable_name);
-		EXPECT_EQ(as_inner_variable.type_identifier, "i32");
+		EXPECT_EQ(as_inner_variable.type_specifier, k_base_specifier_i32);
 		EXPECT_FALSE(as_inner_variable.expression);
 		EXPECT_FALSE(as_inner_variable.is_mutable);
 		EXPECT_EQ(as_inner_variable.type, PrimitiveType::Kind::Int32);
@@ -1137,7 +1157,7 @@ namespace soul::ast::visitors::ut
 		ASSERT_TRUE(as_module.statements[1]->is<VariableDeclarationNode>());
 		const auto& as_outer_variable = as_module.statements[1]->as<VariableDeclarationNode>();
 		EXPECT_EQ(as_outer_variable.name, k_variable_name);
-		EXPECT_EQ(as_outer_variable.type_identifier, "f32");
+		EXPECT_EQ(as_outer_variable.type_specifier, k_base_specifier_f32);
 		EXPECT_FALSE(as_outer_variable.expression);
 		EXPECT_TRUE(as_outer_variable.is_mutable);
 		EXPECT_EQ(as_outer_variable.type, PrimitiveType::Kind::Float32);

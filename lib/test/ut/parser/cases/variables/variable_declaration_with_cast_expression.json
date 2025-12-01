@@ -5,11 +5,11 @@
     {
       "node": "variable_declaration",
       "name": "my_variable",
-      "type_identifier": "i32",
+      "type_specifier": "i32",
       "is_mutable": "false",
       "expression": {
         "node": "cast",
-        "type_identifier": "i32",
+        "type_specifier": "i32",
         "expression": {
           "node": "literal",
           "value_type": "value_type_float32",

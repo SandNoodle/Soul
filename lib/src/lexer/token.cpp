@@ -6,6 +6,18 @@ namespace soul
 {
 	using namespace std::string_view_literals;
 
+	bool Token::operator==(const Token& other) const noexcept
+	{
+		return std::tie(type, data) == std::tie(other.type, other.data);
+	}
+
+	std::strong_ordering Token::operator<=>(const Token& other) const noexcept
+	{
+		return std::tie(type, data) <=> std::tie(other.type, other.data);
+	}
+
+	Token::operator std::string() const { return std::format("<{}:\"{}\">", internal_name(type), data); }
+
 	std::string_view Token::name(Token::Type type) noexcept
 	{
 		static const std::unordered_map<Token::Type, std::string_view> k_token_name = {
@@ -20,6 +32,7 @@ namespace soul
 			{ Token::Type::KeywordLet,               "let"sv            },
 			{ Token::Type::KeywordMut,               "mut"sv            },
 			{ Token::Type::KeywordNative,            "native"sv         },
+			{ Token::Type::KeywordNull,              "null"sv           },
 			{ Token::Type::KeywordReturn,            "return"sv         },
 			{ Token::Type::KeywordStruct,            "struct"sv         },
 			{ Token::Type::KeywordTrue,              "true"sv           },
@@ -85,6 +98,7 @@ namespace soul
 			{ Token::Type::KeywordLet,               "keyword_let"sv                },
 			{ Token::Type::KeywordMut,               "keyword_mut"sv                },
 			{ Token::Type::KeywordNative,            "keyword_native"sv             },
+			{ Token::Type::KeywordNull,              "keyword_null"sv               },
 			{ Token::Type::KeywordReturn,            "keyword_return"sv             },
 			{ Token::Type::KeywordStruct,            "keyword_struct"sv             },
 			{ Token::Type::KeywordTrue,              "keyword_true"sv               },

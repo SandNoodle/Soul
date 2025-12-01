@@ -15,6 +15,7 @@
 namespace soul::ast::visitors::ut
 {
 	using namespace soul::types;
+	using namespace soul::parser;
 	using namespace soul::ir;
 	using namespace soul::ir::visitors;
 
@@ -98,7 +99,7 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.emplace_back(BlockNode::create(std::move(inner_scope_statements)));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -126,11 +127,11 @@ namespace soul::ast::visitors::ut
 	{
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(
-			CastNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), "str"));
+		function_declaration_statements.emplace_back(CastNode::create(
+			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), k_base_specifier_str));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -156,14 +157,16 @@ namespace soul::ast::visitors::ut
 
 		auto first_function_declaration_parameters = ASTNode::Dependencies{};
 		first_function_declaration_parameters.reserve(2);
-		first_function_declaration_parameters.emplace_back(VariableDeclarationNode::create("a", "str", nullptr, true));
-		first_function_declaration_parameters.emplace_back(VariableDeclarationNode::create("b", "bool", nullptr, true));
+		first_function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("a", k_base_specifier_str, nullptr, true));
+		first_function_declaration_parameters.emplace_back(
+			VariableDeclarationNode::create("b", k_base_specifier_bool, nullptr, true));
 		auto first_function_declaration_statements = ASTNode::Dependencies{};
 		first_function_declaration_statements.emplace_back(
 			ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1))));
 		auto first_function_declaration
 			= FunctionDeclarationNode::create(k_function_to_call,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(first_function_declaration_parameters),
 		                                      BlockNode::create(std::move(first_function_declaration_statements)));
 
@@ -177,13 +180,13 @@ namespace soul::ast::visitors::ut
 			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)));
 		second_function_declaration_statements.emplace_back(VariableDeclarationNode::create(
 			"variable",
-			"i32",
+			k_base_specifier_i32,
 			FunctionCallNode::create(k_function_to_call, std::move(first_function_call_parameters)),
 			false));
 
 		auto second_function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(second_function_declaration_parameters),
 		                                      BlockNode::create(std::move(second_function_declaration_statements)));
 
@@ -241,7 +244,7 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(if_node));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -296,7 +299,7 @@ namespace soul::ast::visitors::ut
 		}
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -321,8 +324,11 @@ namespace soul::ast::visitors::ut
 	{
 		static constexpr auto k_variable_name = "index";
 
-		auto index_node = VariableDeclarationNode::create(
-			k_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+		auto index_node
+			= VariableDeclarationNode::create(k_variable_name,
+		                                      k_base_specifier_i32,
+		                                      LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)),
+		                                      true);
 
 		auto while_node_condition
 			= BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
@@ -345,7 +351,7 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(while_node));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "i32",
+		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -408,7 +414,7 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(while_node));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -461,7 +467,7 @@ namespace soul::ast::visitors::ut
 		function_declaration_statements.push_back(std::move(outer_while_node));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -529,7 +535,7 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(this->k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -557,14 +563,20 @@ namespace soul::ast::visitors::ut
 
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(4);
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_first_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)), true));
+		function_declaration_statements.emplace_back(
+			VariableDeclarationNode::create(k_first_variable_name,
+		                                    k_base_specifier_i32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+		                                    true));
 		function_declaration_statements.emplace_back(
 			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
 		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(3)),
 		                       ASTNode::Operator::Assign));
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_second_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)), false));
+		function_declaration_statements.emplace_back(
+			VariableDeclarationNode::create(k_second_variable_name,
+		                                    k_base_specifier_i32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)),
+		                                    false));
 		function_declaration_statements.emplace_back(
 			BinaryNode::create(LiteralNode::create(Identifier::create(k_second_variable_name)),
 		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
@@ -573,7 +585,7 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -611,11 +623,14 @@ namespace soul::ast::visitors::ut
 
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(2);
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			k_first_variable_name, "i32", LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)), false));
+		function_declaration_statements.emplace_back(
+			VariableDeclarationNode::create(k_first_variable_name,
+		                                    k_base_specifier_i32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
+		                                    false));
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
 			k_second_variable_name,
-			"i32",
+			k_base_specifier_i32,
 			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
 		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
 		                       ASTNode::Operator::Mul),
@@ -624,7 +639,7 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -706,7 +721,7 @@ namespace soul::ast::visitors::ut
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(this->k_function_name,
-		                                      "void",
+		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 

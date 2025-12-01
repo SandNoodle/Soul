@@ -142,20 +142,11 @@ namespace soul::lexer
 				std::make_pair("let"sv, Token::Type::KeywordLet),
 				std::make_pair("mut"sv, Token::Type::KeywordMut),
 				std::make_pair("native"sv, Token::Type::KeywordNative),
+				std::make_pair("null"sv, Token::Type::KeywordNull),
 				std::make_pair("return"sv, Token::Type::KeywordReturn),
 				std::make_pair("struct"sv, Token::Type::KeywordStruct),
 				std::make_pair("true"sv, Token::Type::KeywordTrue),
 				std::make_pair("while"sv, Token::Type::KeywordWhile),
-
-				// (Explicit) primitive types
-				std::make_pair("bool"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("chr"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("f32"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("f64"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("i32"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("i64"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("str"sv, Token::Type::LiteralIdentifier),
-				std::make_pair("void"sv, Token::Type::LiteralIdentifier),
 			};
 			const auto lexeme = current_token();
 			const auto it     = std::ranges::find(k_keywords, lexeme, &decltype(k_keywords)::value_type::first);

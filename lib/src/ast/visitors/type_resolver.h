@@ -4,7 +4,7 @@
 #include "ast/ast_fwd.h"
 #include "ast/visitors/copy.h"
 #include "ast/visitors/type_discoverer.h"
-#include "common/types/types_fwd.h"
+#include "types/types_fwd.h"
 
 #include <optional>
 #include <ranges>
@@ -21,7 +21,7 @@ namespace soul::ast::visitors
 	class TypeResolverVisitor final : public CopyVisitor
 	{
 		public:
-		using TypeMap = TypeDiscovererVisitor::TypeMap;
+		using Types = TypeDiscovererVisitor::Types;
 
 		private:
 		struct FunctionDeclaration
@@ -34,12 +34,12 @@ namespace soul::ast::visitors
 		using FunctionContext = std::vector<std::pair<std::string, FunctionDeclaration>>;
 
 		private:
-		TypeMap _registered_types;
+		Types _registered_types;
 		VariableContext _variables_in_scope;
 		FunctionContext _functions_in_module;
 
 		public:
-		TypeResolverVisitor(TypeMap type_map);
+		TypeResolverVisitor(Types type_map);
 		TypeResolverVisitor(const TypeResolverVisitor&)     = delete;
 		TypeResolverVisitor(TypeResolverVisitor&&) noexcept = default;
 		~TypeResolverVisitor()                              = default;
@@ -69,7 +69,7 @@ namespace soul::ast::visitors
 		void visit(const WhileNode&) override;
 
 		private:
-		types::Type get_type_or_default(std::string_view type_identifier) const noexcept;
+		types::Type get_type_or_default(const parser::TypeSpecifier& type_specifier) const noexcept;
 		std::optional<types::Type> get_variable_type(std::string_view name) const noexcept;
 		types::Type get_type_for_operator(ASTNode::Operator op,
 		                                  const std::ranges::forward_range auto& input_types) const noexcept;

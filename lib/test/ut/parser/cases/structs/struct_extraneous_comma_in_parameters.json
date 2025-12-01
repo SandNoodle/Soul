@@ -9,14 +9,14 @@
         {
           "node": "variable_declaration",
           "name": "first_variable",
-          "type_identifier": "i32",
+          "type_specifier": "i32",
           "is_mutable": "false",
           "expression": null
         },
         {
           "node": "variable_declaration",
           "name": "this_one_has_comma_but_shouldnt",
-          "type_identifier": "f32",
+          "type_specifier": "f32",
           "is_mutable": "false",
           "expression": null
         }

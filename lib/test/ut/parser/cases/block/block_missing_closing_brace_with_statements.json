@@ -8,7 +8,7 @@
         {
           "node": "variable_declaration",
           "name": "my_variable",
-          "type_identifier": "f64",
+          "type_specifier": "f64",
           "is_mutable": "false",
           "expression": {
             "node": "literal",

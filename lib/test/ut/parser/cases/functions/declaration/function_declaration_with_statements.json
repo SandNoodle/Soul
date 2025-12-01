@@ -5,12 +5,12 @@
     {
       "node": "function_declaration",
       "name": "some_function",
-      "type_identifier": "str",
+      "type_specifier": "str",
       "parameters": [
         {
           "node": "variable_declaration",
           "name": "some_param",
-          "type_identifier": "i32",
+          "type_specifier": "i32",
           "is_mutable": "false",
           "expression": null
         }
@@ -21,7 +21,7 @@
           {
             "node": "variable_declaration",
             "name": "my_variable",
-            "type_identifier": "i32",
+            "type_specifier": "i32",
             "is_mutable": "false",
             "expression": {
               "node": "literal",
@@ -32,7 +32,7 @@
           {
             "node": "variable_declaration",
             "name": "second_variable",
-            "type_identifier": "f32",
+            "type_specifier": "f32",
             "is_mutable": "false",
             "expression": {
               "node": "literal",
@@ -43,7 +43,7 @@
           {
             "node": "variable_declaration",
             "name": "strings",
-            "type_identifier": "str",
+            "type_specifier": "str",
             "is_mutable": "false",
             "expression": {
               "node": "literal",

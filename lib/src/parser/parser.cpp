@@ -469,29 +469,25 @@ namespace soul::parser
 		}
 
 		if (token->type == Token::Type::LiteralFloat) {
-			f64 v{};
-			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
-			if (!result) {
-				return create_error(std::format("failed to parse float expression, because: '{}'",
-				                                std::make_error_condition(result.ec).message()));
+			auto result = parse_integral_value<f64>(token->data);
+			if (!result.has_value()) {
+				return create_error(std::format("failed to parse float expression, because: '{}'", result.error()));
 			}
-			if (v <= std::numeric_limits<f32>::lowest() || v >= std::numeric_limits<f32>::max()) {
-				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(v));
+			if (*result <= std::numeric_limits<f32>::lowest() || *result >= std::numeric_limits<f32>::max()) {
+				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(*result));
 			}
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(v));
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(*result));
 		}
 
 		if (token->type == Token::Type::LiteralInteger) {
-			i64 v{};
-			const auto result = std::from_chars(std::begin(token->data), std::end(token->data), v);
-			if (!result) {
-				return create_error(std::format("failed to parse integer expression, because: '{}'",
-				                                std::make_error_condition(result.ec).message()));
+			auto result = parse_integral_value<i64>(token->data);
+			if (!result.has_value()) {
+				return create_error(std::format("failed to parse integer expression, because: '{}'", result.error()));
 			}
-			if (v <= std::numeric_limits<i32>::lowest() || v >= std::numeric_limits<i32>::max()) {
-				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(v));
+			if (*result <= std::numeric_limits<i32>::lowest() || *result >= std::numeric_limits<i32>::max()) {
+				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(*result));
 			}
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(v));
+			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(*result));
 		}
 
 		if (token->type == Token::Type::LiteralString) {
@@ -792,6 +788,40 @@ namespace soul::parser
 		return statements;
 	}
 
+	ASTNode::Dependency Parser::parse_initializer_list()
+	{
+		// <initializer_list> ::= '{' [ <expression> [ ',' ...] ] '}'
+		static constexpr auto k_delimiter = Token::Type::SymbolComma;
+
+		if (!require(Token::Type::SymbolBraceLeft)) {
+			return create_error(std::format("expected '{}', but got: '{}'",
+			                                Token::name(Token::Type::SymbolBraceLeft),
+			                                std::string(current_token_or_default().data)));
+		}
+
+		ASTNode::Dependencies expressions{};
+		while (!match(Token::Type::SymbolBraceRight)) {
+			if (current_token_or_default().type == Token::Type::SpecialEndOfFile) {
+				return create_error(std::format("expected '{}', but got: '{}'",
+				                                Token::name(Token::Type::SymbolBraceRight),
+				                                std::string(current_token_or_default().data)));
+			}
+
+			expressions.emplace_back(parse_expression());
+
+			// We need to consume the ',' symbol only if the next statement is not a right brace...
+			if (current_token_or_default().type != Token::Type::SymbolBraceRight) {
+				if (!require(k_delimiter)) {
+					return create_error(std::format("expected '{}', but got: '{}'",
+					                                Token::name(k_delimiter),
+					                                std::string(current_token_or_default().data)));
+				}
+			}
+		}
+
+		return BlockNode::create(std::move(expressions));
+	}
+
 	ASTNode::Dependency Parser::parse_parameter_declaration()
 	{
 		// <parameter_declaration> ::= <identifier> ':' <type_specifier> [ '=' <expression> ]
@@ -842,15 +872,38 @@ namespace soul::parser
 			return TypeSpecifier(BaseTypeSpecifier(std::string(current_token->data)));
 		}
 
-#if 0
 		// <array_type_specifier> ::=  '[' <type_specifier> [ ',' <integer_literal> ] ']'
 		if (current_token->type == Token::Type::SymbolBracketLeft) {
-			require(Token::Type::SymbolBracketLeft);
+			// '['
+			if (!require(Token::Type::SymbolBracketLeft)) {
+				return std::nullopt;
+			}
 			auto type_specifier = parse_type_specifier();
 			if (!type_specifier) {
 				return std::nullopt;
 			}
-			return TypeSpecifier(ArrayTypeSpecifier(std::move(*type_specifier)));
+
+			// [Optional] ','
+			ArrayTypeSpecifier::Size array_size = ArrayTypeSpecifier::k_unbound_size;
+			if (match(Token::Type::SymbolComma)) {
+				// <integer_literal>
+				const auto integer_literal = require(Token::Type::LiteralInteger);
+				if (!integer_literal) {
+					return std::nullopt;
+				}
+
+				auto array_size_literal_result = parse_integral_value<i64>(integer_literal->data);
+				if (!array_size_literal_result.has_value()) {
+					return std::nullopt;
+				}
+				array_size = array_size_literal_result.value();
+			}
+
+			// ']'
+			if (!require(Token::Type::SymbolBracketRight)) {
+				return std::nullopt;
+			}
+			return TypeSpecifier(ArrayTypeSpecifier(std::move(*type_specifier), array_size));
 		}
 
 		// <pointer_type_specifier> ::= '*' <type_specifier>
@@ -862,7 +915,6 @@ namespace soul::parser
 			}
 			return TypeSpecifier(PointerTypeSpecifier(std::move(*type_specifier)));
 		}
-#endif
 
 		// [INTERNAL]: invalid type specifier
 		return std::nullopt;
@@ -977,6 +1029,8 @@ namespace soul::parser
 				return { Precedence::None, &Parser::parse_cast, nullptr };
 			case Token::Type::SymbolParenLeft:
 				return { Precedence::Postfix, &Parser::parse_grouping, &Parser::parse_function_call };
+			case Token::Type::SymbolBraceLeft:
+				return { Precedence::None, &Parser::parse_initializer_list, nullptr };
 			default:
 				break;
 		}

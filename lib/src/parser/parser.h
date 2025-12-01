@@ -2,11 +2,12 @@
 
 #include "ast/ast.h"
 #include "ast/ast_fwd.h"
-#include "types/types_fwd.h"
 #include "core/types.h"
 #include "lexer/token.h"
 #include "parser/type_specifier.h"
+#include "types/types_fwd.h"
 
+#include <expected>
 #include <span>
 #include <string_view>
 
@@ -61,6 +62,7 @@ namespace soul::parser
 		ast::ASTNode::Dependency parse_while_loop();
 
 		ast::ASTNode::Dependencies parse_block_statement();
+		ast::ASTNode::Dependency parse_initializer_list();
 		ast::ASTNode::Dependency parse_parameter_declaration();
 		std::optional<TypeSpecifier> parse_type_specifier();
 
@@ -78,5 +80,17 @@ namespace soul::parser
 
 		/** @brief Returns current token or an explicit EOF one. */
 		Token current_token_or_default() const noexcept;
+
+		template <typename T>
+			requires(std::is_arithmetic_v<T>)
+		constexpr std::expected<T, std::string> parse_integral_value(std::string_view data)
+		{
+			T value{};
+			auto result = std::from_chars(data.begin(), data.end(), value);
+			if (!result) {
+				return std::unexpected(std::make_error_condition(result.ec).message());
+			}
+			return value;
+		}
 	};
 }  // namespace soul::parser

@@ -1,0 +1,32 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "variable_declaration",
+      "name": "sized_array_type",
+      "type_specifier": "[i32, 3]",
+      "is_mutable": "false",
+      "expression": {
+        "node": "scope_block",
+        "statements": [
+          {
+            "node": "literal",
+            "value_type": "value_type_int32",
+            "value": "1"
+          },
+          {
+            "node": "literal",
+            "value_type": "value_type_int32",
+            "value": "2"
+          },
+          {
+            "node": "literal",
+            "value_type": "value_type_int32",
+            "value": "3"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 #include "parser/type_specifier.h"
 
+#include <format>
+
 namespace soul::parser
 {
 	using namespace std::string_view_literals;
@@ -48,18 +50,18 @@ namespace soul::parser
 
 	PointerTypeSpecifier::operator std::string() const { return "*" + std::string(*_value); }
 
-	ArrayTypeSpecifier::ArrayTypeSpecifier(TypeSpecifier&& value)
-		: _value(std::make_unique<TypeSpecifier>(std::move(value)))
+	ArrayTypeSpecifier::ArrayTypeSpecifier(TypeSpecifier&& value, Size size)
+		: _value(std::make_unique<TypeSpecifier>(std::move(value))), _size(size)
 	{
 	}
 
 	ArrayTypeSpecifier::ArrayTypeSpecifier(const ArrayTypeSpecifier& other) noexcept
-		: _value(std::make_unique<TypeSpecifier>(*other._value.get()))
+		: _value(std::make_unique<TypeSpecifier>(*other._value.get())), _size(other._size)
 	{
 	}
 
 	ArrayTypeSpecifier::ArrayTypeSpecifier(ArrayTypeSpecifier&& other) noexcept
-		: _value(std::make_unique<TypeSpecifier>(*other._value.get()))
+		: _value(std::make_unique<TypeSpecifier>(*other._value.get())), _size(other._size)
 	{
 	}
 
@@ -69,6 +71,7 @@ namespace soul::parser
 			return *this;
 		}
 		_value = std::make_unique<TypeSpecifier>(*other._value.get());
+		_size  = other._size;
 		return *this;
 	}
 
@@ -78,6 +81,7 @@ namespace soul::parser
 			return *this;
 		}
 		*_value = std::move(*other._value.get());
+		_size   = other._size;
 		return *this;
 	}
 
@@ -86,7 +90,13 @@ namespace soul::parser
 		return *_value <=> *other._value;
 	}
 
-	ArrayTypeSpecifier::operator std::string() const { return std::string(*_value) + "[]"; }
+	ArrayTypeSpecifier::operator std::string() const
+	{
+		if (_size == k_unbound_size) {
+			return std::format("[{}]", std::string(*_value));
+		}
+		return std::format("[{}, {}]", std::string(*_value), _size);
+	}
 
 	TypeSpecifier::operator std::string() const
 	{

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "core/types.h"
+
+#include <limits>
 #include <memory>
 #include <string>
 #include <variant>
@@ -55,11 +58,17 @@ namespace soul::parser
 
 	class ArrayTypeSpecifier
 	{
+		public:
+		using Size = u64;
+
+		static constexpr Size k_unbound_size = std::numeric_limits<Size>::max();
+
 		private:
 		std::unique_ptr<TypeSpecifier> _value;
+		Size _size{ k_unbound_size };
 
 		public:
-		ArrayTypeSpecifier(TypeSpecifier&& value);
+		ArrayTypeSpecifier(TypeSpecifier&& value, Size capacity);
 		ArrayTypeSpecifier(const ArrayTypeSpecifier&) noexcept;
 		ArrayTypeSpecifier(ArrayTypeSpecifier&&) noexcept;
 		ArrayTypeSpecifier& operator=(const ArrayTypeSpecifier&) noexcept;

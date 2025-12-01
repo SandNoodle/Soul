@@ -1,0 +1,17 @@
+{
+  "node": "module_declaration",
+  "name": "test_module",
+  "statements": [
+    {
+      "node": "variable_declaration",
+      "name": "simple_pointer_type",
+      "type_specifier": "*i32",
+      "is_mutable": "false",
+      "expression": {
+        "node": "literal",
+        "value_type": "__unknown__",
+        "value": "__unknown__"
+      }
+    }
+  ]
+}

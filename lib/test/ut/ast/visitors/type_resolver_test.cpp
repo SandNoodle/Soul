@@ -15,6 +15,9 @@ namespace soul::ast::visitors::ut
 
 	class TypeResolverTest : public ::testing::Test
 	{
+		public:
+		static constexpr auto k_module_name = "resolve_module";
+
 		protected:
 		ASTNode::Dependency resolve(ASTNode::Reference root)
 		{
@@ -55,7 +58,7 @@ namespace soul::ast::visitors::ut
 			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(5L)),
 			                       op));
 		}
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -97,7 +100,7 @@ namespace soul::ast::visitors::ut
 			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(5.0)),
 			                       op));
 		}
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -137,7 +140,7 @@ namespace soul::ast::visitors::ut
 			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false)),
 			                       op));
 		}
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -171,7 +174,7 @@ namespace soul::ast::visitors::ut
 			BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")),
 		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(5)),
 		                       ASTNode::Operator::LogicalAnd));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -208,7 +211,7 @@ namespace soul::ast::visitors::ut
 		                                    k_base_specifier_i32,
 		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(5)),
 		                                    false));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -272,7 +275,7 @@ namespace soul::ast::visitors::ut
                                           k_base_specifier_i32);
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -298,7 +301,7 @@ namespace soul::ast::visitors::ut
                                           k_base_specifier_chr);
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(cast_node));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -335,7 +338,7 @@ namespace soul::ast::visitors::ut
                                             BlockNode::create(std::move(for_loop_statements)));
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(for_loop));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -409,7 +412,7 @@ namespace soul::ast::visitors::ut
 			= ForLoopNode::create(nullptr, std::move(condition), nullptr, BlockNode::create(ASTNode::Dependencies{}));
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(for_loop));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -443,7 +446,7 @@ namespace soul::ast::visitors::ut
 		auto function_call     = FunctionCallNode::create(k_function_name, ASTNode::Dependencies{});
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_call));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -462,7 +465,7 @@ namespace soul::ast::visitors::ut
 		auto function_call     = FunctionCallNode::create("non_existing", ASTNode::Dependencies{});
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_call));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -496,7 +499,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(function_declaration));
 		module_statements.push_back(std::move(function_call));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -546,7 +549,7 @@ namespace soul::ast::visitors::ut
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -622,7 +625,7 @@ namespace soul::ast::visitors::ut
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -660,7 +663,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(first_function_declaration));
 		module_statements.push_back(std::move(second_function_declaration));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -708,7 +711,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(first_function_declaration));
 		module_statements.push_back(std::move(second_function_declaration));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -789,7 +792,7 @@ namespace soul::ast::visitors::ut
 		for (const auto type : k_literal_types) {
 			module_statements.emplace_back(LiteralNode::create(get_value(type)));
 		}
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -827,7 +830,7 @@ namespace soul::ast::visitors::ut
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(LiteralNode::create(Identifier::create(k_variable_name)));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -847,7 +850,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
 		module_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Continue));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -873,7 +876,7 @@ namespace soul::ast::visitors::ut
 		module_statements.emplace_back(ReturnNode::create());
 		module_statements.emplace_back(
 			ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string"))));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -915,7 +918,7 @@ namespace soul::ast::visitors::ut
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(struct_declaration));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -972,7 +975,7 @@ namespace soul::ast::visitors::ut
 			module_statements.emplace_back(
 				UnaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(1)), op));
 		}
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -999,7 +1002,7 @@ namespace soul::ast::visitors::ut
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(UnaryNode::create(
 			LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true)), ASTNode::Operator::LogicalNot));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1025,7 +1028,7 @@ namespace soul::ast::visitors::ut
 		module_statements.emplace_back(
 			UnaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>("my_string")),
 		                      ASTNode::Operator::LogicalNot));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1053,7 +1056,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(first_variable));
 		module_statements.push_back(std::move(second_variable));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1090,7 +1093,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(first_variable));
 		module_statements.push_back(std::move(inner_scope));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1132,7 +1135,7 @@ namespace soul::ast::visitors::ut
 		module_statements.reserve(2);
 		module_statements.push_back(std::move(inner_scope));
 		module_statements.push_back(std::move(outer_variable));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1174,7 +1177,7 @@ namespace soul::ast::visitors::ut
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(while_loop));
-		auto expected_module = ModuleNode::create("resolve_module", std::move(module_statements));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
 
 		auto result_module = resolve(expected_module.get());
 
@@ -1200,4 +1203,19 @@ namespace soul::ast::visitors::ut
 		EXPECT_EQ(as_statement.value, Scalar::create<PrimitiveType::Kind::Float64>(3.14));
 		EXPECT_EQ(as_statement.type, PrimitiveType::Kind::Float64);
 	}
+
+	TEST_F(TypeResolverTest, PointerToPrimtiveType)
+	{
+		auto module_statements = ASTNode::Dependencies{};
+		module_statements.push_back(VariableDeclarationNode::create(
+			"my_variable", TypeSpecifier(PointerTypeSpecifier(k_base_specifier_i32)), LiteralNode::create({}), false));
+		auto expected_module = ModuleNode::create(k_module_name, std::move(module_statements));
+
+		auto result_module = resolve(expected_module.get());
+		EXPECT_NE(expected_module.get(), result_module.get());
+		ASSERT_TRUE(result_module->is<ModuleNode>());
+
+		// TODO: Resolve pointer types.
+	}
+
 }  // namespace soul::ast::visitors::ut

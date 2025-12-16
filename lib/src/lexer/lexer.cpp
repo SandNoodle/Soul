@@ -6,17 +6,19 @@
 
 namespace soul::lexer
 {
-#define MATCH_ONE_CODEPOINT(codepoint, token_type)        \
-	case codepoint:                                       \
-	{                                                     \
-		return create_token(token_type, current_token()); \
+#define MATCH_ONE_CODEPOINT(codepoint, token_type)             \
+	case codepoint:                                            \
+	{                                                          \
+		std::ignore = advance(); /* Skip over the character */ \
+		return create_token(token_type, current_token());      \
 	}
 
 #define MATCH_TWO_CODEPOINTS(first_codepoint, second_codepoint, one_match_type, two_match_type) \
 	case first_codepoint:                                                                       \
 	{                                                                                           \
+		std::ignore = advance(); /* Skip over the first character */                            \
 		if (peek_at(0) == (second_codepoint)) {                                                 \
-			std::ignore = advance();                                                            \
+			std::ignore = advance(); /* Skip over the second character */                       \
 			return create_token(two_match_type, current_token());                               \
 		}                                                                                       \
 		return create_token(one_match_type, current_token());                                   \
@@ -26,13 +28,14 @@ namespace soul::lexer
 	first_codepoint, second_codepoint_a, second_codepoint_b, match_one_type, match_two_type_a, match_two_type_b) \
 	case first_codepoint:                                                                                        \
 	{                                                                                                            \
+		std::ignore               = advance(); /* Skip over the first character */                               \
 		const auto next_codepoint = peek_at(0);                                                                  \
 		if (next_codepoint == (second_codepoint_a)) {                                                            \
-			std::ignore = advance();                                                                             \
+			std::ignore = advance(); /* Skip over the second character */                                        \
 			return create_token(match_two_type_a, current_token());                                              \
 		}                                                                                                        \
 		if (next_codepoint == (second_codepoint_b)) {                                                            \
-			std::ignore = advance();                                                                             \
+			std::ignore = advance(); /* Skip over the second character */                                        \
 			return create_token(match_two_type_b, current_token());                                              \
 		}                                                                                                        \
 		return create_token(match_one_type, current_token());                                                    \
@@ -154,7 +157,6 @@ namespace soul::lexer
 		}
 
 		// Symbols
-		std::ignore = advance();
 		switch (current_codepoint) {
 			// Simple cases, where there are no other characters in the sequence.
 			MATCH_ONE_CODEPOINT('(', Token::Type::SymbolParenLeft)

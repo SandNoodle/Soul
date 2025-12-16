@@ -48,15 +48,30 @@ namespace soul::ast::visitors
 	TypeDiscovererVisitor::Types TypeDiscovererVisitor::basic_types() noexcept
 	{
 		using namespace std::string_view_literals;
-		static const TypeDiscovererVisitor::Types k_basic_types = {
-			std::make_pair(k_base_specifier_bool, types::PrimitiveType::Kind::Boolean),
-			std::make_pair(k_base_specifier_chr, types::PrimitiveType::Kind::Char),
-			std::make_pair(k_base_specifier_f32, types::PrimitiveType::Kind::Float32),
-			std::make_pair(k_base_specifier_f64, types::PrimitiveType::Kind::Float64),
-			std::make_pair(k_base_specifier_i32, types::PrimitiveType::Kind::Int32),
-			std::make_pair(k_base_specifier_i64, types::PrimitiveType::Kind::Int64),
-			std::make_pair(k_base_specifier_str, types::PrimitiveType::Kind::String),
-			std::make_pair(k_base_specifier_void, types::PrimitiveType::Kind::Void),
+		static const Types k_basic_types = {
+			std::make_pair(k_base_specifier_i8, PrimitiveType::Kind::Int8),
+			std::make_pair(k_base_specifier_i16, PrimitiveType::Kind::Int16),
+			std::make_pair(k_base_specifier_i32, PrimitiveType::Kind::Int32),
+			std::make_pair(k_base_specifier_i64, PrimitiveType::Kind::Int64),
+			std::make_pair(k_base_specifier_i128, PrimitiveType::Kind::Int128),
+
+			std::make_pair(k_base_specifier_u8, PrimitiveType::Kind::UInt8),
+			std::make_pair(k_base_specifier_u16, PrimitiveType::Kind::UInt16),
+			std::make_pair(k_base_specifier_u32, PrimitiveType::Kind::UInt32),
+			std::make_pair(k_base_specifier_u64, PrimitiveType::Kind::UInt64),
+			std::make_pair(k_base_specifier_u128, PrimitiveType::Kind::UInt128),
+
+			std::make_pair(k_base_specifier_f32, PrimitiveType::Kind::Float32),
+			std::make_pair(k_base_specifier_f64, PrimitiveType::Kind::Float64),
+
+			std::make_pair(k_base_specifier_chr, PrimitiveType::Kind::Char),
+			std::make_pair(k_base_specifier_str, PrimitiveType::Kind::String),
+
+			std::make_pair(k_base_specifier_bool, PrimitiveType::Kind::Boolean),
+			std::make_pair(k_base_specifier_isize, PrimitiveType::Kind::ISize),
+			std::make_pair(k_base_specifier_usize, PrimitiveType::Kind::USize),
+
+			std::make_pair(k_base_specifier_void, PrimitiveType::Kind::Void),
 		};
 		return k_basic_types;
 	}

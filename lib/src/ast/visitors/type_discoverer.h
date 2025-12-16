@@ -27,7 +27,7 @@ namespace soul::ast::visitors
 		TypeDiscovererVisitor()                                 = default;
 		TypeDiscovererVisitor(const TypeDiscovererVisitor&)     = delete;
 		TypeDiscovererVisitor(TypeDiscovererVisitor&&) noexcept = default;
-		~TypeDiscovererVisitor()                                = default;
+		~TypeDiscovererVisitor() override                       = default;
 
 		TypeDiscovererVisitor& operator=(const TypeDiscovererVisitor&)     = delete;
 		TypeDiscovererVisitor& operator=(TypeDiscovererVisitor&&) noexcept = default;

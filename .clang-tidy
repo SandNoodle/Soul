@@ -22,6 +22,7 @@ clang-analyzer-valist.*,
 readability-identifier-naming,
 
 bugprone-*,
+-bugprone-easily-swappable-parameters,
 
 -clang-diagnostic-pragma-once-outside-header,
 

@@ -12,6 +12,6 @@ namespace Soul
 		UInt32 begin = 0;
 		UInt32 end   = 0;
 
-		static Bool8 Equal(SourceOffset lhs, SourceOffset rhs) noexcept;
+		static Bool8 Equals(SourceOffset lhs, SourceOffset rhs) noexcept;
 	};
 }  // namespace Soul

@@ -3,26 +3,23 @@
 #include "Lexer/Lexer.h"
 
 #include <array>
-#include <string_view>
 
 namespace Soul::Lexer::UT
 {
-	using namespace std::string_view_literals;
-
 	class LexerTest : public ::testing::Test
 	{
 	};
 
 	TEST_F(LexerTest, EmptyString)
 	{
-		const auto result_tokens = Lexer::Tokenize(""sv);
+		const auto result_tokens = Lexer::Tokenize(""_sv);
 		ASSERT_TRUE(result_tokens.empty());
 	}
 
 	TEST_F(LexerTest, Literals_Identifiers)
 	{
-		static constexpr auto k_input_string = "my_identifier invalid_variable this_should_work"sv;
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "my_identifier invalid_variable this_should_work"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token{ SourceOffset{ 1, 0 },  TokenType::TOKEN_LITERAL_IDENTIFIER },
@@ -33,14 +30,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_TRUE(SourceOffset::Equal(k_expected_tokens[index].location, k_expected_tokens[index].location));
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, k_expected_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, Literals_Keywords)
 	{
-		static constexpr auto k_input_string
-			= "break cast continue else false fn for if let mut native return struct true while"sv;
+		static constexpr StringView k_input_string
+			= "break cast continue else false fn for if let mut native return struct true while"_sv;
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
@@ -64,14 +61,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, SpecialCharacters)
 	{
-		static constexpr auto k_input_string
-			= "& && ! != { } [ ] ^ : :: , . = == > >= < <= - -= -- % %= ( ) | || + += ++ ? ; / /= * *="sv;
+		static constexpr StringView k_input_string
+			= "& && ! != { } [ ] ^ : :: , . = == > >= < <= - -= -- % %= ( ) | || + += ++ ? ; / /= * *="_sv;
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
@@ -117,14 +114,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, Literals_Numbers)
 	{
-		static constexpr auto k_input_string
-			= "0.0 7.52 4098 4098.0 -8192.32 1000000000000.0 0 54 1024 -0.01 5.47 -8192 1000000000000"sv;
+		static constexpr StringView k_input_string
+			= "0.0 7.52 4098 4098.0 -8192.32 1000000000000.0 0 54 1024 -0.01 5.47 -8192 1000000000000"_sv;
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
@@ -146,14 +143,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, Literals_Strings)
 	{
-		static constexpr auto k_input_string = "\"my_value\"\"no space after previous one\" \"520\""sv;
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "\"my_value\"\"no space after previous one\" \"520\""_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token{ SourceOffset{ 1, 2 },  TokenType::TOKEN_LITERAL_STRING },
@@ -164,24 +161,24 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, Literals_Strings_UnterminatedString)
 	{
-		static constexpr std::string_view k_input_string = "\"this is an unterminated string, how sad :c";
-		const auto result_tokens                         = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "\"this is an unterminated string, how sad :c"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		ASSERT_EQ(result_tokens.size(), 1);
 		EXPECT_EQ(result_tokens[0].type, TokenType::TOKEN_SPECIAL_ERROR);
-		EXPECT_EQ(result_tokens[0].location, SourceOffset(1, 0));
+		EXPECT_TRUE(SourceOffset::Equals(result_tokens[0].offset, SourceOffset(1, 0)));
 	}
 
 	TEST_F(LexerTest, Compressed)
 	{
-		static constexpr auto k_input_string = "let variable:int=320;";
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "let variable:int=320;"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token{ SourceOffset{ 1, 0 },  TokenType::TOKEN_KEYWORD_LET        },
@@ -196,14 +193,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, Mixed)
 	{
-		static constexpr auto k_input_string
-			= "fn main(some_var : int) :: void { \n\tlet my_variable : str = \"my_string\";\n\treturn 0;\n} "sv;
+		static constexpr StringView k_input_string
+			= "fn main(some_var : int) :: void { \n\tlet my_variable : str = \"my_string\";\n\treturn 0;\n} "_sv;
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
@@ -233,21 +230,21 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, WhitespacesAndComments)
 	{
-		static constexpr auto k_input_string = "\t\n\f     # this is a comment \n #and another one"sv;
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "\t\n\f     # this is a comment \n #and another one"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 		ASSERT_TRUE(result_tokens.empty());
 	}
 
 	TEST_F(LexerTest, SymbolsDelimitedByComments)
 	{
-		static constexpr auto k_input_string = "\t;\n\f+# this is a comment \n+=#and another one"sv;
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "\t;\n\f+# this is a comment \n+=#and another one"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token{ SourceOffset{ 1, 1 }, TokenType::TOKEN_SYMBOL_SEMICOLON  },
@@ -258,14 +255,14 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 
 	TEST_F(LexerTest, PrimitiveTypes)
 	{
-		static constexpr auto k_input_string = "bool chr f32 f64 i32 i64 str void"sv;
-		const auto result_tokens             = Lexer::Tokenize(k_input_string);
+		static constexpr StringView k_input_string = "bool chr f32 f64 i32 i64 str void"_sv;
+		const auto result_tokens                   = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
 			Token{ SourceOffset{ 1, 0 },  TokenType::TOKEN_LITERAL_IDENTIFIER },
@@ -281,7 +278,7 @@ namespace Soul::Lexer::UT
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
 		for (size_t index = 0; index < k_expected_tokens.size(); ++index) {
 			EXPECT_EQ(k_expected_tokens[index].type, result_tokens[index].type);
-			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
+			EXPECT_TRUE(SourceOffset::Equals(k_expected_tokens[index].offset, result_tokens[index].offset));
 		}
 	}
 }  // namespace Soul::Lexer::UT

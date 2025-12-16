@@ -26,7 +26,7 @@ namespace soul::ast::visitors::ut
 		protected:
 		ASTNode::Dependency parse(std::string_view script)
 		{
-			auto tokens = lexer::Lexer::tokenize(script);
+			auto tokens = lexer::Lexer::Tokenize(script);
 			return parser::Parser::parse(k_module_name, tokens);
 		}
 

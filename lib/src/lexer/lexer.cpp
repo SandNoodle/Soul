@@ -6,39 +6,43 @@
 
 namespace soul::lexer
 {
-#define MATCH_ONE_CODEPOINT(codepoint, token_type)             \
-	case codepoint:                                            \
-	{                                                          \
-		std::ignore = advance(); /* Skip over the character */ \
-		return create_token(token_type, current_token());      \
+#define MATCH_ONE_CODEPOINT(codepoint, token_type)      \
+	case codepoint:                                     \
+	{                                                   \
+		Advance(); /* Skip over the character */        \
+		return CreateToken(token_type, CurrentToken()); \
 	}
 
 #define MATCH_TWO_CODEPOINTS(first_codepoint, second_codepoint, one_match_type, two_match_type) \
 	case first_codepoint:                                                                       \
 	{                                                                                           \
-		std::ignore = advance(); /* Skip over the first character */                            \
-		if (peek_at(0) == (second_codepoint)) {                                                 \
-			std::ignore = advance(); /* Skip over the second character */                       \
-			return create_token(two_match_type, current_token());                               \
+		Advance(); /* Skip over the first character */                                          \
+		if (Peek() == (second_codepoint)) {                                                     \
+			Advance(); /* Skip over the second character */                                     \
+			return CreateToken(two_match_type, CurrentToken());                                 \
 		}                                                                                       \
-		return create_token(one_match_type, current_token());                                   \
+		return CreateToken(one_match_type, CurrentToken());                                     \
 	}
 
-#define MATCH_TWO_CODEPOINTS_SPECIAL(                                                                            \
-	first_codepoint, second_codepoint_a, second_codepoint_b, match_one_type, match_two_type_a, match_two_type_b) \
-	case first_codepoint:                                                                                        \
-	{                                                                                                            \
-		std::ignore               = advance(); /* Skip over the first character */                               \
-		const auto next_codepoint = peek_at(0);                                                                  \
-		if (next_codepoint == (second_codepoint_a)) {                                                            \
-			std::ignore = advance(); /* Skip over the second character */                                        \
-			return create_token(match_two_type_a, current_token());                                              \
-		}                                                                                                        \
-		if (next_codepoint == (second_codepoint_b)) {                                                            \
-			std::ignore = advance(); /* Skip over the second character */                                        \
-			return create_token(match_two_type_b, current_token());                                              \
-		}                                                                                                        \
-		return create_token(match_one_type, current_token());                                                    \
+#define MATCH_TWO_CODEPOINTS_SPECIAL(first_codepoint,                   \
+                                     second_codepoint_a,                \
+                                     second_codepoint_b,                \
+                                     token_type_match_one,              \
+                                     token_type_match_two_a,            \
+                                     token_type_match_two_b)            \
+	case first_codepoint:                                               \
+	{                                                                   \
+		Advance(); /* Skip over the first character */                  \
+		Codepoint::ValueType next_codepoint = Peek();                   \
+		if (next_codepoint == (second_codepoint_a)) {                   \
+			Advance(); /* Skip over the second character */             \
+			return CreateToken(token_type_match_two_a, CurrentToken()); \
+		}                                                               \
+		if (next_codepoint == (second_codepoint_b)) {                   \
+			Advance(); /* Skip over the second character */             \
+			return CreateToken(token_type_match_two_b, CurrentToken()); \
+		}                                                               \
+		return CreateToken(token_type_match_one, CurrentToken());       \
 	}
 
 	using namespace std::string_view_literals;
@@ -48,9 +52,9 @@ namespace soul::lexer
 	{
 	}
 
-	std::vector<Token> Lexer::tokenize(std::string_view script) { return Lexer{ script }.tokenize(); }
+	std::vector<Token> Lexer::Tokenize(std::string_view script) { return Lexer{ script }.Tokenize(); }
 
-	std::vector<Token> Lexer::tokenize()
+	std::vector<Token> Lexer::Tokenize()
 	{
 		std::vector<Token> result;
 		if (_script.empty()) {
@@ -58,7 +62,7 @@ namespace soul::lexer
 		}
 
 		for (;;) {
-			auto token = scan_token();
+			Token token = ScanToken();
 			if (token.type == Token::Type::SpecialEndOfFile) {
 				break;
 			}
@@ -67,71 +71,77 @@ namespace soul::lexer
 		return result;
 	}
 
-	std::string_view Lexer::current_token(std::size_t exclude_start, std::size_t exclude_end)
+	std::string_view Lexer::CurrentToken(std::size_t exclude_start, std::size_t exclude_end) const
 	{
 		return _script.substr(_offset_start + exclude_start,
 		                      _offset_current - _offset_start - exclude_start - exclude_end);
 	}
 
-	Token Lexer::create_token(Token::Type type, std::string_view data)
+	Token Lexer::CreateToken(Token::Type type, std::string_view data) const
 	{
-		auto location = SourceLocation{ _current_location.row,
-			                            std::min(_current_location.column,
-			                                     _current_location.column - static_cast<u32>(data.size())) };
+		SourceLocation location = SourceLocation{ _current_location.row,
+			                                      std::min(_current_location.column,
+			                                               _current_location.column - static_cast<u32>(data.size())) };
 		return Token{ type, data, std::move(location) };
 	};
 
-	Token Lexer::scan_token()
+	Token Lexer::ScanToken()
 	{
 		// Consume whitespace and comments.
 		{
-			auto keep_consuming = false;
+			bool keep_consuming = false;
 			do {
 				keep_consuming = false;
-				advance_while(CodePoint::is_whitespace);
+				AdvanceWhile(Codepoint::IsWhitespace);
 
 				// Skip comments.
-				if (peek_at(0) == '#') {
-					advance_while(std::not_fn(CodePoint::is_newline));
+				if (Peek() == '#') {
+					AdvanceWhile([](const Codepoint::ValueType c) -> bool { return !Codepoint::IsNewline(c); });
 					keep_consuming = true;
 				}
-			} while (peek_at(0) != CodePoint::k_eof && keep_consuming);
+			} while (Peek() != Codepoint::k_eof && keep_consuming);
 		};
 
 		_offset_start = _offset_current;
 
-		auto current_codepoint = peek_at(0);
-		if (current_codepoint == CodePoint::k_eof) {
-			return create_token(Token::Type::SpecialEndOfFile, current_token());
+		// --- End of File ---
+		Codepoint::ValueType current_codepoint = Peek();
+		if (current_codepoint == Codepoint::k_eof) {
+			return CreateToken(Token::Type::SpecialEndOfFile, CurrentToken());
 		}
 
 		// Numeric
-		const bool has_sign = current_codepoint == CodePoint::k_hyphen || current_codepoint == CodePoint::k_plus_sign;
-		if (CodePoint::is_digit(peek_at(has_sign ? 1 : 0))) {
-			advance_while([](const auto c) -> bool {
-				return CodePoint::is_digit(c) || c == CodePoint::k_full_stop || c == CodePoint::k_plus_sign
-				    || c == CodePoint::k_hyphen;
-			});
-			const auto lexeme = current_token();
-			const bool has_decimal_point
-				= std::ranges::any_of(lexeme, [](const auto c) -> bool { return c == CodePoint::k_full_stop; });
-			return create_token(has_decimal_point ? Token::Type::LiteralFloat : Token::Type::LiteralInteger, lexeme);
-		}
-
-		// Strings
-		if (current_codepoint == '"') {
-			std::ignore = advance();  // Skip '"'
-			advance_while([](const auto c) -> bool { return c != '"'; });
-			if (peek_at(0) == CodePoint::k_eof) {
-				static constexpr auto k_error_message = "unterminated string literal; did you forget '\"'?"sv;
-				return create_token(Token::Type::SpecialError, k_error_message);
+		if (Codepoint::IsDigit(Peek(Codepoint::IsSign(current_codepoint) ? 1 : 0))) {
+			if (Codepoint::IsSign(current_codepoint)) {
+				Advance();
 			}
-			std::ignore = advance();  // Skip '"'
-			return create_token(Token::Type::LiteralString, current_token(1, 1));
+			AdvanceWhile(Codepoint::IsValidNumericContinuator);
+
+			// NOTE: Assume that lexeme containing a dot (.) is a floating-point numeric literal candidate.
+			Token::Type numeric_type        = Token::Type::LiteralInteger;
+			std::string_view current_lexeme = CurrentToken();
+			if (current_lexeme.contains('.')) {
+				numeric_type = Token::Type::LiteralFloat;
+			}
+			return CreateToken(numeric_type, current_lexeme);
 		}
 
-		// Keywords & Literals
-		if (advance_if([](const auto c) -> bool { return CodePoint::is_identifier(c) || CodePoint::is_digit(c); })) {
+		// --- Strings ---
+		if (Codepoint::IsValidStringStarter(current_codepoint)) {
+			Advance();  // Skip '"'
+			AdvanceWhile([](const Codepoint::ValueType c) -> bool { return c != '"'; });
+			if (Peek() == Codepoint::k_eof) {
+				static constexpr auto k_error_message = "unterminated string literal; did you forget '\"'?"sv;
+				return CreateToken(Token::Type::SpecialError, k_error_message);
+			}
+			Advance();  // Skip '"'
+			return CreateToken(Token::Type::LiteralString, CurrentToken(1, 1));
+		}
+
+		// --- Keywords & Literals ---
+		if (Codepoint::IsValidIdentifierStarter(current_codepoint)) {
+			AdvanceWhile(Codepoint::IsValidIdentifierContinuator);
+
 			static constexpr std::array k_keywords = {
 				// Keywords
 				std::make_pair("break"sv, Token::Type::KeywordBreak),
@@ -151,12 +161,12 @@ namespace soul::lexer
 				std::make_pair("true"sv, Token::Type::KeywordTrue),
 				std::make_pair("while"sv, Token::Type::KeywordWhile),
 			};
-			const auto lexeme = current_token();
-			const auto it     = std::ranges::find(k_keywords, lexeme, &decltype(k_keywords)::value_type::first);
-			return create_token(it != std::end(k_keywords) ? it->second : Token::Type::LiteralIdentifier, lexeme);
+			std::string_view lexeme = CurrentToken();
+			const auto it           = std::ranges::find(k_keywords, lexeme, &decltype(k_keywords)::value_type::first);
+			return CreateToken(it != std::end(k_keywords) ? it->second : Token::Type::LiteralIdentifier, lexeme);
 		}
 
-		// Symbols
+		// --- Symbols ---
 		switch (current_codepoint) {
 			// Simple cases, where there are no other characters in the sequence.
 			MATCH_ONE_CODEPOINT('(', Token::Type::SymbolParenLeft)
@@ -193,25 +203,25 @@ namespace soul::lexer
 		}
 
 		static constexpr auto k_error_message = "unrecognized token"sv;
-		return create_token(Token::Type::SpecialError, k_error_message);
+		return CreateToken(Token::Type::SpecialError, k_error_message);
 	}
 
-	CodePoint::ValueType Lexer::peek_at(std::size_t n) const
+	Codepoint::ValueType Lexer::Peek(std::size_t n) const
 	{
 		if (_offset_current + n >= _script.size()) {
-			return CodePoint::k_eof;
+			return Codepoint::k_eof;
 		}
 		return _script[_offset_current + n];
 	}
 
-	CodePoint::ValueType Lexer::advance()
+	Codepoint::ValueType Lexer::Advance()
 	{
-		if (CodePoint::is_newline(_script[_offset_current++])) {
+		if (Codepoint::IsNewline(_script[_offset_current++])) {
 			++_current_location.row;
 			_current_location.column = 0;
 		} else {
 			++_current_location.column;
 		}
-		return peek_at(0);
+		return Peek();
 	}
 };  // namespace soul::lexer

@@ -8,7 +8,7 @@
 #include "ast/visitors/stringify.h"
 #include "ast/visitors/type_discoverer.h"
 #include "ast/visitors/type_resolver.h"
-#include "lexer/lexer.h"
+#include "lexer/Lexer.h"
 #include "parser/parser.h"
 
 #include <string_view>

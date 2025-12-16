@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "ast/visitors/stringify.h"
-#include "lexer/lexer.h"
+#include "lexer/Lexer.h"
 #include "parser/parser.h"
 
 #include <filesystem>

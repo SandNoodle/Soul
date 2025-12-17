@@ -30,32 +30,40 @@ namespace Soul::Types
 		public:
 		enum class Kind : UInt8
 		{
-			Unknown,
-			Boolean,
-			Char,
-			Float32,
-			Float64,
-			Int8,
-			Int16,
-			Int32,
-			Int64,
-			Int128,
-			String,
-			UInt8,
-			UInt16,
-			UInt32,
-			UInt64,
-			UInt128,
-			ISize,
-			USize,
-			Void,
+			UNKNOWN,
+
+			BOOLEAN,
+
+			INT8,
+			INT16,
+			INT32,
+			INT64,
+			INT128,
+
+			UINT8,
+			UINT16,
+			UINT32,
+			UINT64,
+			UINT128,
+
+			FLOAT16,
+			FLOAT32,
+			FLOAT64,
+
+			CHAR,
+			STRING,
+
+			ISIZE,
+			USIZE,
+
+			VOID,
 		};
 
 		public:
-		Kind type = Kind::Unknown;
+		Kind type = Kind::UNKNOWN;
 
 		public:
-		constexpr PrimitiveType(Kind type = Kind::Unknown) : type(type) {}
+		constexpr PrimitiveType(Kind type = Kind::UNKNOWN) : type(type) {}
 
 		bool operator==(const PrimitiveType&) const noexcept         = default;
 		std::strong_ordering operator<=>(const PrimitiveType&) const = default;
@@ -83,7 +91,7 @@ namespace Soul::Types
 		std::strong_ordering operator<=>(const PointerType&) const;
 		explicit operator std::string() const;
 
-		const Type& data_type() const noexcept;
+		const Type& DataType() const noexcept;
 
 		friend std::ostream& operator<<(std::ostream& os, const StructType& type);
 	};
@@ -107,7 +115,7 @@ namespace Soul::Types
 		std::strong_ordering operator<=>(const ArrayType&) const;
 		explicit operator std::string() const;
 
-		const Type& data_type() const noexcept;
+		const Type& DataType() const noexcept;
 
 		friend std::ostream& operator<<(std::ostream& os, const ArrayType&);
 	};
@@ -143,7 +151,7 @@ namespace Soul::Types
 		using Variant = std::variant<PrimitiveType, PointerType, ArrayType, StructType>;
 
 		private:
-		Variant _type = PrimitiveType::Kind::Unknown;
+		Variant _type = PrimitiveType::Kind::UNKNOWN;
 
 		public:
 		constexpr Type() noexcept            = default;
@@ -162,7 +170,7 @@ namespace Soul::Types
 		 * @return \b true if it is, \b false otherwise.
 		 */
 		template <TypeKind T>
-		[[nodiscard]] constexpr bool is() const noexcept
+		[[nodiscard]] constexpr bool Is() const noexcept
 		{
 			return std::holds_alternative<T>(_type);
 		}
@@ -172,7 +180,7 @@ namespace Soul::Types
 		 * @important Does not perform any validation - assumes that Type::is<T> was used first.
 		 */
 		template <TypeKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept
+		[[nodiscard]] constexpr const T& As() const noexcept
 		{
 			return std::get<T>(_type);
 		}

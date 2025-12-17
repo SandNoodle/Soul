@@ -48,8 +48,8 @@ namespace Soul::AST::Visitors::UT
 
 		// ...and verify the results.
 		auto first_struct_type  = Type{ StructType{
-			 { PrimitiveType::Kind::Int32, PrimitiveType::Kind::Float64, PrimitiveType::Kind::String } } };
-		auto second_struct_type = Type{ StructType{ { first_struct_type, PrimitiveType::Kind::Boolean } } };
+			 { PrimitiveType::Kind::INT32, PrimitiveType::Kind::FLOAT64, PrimitiveType::Kind::STRING } } };
+		auto second_struct_type = Type{ StructType{ { first_struct_type, PrimitiveType::Kind::BOOLEAN } } };
 
 		auto k_expected_types = TypeDiscovererVisitor::basic_types();
 		k_expected_types.emplace_back(std::make_pair(BaseTypeSpecifier{ "first_struct"sv }, first_struct_type));
@@ -96,7 +96,7 @@ namespace Soul::AST::Visitors::UT
 		k_expected_types.emplace_back(std::make_pair(
 			BaseTypeSpecifier{ "first_struct"sv },
 			Type{ StructType{
-				{ PrimitiveType::Kind::Int32, PrimitiveType::Kind::Float64, PrimitiveType::Kind::String } } }));
+				{ PrimitiveType::Kind::INT32, PrimitiveType::Kind::FLOAT64, PrimitiveType::Kind::STRING } } }));
 		EXPECT_EQ(k_expected_types, type_discoverer.discovered_types());
 
 		const auto& result_module = type_discoverer.cloned();

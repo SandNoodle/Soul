@@ -13,11 +13,11 @@ namespace Soul::Types
 	struct OperatorOverload
 	{
 		AST::ASTNode::Operator op;
-		std::vector<Types::Type> input_types;
-		Types::Type return_type;
+		std::vector<Type> input_types;
+		Type return_type;
 
 		/** @brief Returns list of all builtin operations between types. */
-		static std::span<const OperatorOverload> all() noexcept;
+		static std::span<const OperatorOverload> All() noexcept;
 	};
 
 }  // namespace Soul::Types

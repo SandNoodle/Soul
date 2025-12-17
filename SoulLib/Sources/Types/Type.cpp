@@ -15,17 +15,17 @@ namespace Soul::Types
 	PrimitiveType::operator std::string() const
 	{
 		using namespace std::string_view_literals;
-		static constexpr auto k_unknown                                          = "__unknown__"sv;
-		static std::unordered_map<PrimitiveType::Kind, std::string_view> k_types = {
-			{ PrimitiveType::Kind::Unknown, k_unknown   },
-            { PrimitiveType::Kind::Boolean, "bool"sv    },
-			{ PrimitiveType::Kind::Char,    "char"sv    },
-            { PrimitiveType::Kind::Float32, "float32"sv },
-			{ PrimitiveType::Kind::Float64, "float64"sv },
-            { PrimitiveType::Kind::Int32,   "int32"sv   },
-			{ PrimitiveType::Kind::Int64,   "int64"sv   },
-            { PrimitiveType::Kind::String,  "string"sv  },
-			{ PrimitiveType::Kind::Void,    "void"sv    },
+		static constexpr auto k_unknown                           = "__unknown__"sv;
+		static std::unordered_map<Kind, std::string_view> k_types = {
+			{ Kind::UNKNOWN, k_unknown   },
+            { Kind::BOOLEAN, "bool"sv    },
+            { Kind::CHAR,    "char"sv    },
+			{ Kind::FLOAT32, "float32"sv },
+            { Kind::FLOAT64, "float64"sv },
+            { Kind::INT32,   "int32"sv   },
+			{ Kind::INT64,   "int64"sv   },
+            { Kind::STRING,  "string"sv  },
+            { Kind::VOID,    "void"sv    },
 		};
 		if (!k_types.contains(type)) [[unlikely]] {
 			return std::string(k_unknown);
@@ -63,7 +63,7 @@ namespace Soul::Types
 
 	PointerType::operator std::string() const { return "*" + std::string(*_type); }
 
-	const Type& PointerType::data_type() const noexcept { return *_type; }
+	const Type& PointerType::DataType() const noexcept { return *_type; }
 
 	std::ostream& operator<<(std::ostream& os, const PointerType& type) { return os << std::string(type); }
 
@@ -95,7 +95,7 @@ namespace Soul::Types
 
 	ArrayType::operator std::string() const { return std::string(*_type) + "[]"; }
 
-	const Type& ArrayType::data_type() const noexcept { return *_type; }
+	const Type& ArrayType::DataType() const noexcept { return *_type; }
 
 	std::ostream& operator<<(std::ostream& os, const ArrayType& type) { return os << std::string(type); }
 

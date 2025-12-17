@@ -90,8 +90,8 @@ namespace Soul::AST::Visitors::UT
 		input_module_statements.reserve(k_substitutable_operators.size());
 		for (const auto op : k_substitutable_operators) {
 			input_module_statements.emplace_back(
-				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
-			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2)),
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(2)),
 			                       op));
 		}
 		// ...desugar them...
@@ -109,9 +109,9 @@ namespace Soul::AST::Visitors::UT
 		expected_module_statements.reserve(k_result_operators.size());
 		for (const auto op : k_result_operators) {
 			expected_module_statements.emplace_back(BinaryNode::create(
-				LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
-				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(1)),
-			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(2)),
+				LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+				BinaryNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+			                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(2)),
 			                       op),
 				ASTNode::Operator::Assign));
 		}
@@ -125,11 +125,11 @@ namespace Soul::AST::Visitors::UT
 	{
 		// Get a ForLoop node...
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)), true);
 
 		auto for_loop_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
-		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(10)),
 		                         ASTNode::Operator::Less);
 
 		auto for_loop_update
@@ -139,7 +139,7 @@ namespace Soul::AST::Visitors::UT
 		for_loop_statements.push_back(
 			VariableDeclarationNode::create("inner",
 		                                    k_base_specifier_f32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)),
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::FLOAT32>(3.14)),
 		                                    false));
 
 		auto for_loop = ForLoopNode::create(std::move(for_loop_initialization),
@@ -156,11 +156,11 @@ namespace Soul::AST::Visitors::UT
 
 		// ...and verify the results.
 		auto while_node_initialization = VariableDeclarationNode::create(
-			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(0)), true);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)), true);
 
 		auto while_node_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
-		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(10)),
+		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(10)),
 		                         ASTNode::Operator::Less);
 
 		auto while_node_statements = ASTNode::Dependencies{};
@@ -168,7 +168,7 @@ namespace Soul::AST::Visitors::UT
 		while_node_statements.push_back(
 			VariableDeclarationNode::create("inner",
 		                                    k_base_specifier_f32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(3.14)),
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::FLOAT32>(3.14)),
 		                                    false));
 		while_node_statements.push_back(
 			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment));

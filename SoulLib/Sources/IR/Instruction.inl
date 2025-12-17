@@ -34,7 +34,7 @@ namespace Soul::IR
 
 	constexpr Unreachable::Unreachable() : Instruction(Types::Type{}, Instruction::no_args()) {}
 
-	constexpr Noop::Noop() : Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::no_args()) {}
+	constexpr Noop::Noop() : Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::no_args()) {}
 
 	constexpr Cast::Cast(Types::Type type, Instruction* arg)
 		: Instruction(std::move(type), Instruction::single_arg(arg))
@@ -54,31 +54,31 @@ namespace Soul::IR
 	}
 
 	constexpr Jump::Jump(BasicBlock* target)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::no_args()), target(target)
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::no_args()), target(target)
 	{
 	}
 
 	constexpr JumpIf::JumpIf(Instruction* condition, BasicBlock* then_block, BasicBlock* else_block)
-		: Instruction(Types::PrimitiveType::Kind::Void, Instruction::single_arg(condition)),
+		: Instruction(Types::PrimitiveType::Kind::VOID, Instruction::single_arg(condition)),
 		  then_block(then_block),
 		  else_block(else_block)
 	{
 	}
 
 	constexpr Return::Return(Instruction* arg)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::single_arg(arg))
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::single_arg(arg))
 	{
 	}
 
 	constexpr StackSlot::StackSlot(Types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
 
 	constexpr StackStore::StackStore(StackSlot* slot, Instruction* value)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::single_arg(value)), slot(slot)
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::single_arg(value)), slot(slot)
 	{
 	}
 
 	constexpr StackLoad::StackLoad(StackSlot* slot)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::no_args()), slot(slot)
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::no_args()), slot(slot)
 	{
 	}
 
@@ -90,12 +90,12 @@ namespace Soul::IR
 	constexpr Phi::Phi(Types::Type type) : Instruction(std::move(type), Instruction::no_args()) {}
 
 	constexpr Upsilon::Upsilon(Instruction* value, Instruction* phi)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Void }, Instruction::single_arg(value)), phi(phi)
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::VOID }, Instruction::single_arg(value)), phi(phi)
 	{
 	}
 
 	constexpr Not::Not(Instruction* arg)
-		: Instruction(Types::Type{ Types::PrimitiveType::Kind::Boolean }, Instruction::single_arg(arg))
+		: Instruction(Types::Type{ Types::PrimitiveType::Kind::BOOLEAN }, Instruction::single_arg(arg))
 	{
 	}
 };  // namespace Soul::IR

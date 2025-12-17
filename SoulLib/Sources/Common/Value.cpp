@@ -111,25 +111,25 @@ namespace Soul
 			[&value](const auto& v) -> std::string_view {
 				if constexpr (std::same_as<std::remove_cvref_t<decltype(v)>, Scalar>) {
 					const auto& scalar = value.as<Scalar>();
-					if (scalar.is<Types::PrimitiveType::Kind::Boolean>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::BOOLEAN>()) {
 						return "value_type_boolean"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::Char>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::CHAR>()) {
 						return "value_type_char"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::Float32>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::FLOAT32>()) {
 						return "value_type_float32"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::Float64>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::FLOAT64>()) {
 						return "value_type_float64"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::Int32>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::INT32>()) {
 						return "value_type_int32"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::Int64>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::INT64>()) {
 						return "value_type_int64"sv;
 					}
-					if (scalar.is<Types::PrimitiveType::Kind::String>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::STRING>()) {
 						return "value_type_string"sv;
 					}
 					return k_unknown;

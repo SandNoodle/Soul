@@ -305,7 +305,7 @@ namespace Soul::IR
 	{                                                                                                            \
 		public:                                                                                                  \
 		constexpr name(Instruction* arg0, Instruction* arg1)                                                     \
-			: Instruction(Types::Type{ Types::PrimitiveType::Kind::Boolean }, Instruction::two_args(arg0, arg1)) \
+			: Instruction(Types::Type{ Types::PrimitiveType::Kind::BOOLEAN }, Instruction::two_args(arg0, arg1)) \
 		{                                                                                                        \
 		}                                                                                                        \
 		virtual ~name() override                                     = default;                                  \

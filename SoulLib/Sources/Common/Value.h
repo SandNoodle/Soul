@@ -21,24 +21,24 @@ namespace Soul
 		template <Types::PrimitiveType::Kind V>
 		using PrimitiveKindToValueType
 			= VTDictionary<V,
-		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float32, Float32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float64, Float64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int32, Int32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int64, Int64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string>>::Type;
+		                   VTTranslation<Types::PrimitiveType::Kind::BOOLEAN, bool>,
+		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT32, Float32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT64, Float64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::INT32, Int32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::INT64, Int64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::STRING, std::string>>::Type;
 
 		template <Types::PrimitiveType::Kind V>
 		using PrimitiveKindToViewType
 			= VTDictionary<V,
-		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float32, Float32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float64, Float64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int32, Int32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int64, Int64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string_view>>::Type;
+		                   VTTranslation<Types::PrimitiveType::Kind::BOOLEAN, bool>,
+		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT32, Float32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT64, Float64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::INT32, Int32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::INT64, Int64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::STRING, std::string_view>>::Type;
 
 		template <Types::PrimitiveType::Kind V>
 		class ValueBase
@@ -98,13 +98,13 @@ namespace Soul
 	}  // namespace detail
 
 	/** @brief Represents a value of some primitive type. */
-	using Scalar = detail::ScalarBase<Types::PrimitiveType::Kind::Boolean,
-	                                  Types::PrimitiveType::Kind::Char,
-	                                  Types::PrimitiveType::Kind::Float32,
-	                                  Types::PrimitiveType::Kind::Float64,
-	                                  Types::PrimitiveType::Kind::Int32,
-	                                  Types::PrimitiveType::Kind::Int64,
-	                                  Types::PrimitiveType::Kind::String>;
+	using Scalar = detail::ScalarBase<Types::PrimitiveType::Kind::BOOLEAN,
+	                                  Types::PrimitiveType::Kind::CHAR,
+	                                  Types::PrimitiveType::Kind::FLOAT32,
+	                                  Types::PrimitiveType::Kind::FLOAT64,
+	                                  Types::PrimitiveType::Kind::INT32,
+	                                  Types::PrimitiveType::Kind::INT64,
+	                                  Types::PrimitiveType::Kind::STRING>;
 
 	/**
 	 * @brief Represents a reference to some variable, function name, etc.

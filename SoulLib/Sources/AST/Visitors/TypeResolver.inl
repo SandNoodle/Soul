@@ -14,7 +14,7 @@ namespace Soul::AST::Visitors
 			}
 
 			auto potential_overloads{
-				Types::OperatorOverload::all()
+				Types::OperatorOverload::All()
 				| std::views::filter([op](const auto& overload) -> bool { return overload.op == op; })
 				| std::views::filter([input_count = input_types.size()](const auto& overload) -> bool {
 					  return overload.input_types.size() == input_count;

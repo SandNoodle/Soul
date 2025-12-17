@@ -1,4 +1,4 @@
-#include "lexer/Token.h"
+#include "Lexer/Token.h"
 
 #include <unordered_map>
 

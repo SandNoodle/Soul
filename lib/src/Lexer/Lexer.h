@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Lexer/Codepoint.h"
+#include "Lexer/Token.h"
 #include "common/source_location.h"
 #include "core/types.h"
-#include "lexer/Codepoint.h"
-#include "lexer/Token.h"
 
 #include <string_view>
 #include <vector>

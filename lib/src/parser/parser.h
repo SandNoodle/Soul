@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Lexer/Token.h"
 #include "ast/ast.h"
 #include "ast/ast_fwd.h"
 #include "core/types.h"
-#include "lexer/Token.h"
 #include "parser/type_specifier.h"
 #include "types/types_fwd.h"
 

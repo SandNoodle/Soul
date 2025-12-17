@@ -2,13 +2,13 @@
 
 #include <gtest/gtest.h>
 
+#include "Lexer/Lexer.h"
 #include "ast/ast.h"
 #include "ast/visitors/compare.h"
 #include "ast/visitors/error_collector.h"
 #include "ast/visitors/stringify.h"
 #include "ast/visitors/type_discoverer.h"
 #include "ast/visitors/type_resolver.h"
-#include "lexer/Lexer.h"
 #include "parser/parser.h"
 
 #include <string_view>

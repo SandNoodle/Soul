@@ -1,4 +1,4 @@
-#include "lexer/Lexer.h"
+#include "Lexer/Lexer.h"
 
 #include <algorithm>
 #include <array>

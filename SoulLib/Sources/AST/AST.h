@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace soul::ast
+namespace Soul::AST
 {
 	/**
 	 * @brief IVisitable interface enables visitor traversal of a given class.
@@ -23,10 +23,10 @@ namespace soul::ast
 		public:
 		virtual ~IVisitable() = default;
 
-		virtual void accept(visitors::IVisitor& visitor)       = 0;
-		virtual void accept(visitors::IVisitor& visitor) const = 0;
+		virtual void accept(Visitors::IVisitor& visitor)       = 0;
+		virtual void accept(Visitors::IVisitor& visitor) const = 0;
 
-		friend visitors::IVisitor;
+		friend Visitors::IVisitor;
 	};
 
 	/**
@@ -43,7 +43,7 @@ namespace soul::ast
 		enum class Operator : u8;
 
 		public:
-		types::Type type = {};
+		Types::Type type = {};
 
 		public:
 		virtual ~ASTNode() = default;
@@ -67,7 +67,7 @@ namespace soul::ast
 
 		static std::string_view name(const Operator op) noexcept;
 		static std::string_view internal_name(const Operator op) noexcept;
-		static Operator as_operator(Token::Type) noexcept;
+		static Operator as_operator(Lexer::Token::Type) noexcept;
 	};
 
 	/**
@@ -80,8 +80,8 @@ namespace soul::ast
 	{
 		private:
 		VisitorAcceptor() = default;
-		void accept(visitors::IVisitor& visitor) override { visitor.visit(static_cast<Node&>(*this)); }
-		void accept(visitors::IVisitor& visitor) const override { visitor.visit(static_cast<const Node&>(*this)); }
+		void accept(Visitors::IVisitor& visitor) override { visitor.visit(static_cast<Node&>(*this)); }
+		void accept(Visitors::IVisitor& visitor) const override { visitor.visit(static_cast<const Node&>(*this)); }
 
 		friend Node;
 	};
@@ -184,19 +184,19 @@ namespace soul::ast
 
 		public:
 		Dependency expression = nullptr;
-		parser::TypeSpecifier type_specifier;
+		Parser::TypeSpecifier type_specifier;
 
 		public:
-		explicit CastNode(Dependency expression, parser::TypeSpecifier type_specifier);
+		explicit CastNode(Dependency expression, Parser::TypeSpecifier type_specifier);
 		~CastNode() override = default;
 
 		/**
 		 * @brief Constructs new Cast expression node.
-		 * @param expr Expression to cast.
+		 * @param expression Expression to cast.
 		 * @param type_specifier Type to cast to.
 		 * @return New 'Cast' expression node.
 		 */
-		static Dependency create(Dependency expression, parser::TypeSpecifier type_specifier);
+		static Dependency create(Dependency expression, Parser::TypeSpecifier type_specifier);
 	};
 
 	/**
@@ -310,13 +310,13 @@ namespace soul::ast
 	{
 		public:
 		Identifier name;
-		parser::TypeSpecifier type_specifier;
+		Parser::TypeSpecifier type_specifier;
 		Dependencies parameters;
 		ScopeBlock statements;
 
 		public:
 		explicit FunctionDeclarationNode(Identifier identifier,
-		                                 parser::TypeSpecifier return_type_specifier,
+		                                 Parser::TypeSpecifier return_type_specifier,
 		                                 Dependencies parameters,
 		                                 ScopeBlock statements);
 		~FunctionDeclarationNode() override = default;
@@ -330,7 +330,7 @@ namespace soul::ast
 		 * @return New 'Function Declaration' statement node.
 		 */
 		static Dependency create(Identifier name,
-		                         parser::TypeSpecifier return_type_specifier,
+		                         Parser::TypeSpecifier return_type_specifier,
 		                         Dependencies parameters,
 		                         ScopeBlock statements);
 	};
@@ -506,13 +506,13 @@ namespace soul::ast
 	{
 		public:
 		Identifier name{};
-		parser::TypeSpecifier type_specifier;
+		Parser::TypeSpecifier type_specifier;
 		Dependency expression{};
 		bool is_mutable{};
 
 		public:
 		explicit VariableDeclarationNode(Identifier name,
-		                                 parser::TypeSpecifier type_specifier,
+		                                 Parser::TypeSpecifier type_specifier,
 		                                 Dependency expr,
 		                                 bool is_mutable);
 		~VariableDeclarationNode() override = default;
@@ -526,7 +526,7 @@ namespace soul::ast
 		 * @return New 'Variable Declaration' statement node.
 		 */
 		static Dependency create(Identifier name,
-		                         parser::TypeSpecifier type_specifier,
+		                         Parser::TypeSpecifier type_specifier,
 		                         Dependency expr,
 		                         bool is_mutable);
 	};
@@ -552,4 +552,4 @@ namespace soul::ast
 		 */
 		static Dependency create(Dependency condition, ScopeBlock statements);
 	};
-}  // namespace soul::ast
+}  // namespace Soul::AST

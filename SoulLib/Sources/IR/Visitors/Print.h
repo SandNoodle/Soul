@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 
-namespace soul::ir::visitors
+namespace Soul::IR::Visitors
 {
 	/**
 	 * @brief PrintVisitor traverses the ir::Module, visiting each function (and its BasicBlocks), which converting
@@ -29,4 +29,4 @@ namespace soul::ir::visitors
 		SOUL_ALL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
 	};
-}  // namespace soul::ir::visitors
+}  // namespace Soul::IR::Visitors

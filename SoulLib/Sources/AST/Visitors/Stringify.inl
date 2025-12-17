@@ -1,5 +1,5 @@
 #pragma once
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	template <std::ranges::forward_range T>
 	auto StringifyVisitor::encode(std::string_view key, const T& parameters, bool add_trailing_comma) -> void
@@ -30,4 +30,4 @@ namespace soul::ast::visitors
 		}
 	}
 
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

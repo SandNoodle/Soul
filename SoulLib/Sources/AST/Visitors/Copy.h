@@ -4,9 +4,7 @@
 #include "AST/ASTFwd.h"
 #include "AST/Visitors/DefaultTraverse.h"
 
-#include <cassert>
-
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief CopyVisitor traverses the AST and performs a deep copy on each node, which is then put into a separate
@@ -73,4 +71,4 @@ namespace soul::ast::visitors
 			return cloned;
 		}
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

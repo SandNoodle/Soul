@@ -6,7 +6,7 @@
 #include <format>
 #include <ranges>
 
-namespace soul::ir::visitors
+namespace Soul::IR::Visitors
 {
 	using namespace std::string_view_literals;
 
@@ -20,7 +20,7 @@ namespace soul::ir::visitors
 		_ss << std::format("module @{}\n\n", module.name);
 		for (const auto& function : module.functions) {
 			if (!function) {
-				_ss << std::format("@fn {}() :: {} {{}}", k_nullptr, std::string(types::Type{}));
+				_ss << std::format("@fn {}() :: {} {{}}", k_nullptr, std::string(Types::Type{}));
 				continue;
 			}
 
@@ -163,4 +163,4 @@ namespace soul::ir::visitors
 	SOUL_LOGICAL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
 
-}  // namespace soul::ir::visitors
+}  // namespace Soul::IR::Visitors

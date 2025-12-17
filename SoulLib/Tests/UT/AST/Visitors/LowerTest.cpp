@@ -12,12 +12,12 @@
 #include "IR/Instruction.h"
 #include "IR/Visitors/Print.h"
 
-namespace soul::ast::visitors::ut
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::types;
-	using namespace soul::parser;
-	using namespace soul::ir;
-	using namespace soul::ir::visitors;
+	using namespace Soul::Types;
+	using namespace Soul::Parser;
+	using namespace Soul::IR;
+	using namespace Soul::IR::Visitors;
 
 	class LowerVisitorTest : public ::testing::Test
 	{
@@ -29,10 +29,10 @@ namespace soul::ast::visitors::ut
 		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 		std::pair<std::string, std::string> compare(const Module& expected, const Module& result)
 		{
-			ir::visitors::PrintVisitor print_result{};
+			IR::Visitors::PrintVisitor print_result{};
 			print_result.accept(result);
 
-			ir::visitors::PrintVisitor print_expected{};
+			IR::Visitors::PrintVisitor print_expected{};
 			print_expected.accept(expected);
 
 			return std::make_pair(std::move(print_expected.string()), std::move(print_result.string()));
@@ -79,7 +79,7 @@ namespace soul::ast::visitors::ut
 		}
 
 		template <PrimitiveType::Kind T>
-		ir::Instruction* emit_const(ir::IRBuilder& builder, detail::PrimitiveKindToValueType<T> value)
+		IR::Instruction* emit_const(IR::IRBuilder& builder, detail::PrimitiveKindToValueType<T> value)
 		{
 			return builder.emit<Const>(T, Scalar::create<T>(std::move(value)));
 		}
@@ -680,19 +680,19 @@ namespace soul::ast::visitors::ut
 
 	template <ASTNode::Operator Op>
 	using BinaryInstruction = VTDictionary<Op,
-	                                       VTTranslation<ASTNode::Operator::Add, ir::Add>,
-	                                       VTTranslation<ASTNode::Operator::Sub, ir::Sub>,
-	                                       VTTranslation<ASTNode::Operator::Mul, ir::Mul>,
-	                                       VTTranslation<ASTNode::Operator::Div, ir::Div>,
-	                                       VTTranslation<ASTNode::Operator::Mod, ir::Mod>,
-	                                       VTTranslation<ASTNode::Operator::Equal, ir::Equal>,
-	                                       VTTranslation<ASTNode::Operator::NotEqual, ir::NotEqual>,
-	                                       VTTranslation<ASTNode::Operator::Greater, ir::Greater>,
-	                                       VTTranslation<ASTNode::Operator::GreaterEqual, ir::GreaterEqual>,
-	                                       VTTranslation<ASTNode::Operator::Less, ir::Less>,
-	                                       VTTranslation<ASTNode::Operator::LessEqual, ir::LessEqual>,
-	                                       VTTranslation<ASTNode::Operator::LogicalAnd, ir::And>,
-	                                       VTTranslation<ASTNode::Operator::LogicalOr, ir::Or>>::Type;
+	                                       VTTranslation<ASTNode::Operator::Add, IR::Add>,
+	                                       VTTranslation<ASTNode::Operator::Sub, IR::Sub>,
+	                                       VTTranslation<ASTNode::Operator::Mul, IR::Mul>,
+	                                       VTTranslation<ASTNode::Operator::Div, IR::Div>,
+	                                       VTTranslation<ASTNode::Operator::Mod, IR::Mod>,
+	                                       VTTranslation<ASTNode::Operator::Equal, IR::Equal>,
+	                                       VTTranslation<ASTNode::Operator::NotEqual, IR::NotEqual>,
+	                                       VTTranslation<ASTNode::Operator::Greater, IR::Greater>,
+	                                       VTTranslation<ASTNode::Operator::GreaterEqual, IR::GreaterEqual>,
+	                                       VTTranslation<ASTNode::Operator::Less, IR::Less>,
+	                                       VTTranslation<ASTNode::Operator::LessEqual, IR::LessEqual>,
+	                                       VTTranslation<ASTNode::Operator::LogicalAnd, IR::And>,
+	                                       VTTranslation<ASTNode::Operator::LogicalOr, IR::Or>>::Type;
 
 	using BinaryTypes = ::testing::Types<BinaryCase<ASTNode::Operator::Add, PrimitiveType::Kind::Int32>,
 	                                     BinaryCase<ASTNode::Operator::Sub, PrimitiveType::Kind::Int32>,
@@ -735,7 +735,7 @@ namespace soul::ast::visitors::ut
 		expected_ir_builder.create_function(this->k_function_name, PrimitiveType::Kind::Void, {});
 		auto* v1 = expected_ir_builder.emit<Const>(k_type, Scalar::create<k_type>(1));
 		auto* v2 = expected_ir_builder.emit<Const>(k_type, Scalar::create<k_type>(2));
-		if constexpr (std::is_constructible_v<InstructionCase, types::Type, Instruction*, Instruction*>) {
+		if constexpr (std::is_constructible_v<InstructionCase, Types::Type, Instruction*, Instruction*>) {
 			expected_ir_builder.emit<InstructionCase>(k_type, v1, v2);
 		} else if constexpr (std::is_constructible_v<InstructionCase, Instruction*, Instruction*>) {
 			expected_ir_builder.emit<InstructionCase>(v1, v2);
@@ -748,4 +748,4 @@ namespace soul::ast::visitors::ut
 		auto [expected_string, result_string] = this->compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
-}  // namespace soul::ast::visitors::ut
+}  // namespace Soul::AST::Visitors::UT

@@ -1,6 +1,6 @@
 #include "AST/Visitors/ErrorCollector.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	ErrorCollectorVisitor::ErrorCollectorVisitor(std::size_t max_depth)
 		: _depth_current(0), _depth_max(max_depth), _errors()
@@ -31,4 +31,4 @@ namespace soul::ast::visitors
 		}
 		_errors.emplace_back(std::make_pair(_depth_current, &node));
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

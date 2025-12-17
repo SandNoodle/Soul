@@ -1,6 +1,6 @@
 #include "AST/Visitors/Copy.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	ASTNode::Dependency CopyVisitor::cloned() noexcept { return std::move(_current_clone); }
 
@@ -193,4 +193,4 @@ namespace soul::ast::visitors
 		auto statements{ clone(node.statements.get()) };
 		return WhileNode::create(std::move(condition), std::move(statements));
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

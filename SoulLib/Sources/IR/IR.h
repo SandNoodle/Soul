@@ -7,7 +7,7 @@
 #include <string_view>
 #include <vector>
 
-namespace soul::ir
+namespace Soul::IR
 {
 	class IRBuilder;
 
@@ -15,12 +15,12 @@ namespace soul::ir
 	{
 		public:
 		std::string name;
-		types::Type return_type;
-		std::vector<types::Type> parameters;
+		Types::Type return_type;
+		std::vector<Types::Type> parameters;
 		std::vector<std::unique_ptr<BasicBlock>> basic_blocks;
 
 		public:
-		constexpr Function(std::string_view name, types::Type return_type, std::vector<types::Type> parameters);
+		constexpr Function(std::string_view name, Types::Type return_type, std::vector<Types::Type> parameters);
 	};
 
 	struct Module
@@ -32,5 +32,5 @@ namespace soul::ir
 		public:
 		constexpr Module(std::string_view name);
 	};
-}  // namespace soul::ir
+}  // namespace Soul::IR
 #include "IR/IR.inl"

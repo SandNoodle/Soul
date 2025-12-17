@@ -2,7 +2,7 @@
 
 #include "AST/AST.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	void SemanticAnalyzerVisitor::visit(const BinaryNode& node)
 	{
@@ -118,4 +118,4 @@ namespace soul::ast::visitors
 		}
 		return nullptr;
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

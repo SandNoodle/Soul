@@ -1,8 +1,8 @@
 #include "Types/Overloads.h"
 
-namespace soul::types
+namespace Soul::Types
 {
-	using namespace soul::ast;
+	using namespace Soul::AST;
 
 	static const std::array k_operator_overloads = {
 		// Arithmetic
@@ -318,4 +318,4 @@ namespace soul::types
 	};
 
 	std::span<const OperatorOverload> OperatorOverload::all() noexcept { return k_operator_overloads; }
-}  // namespace soul::types
+}  // namespace Soul::Types

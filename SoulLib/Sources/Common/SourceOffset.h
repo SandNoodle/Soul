@@ -5,7 +5,7 @@
 #include <format>
 #include <string>
 
-namespace soul
+namespace Soul
 {
 	/**
 	 * @brief Represents some relative position into a source file.
@@ -35,4 +35,4 @@ namespace soul
 	{
 		return os << std::string(location);
 	}
-}  // namespace soul
+}  // namespace Soul

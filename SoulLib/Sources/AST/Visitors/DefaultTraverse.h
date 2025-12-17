@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief DefaultTraverseVisitor traverses every node of the Abstract Syntax Tree.
@@ -38,4 +38,4 @@ namespace soul::ast::visitors
 		virtual void visit(const VariableDeclarationNode&) override;
 		virtual void visit(const WhileNode&) override;
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

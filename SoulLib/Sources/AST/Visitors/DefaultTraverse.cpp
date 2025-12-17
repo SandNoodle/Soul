@@ -1,6 +1,6 @@
 #include "AST/Visitors/DefaultTraverse.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	void DefaultTraverseVisitor::accept(ASTNode::Reference node)
 	{
@@ -93,4 +93,4 @@ namespace soul::ast::visitors
 		accept(node.condition.get());
 		accept(node.statements.get());
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

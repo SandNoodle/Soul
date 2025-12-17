@@ -4,7 +4,7 @@
 #include "AST/ASTFwd.h"
 #include "AST/Visitors/Copy.h"
 #include "AST/Visitors/TypeDiscoverer.h"
-#include "Types/TypeFwd.h"
+#include "Types/Type.h"
 
 #include <optional>
 #include <ranges>
@@ -13,7 +13,7 @@
 #include <tuple>
 #include <vector>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief TypeResolverVisitor traverses the AST while resolving each node into the correct type.
@@ -21,25 +21,25 @@ namespace soul::ast::visitors
 	class TypeResolverVisitor final : public CopyVisitor
 	{
 		public:
-		using Types = TypeDiscovererVisitor::Types;
+		using TypeDeclarations = TypeDiscovererVisitor::TypeDeclarations;
 
 		private:
 		struct FunctionDeclaration
 		{
-			std::vector<types::Type> input_types;
-			types::Type return_type;
+			std::vector<Types::Type> input_types;
+			Types::Type return_type;
 		};
 
-		using VariableContext = std::vector<std::pair<std::string, types::Type>>;
+		using VariableContext = std::vector<std::pair<std::string, Types::Type>>;
 		using FunctionContext = std::vector<std::pair<std::string, FunctionDeclaration>>;
 
 		private:
-		Types _registered_types;
+		TypeDeclarations _registered_types;
 		VariableContext _variables_in_scope;
 		FunctionContext _functions_in_module;
 
 		public:
-		TypeResolverVisitor(Types type_map);
+		TypeResolverVisitor(TypeDeclarations type_map);
 		TypeResolverVisitor(const TypeResolverVisitor&)     = delete;
 		TypeResolverVisitor(TypeResolverVisitor&&) noexcept = default;
 		~TypeResolverVisitor()                              = default;
@@ -69,13 +69,13 @@ namespace soul::ast::visitors
 		void visit(const WhileNode&) override;
 
 		private:
-		types::Type get_type_or_default(const parser::TypeSpecifier& type_specifier) const noexcept;
-		std::optional<types::Type> get_variable_type(std::string_view name) const noexcept;
-		types::Type get_type_for_operator(ASTNode::Operator op,
+		Types::Type get_type_or_default(const Parser::TypeSpecifier& type_specifier) const noexcept;
+		std::optional<Types::Type> get_variable_type(std::string_view name) const noexcept;
+		Types::Type get_type_for_operator(ASTNode::Operator op,
 		                                  const std::ranges::forward_range auto& input_types) const noexcept;
 		std::optional<FunctionDeclaration> get_function_declaration(
 			std::string_view name,
 			const std::ranges::forward_range auto& want_types) const noexcept;
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors
 #include "AST/Visitors/TypeResolver.inl"

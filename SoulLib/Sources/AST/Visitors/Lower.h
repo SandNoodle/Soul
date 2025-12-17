@@ -10,7 +10,7 @@
 
 #include <vector>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief CodegenVisitor lowers the AST into langauge's IR.
@@ -20,16 +20,16 @@ namespace soul::ast::visitors
 	{
 		private:
 		using LoopJumpTargets
-			= std::vector<std::pair<ir::BasicBlock* /* continuation */, ir::BasicBlock* /* termination */>>;
+			= std::vector<std::pair<IR::BasicBlock* /* continuation */, IR::BasicBlock* /* termination */>>;
 
 		private:
-		ir::IRBuilder _builder{};
-		ir::Instruction* _current_instruction{ nullptr };
+		IR::IRBuilder _builder{};
+		IR::Instruction* _current_instruction{ nullptr };
 		LoopJumpTargets _loop_jump_targets{};
 
 		public:
 		/** @brief Returns IR representation equivalent to the AST. */
-		std::unique_ptr<ir::Module> get() noexcept;
+		std::unique_ptr<IR::Module> get() noexcept;
 
 		using DefaultTraverseVisitor::accept;
 
@@ -57,23 +57,23 @@ namespace soul::ast::visitors
 		 * @brief Visits the specified node and emits its equivalent instruction(s).
 		 * @warning Some nodes may not be visited directly and should be handled separately (see implementation).
 		 */
-		ir::Instruction* emit(const ASTNode::Reference);
-		ir::Instruction* emit(const BinaryNode&);
-		ir::Instruction* emit(const BlockNode&);
-		ir::Instruction* emit(const CastNode&);
-		ir::Instruction* emit(const ErrorNode&);
-		ir::Instruction* emit(const ForLoopNode&);
-		ir::Instruction* emit(const ForeachLoopNode&);
-		ir::Instruction* emit(const FunctionCallNode&);
-		ir::Instruction* emit(const FunctionDeclarationNode&);
-		ir::Instruction* emit(const IfNode&);
-		ir::Instruction* emit(const LiteralNode&);
-		ir::Instruction* emit(const LoopControlNode&);
-		ir::Instruction* emit(const ModuleNode&);
-		ir::Instruction* emit(const ReturnNode&);
-		ir::Instruction* emit(const StructDeclarationNode&);
-		ir::Instruction* emit(const UnaryNode&);
-		ir::Instruction* emit(const VariableDeclarationNode&);
-		ir::Instruction* emit(const WhileNode&);
+		IR::Instruction* emit(const ASTNode::Reference);
+		IR::Instruction* emit(const BinaryNode&);
+		IR::Instruction* emit(const BlockNode&);
+		IR::Instruction* emit(const CastNode&);
+		IR::Instruction* emit(const ErrorNode&);
+		IR::Instruction* emit(const ForLoopNode&);
+		IR::Instruction* emit(const ForeachLoopNode&);
+		IR::Instruction* emit(const FunctionCallNode&);
+		IR::Instruction* emit(const FunctionDeclarationNode&);
+		IR::Instruction* emit(const IfNode&);
+		IR::Instruction* emit(const LiteralNode&);
+		IR::Instruction* emit(const LoopControlNode&);
+		IR::Instruction* emit(const ModuleNode&);
+		IR::Instruction* emit(const ReturnNode&);
+		IR::Instruction* emit(const StructDeclarationNode&);
+		IR::Instruction* emit(const UnaryNode&);
+		IR::Instruction* emit(const VariableDeclarationNode&);
+		IR::Instruction* emit(const WhileNode&);
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

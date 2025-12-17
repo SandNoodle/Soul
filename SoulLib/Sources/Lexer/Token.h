@@ -6,7 +6,7 @@
 #include <format>
 #include <string>
 
-namespace soul
+namespace Soul::Lexer
 {
 	/**
 	 * @brief Represents a single lexical token, otherwise known as Lexeme.
@@ -104,4 +104,4 @@ namespace soul
 		SpecialError,
 		SpecialEndOfFile,
 	};
-}  // namespace soul
+}  // namespace Soul::Lexer

@@ -10,8 +10,8 @@ set(CMAKE_CXX_EXTENSIONS False)
 
 # ----- [ Files ] -----
 set(SoulLib_SOURCES
-        Sources/AST/ast.cpp
-        Sources/AST/ast.h
+        Sources/AST/AST.cpp
+        Sources/AST/AST.h
         Sources/AST/ASTFwd.h
         Sources/AST/Visitors/Compare.cpp
         Sources/AST/Visitors/Compare.h

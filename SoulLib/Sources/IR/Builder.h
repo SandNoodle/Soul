@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace soul::ir
+namespace Soul::IR
 {
 	/**
 	 * @brief IRBuilder is a helper class, which simplifies building of IRs.
@@ -44,9 +44,9 @@ namespace soul::ir
 		 * @warning Switches the current basic block to a newly initialized one.
 		 */
 		constexpr void create_function(std::string_view identifier,
-		                               types::Type return_type,
-		                               std::vector<types::Type> parameters);
-		constexpr StackSlot* reserve_slot(std::string_view identifier, types::Type type);
+		                               Types::Type return_type,
+		                               std::vector<Types::Type> parameters);
+		constexpr StackSlot* reserve_slot(std::string_view identifier, Types::Type type);
 		constexpr StackSlot* get_slot(std::string_view identifier);
 
 		constexpr void switch_to(BasicBlock* block);
@@ -69,5 +69,5 @@ namespace soul::ir
 			requires(std::is_constructible_v<Inst, std::remove_cvref_t<Args>...>)
 		constexpr Instruction* emit_impl(Args&&... args);
 	};
-}  // namespace soul::ir
+}  // namespace Soul::IR
 #include "IR/Builder.inl"

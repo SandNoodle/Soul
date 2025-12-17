@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-namespace soul
+namespace Soul::Lexer
 {
 	using namespace std::string_view_literals;
 
@@ -149,4 +149,4 @@ namespace soul
 		};
 		return k_token_name.at(type);
 	}
-}  // namespace soul
+}  // namespace Soul::Lexer

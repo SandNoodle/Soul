@@ -2,9 +2,10 @@
 
 #include <unordered_map>
 
-namespace soul::ast
+namespace Soul::AST
 {
-	using namespace soul::parser;
+	using namespace Soul::Lexer;
+	using namespace Soul::Parser;
 
 	std::string_view ASTNode::name(const ASTNode::Operator op) noexcept
 	{
@@ -290,4 +291,4 @@ namespace soul::ast
 	{
 		return std::make_unique<WhileNode>(std::move(condition), std::move(statements));
 	}
-}  // namespace soul::ast
+}  // namespace Soul::AST

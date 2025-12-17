@@ -5,7 +5,7 @@
 
 #include <compare>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief CompareVisitor traverses both ASTs and returns the relation between them (by comparing each node).
@@ -26,4 +26,4 @@ namespace soul::ast::visitors
 		template <NodeKind Node>
 		void compare(const Node& lhs, const Node& rhs);
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

@@ -9,7 +9,7 @@
 #include <span>
 #include <string_view>
 
-namespace soul::parser
+namespace Soul::Parser
 {
 	/**
 	 * @brief Parser performs syntactic analysis on a given linear list of lexical tokens, i.e. converts it into an
@@ -22,9 +22,9 @@ namespace soul::parser
 		enum class Precedence : u8;
 
 		private:
-		std::span<const Token> _tokens                  = {};
-		std::span<const Token>::iterator _current_token = {};
-		std::string_view _module_name                   = {};
+		std::span<const Lexer::Token> _tokens                  = {};
+		std::span<const Lexer::Token>::iterator _current_token = {};
+		std::string_view _module_name                          = {};
 
 		public:
 		/**
@@ -33,51 +33,51 @@ namespace soul::parser
 		 * @param tokens Tokens to be parsed.
 		 * @return Module with parsed statements.
 		 */
-		[[nodiscard]] static ast::ASTNode::Dependency parse(std::string_view module_name,
-		                                                    std::span<const Token> tokens);
+		[[nodiscard]] static AST::ASTNode::Dependency parse(std::string_view module_name,
+		                                                    std::span<const Lexer::Token> tokens);
 
 		private:
-		Parser(std::string_view module_name, std::span<const Token> tokens);
+		Parser(std::string_view module_name, std::span<const Lexer::Token> tokens);
 
-		ast::ASTNode::Dependency parse();
-		ast::ASTNode::Dependency parse_statement();
-		ast::ASTNode::Dependency parse_expression();
-		ast::ASTNode::Dependency parse_expression(Precedence precedence);
+		AST::ASTNode::Dependency parse();
+		AST::ASTNode::Dependency parse_statement();
+		AST::ASTNode::Dependency parse_expression();
+		AST::ASTNode::Dependency parse_expression(Precedence precedence);
 
-		ast::ASTNode::Dependency parse_binary(ast::ASTNode::Dependency lhs);
-		ast::ASTNode::Dependency parse_cast();
-		ast::ASTNode::Dependency parse_for_loop();
-		ast::ASTNode::Dependency parse_function_call(ast::ASTNode::Dependency dependency);
-		ast::ASTNode::Dependency parse_function_declaration();
-		ast::ASTNode::Dependency parse_grouping();
-		ast::ASTNode::Dependency parse_if();
-		ast::ASTNode::Dependency parse_literal();
-		ast::ASTNode::Dependency parse_loop_control();
-		ast::ASTNode::Dependency parse_return();
-		ast::ASTNode::Dependency parse_struct_declaration();
-		ast::ASTNode::Dependency parse_unary();
-		ast::ASTNode::Dependency parse_variable_declaration();
-		ast::ASTNode::Dependency parse_while_loop();
+		AST::ASTNode::Dependency parse_binary(AST::ASTNode::Dependency lhs);
+		AST::ASTNode::Dependency parse_cast();
+		AST::ASTNode::Dependency parse_for_loop();
+		AST::ASTNode::Dependency parse_function_call(AST::ASTNode::Dependency dependency);
+		AST::ASTNode::Dependency parse_function_declaration();
+		AST::ASTNode::Dependency parse_grouping();
+		AST::ASTNode::Dependency parse_if();
+		AST::ASTNode::Dependency parse_literal();
+		AST::ASTNode::Dependency parse_loop_control();
+		AST::ASTNode::Dependency parse_return();
+		AST::ASTNode::Dependency parse_struct_declaration();
+		AST::ASTNode::Dependency parse_unary();
+		AST::ASTNode::Dependency parse_variable_declaration();
+		AST::ASTNode::Dependency parse_while_loop();
 
-		ast::ASTNode::Dependencies parse_block_statement();
-		ast::ASTNode::Dependency parse_initializer_list();
-		ast::ASTNode::Dependency parse_parameter_declaration();
+		AST::ASTNode::Dependencies parse_block_statement();
+		AST::ASTNode::Dependency parse_initializer_list();
+		AST::ASTNode::Dependency parse_parameter_declaration();
 		std::optional<TypeSpecifier> parse_type_specifier();
 
 		/**
 		 * @brief Creates new Error node in the AST and resynchronizes the parser.
 		 */
-		ast::ASTNode::Dependency create_error(ast::ErrorNode::Message error_message);
+		AST::ASTNode::Dependency create_error(AST::ErrorNode::Message error_message);
 
-		std::optional<Token> require(Token::Type type);
-		std::optional<Token> require(std::span<const Token::Type> types);
-		std::optional<Token> peek(std::ptrdiff_t n);
-		bool match(Token::Type type);
+		std::optional<Lexer::Token> require(Lexer::Token::Type type);
+		std::optional<Lexer::Token> require(std::span<const Lexer::Token::Type> types);
+		std::optional<Lexer::Token> peek(std::ptrdiff_t n);
+		bool match(Lexer::Token::Type type);
 
-		PrecedenceRule precedence_rule(Token::Type type) const noexcept;
+		PrecedenceRule precedence_rule(Lexer::Token::Type type) const noexcept;
 
 		/** @brief Returns current token or an explicit EOF one. */
-		Token current_token_or_default() const noexcept;
+		Lexer::Token current_token_or_default() const noexcept;
 
 		template <typename T>
 			requires(std::is_arithmetic_v<T>)
@@ -91,4 +91,4 @@ namespace soul::parser
 			return value;
 		}
 	};
-}  // namespace soul::parser
+}  // namespace Soul::Parser

@@ -9,7 +9,7 @@
 #include <variant>
 #include <vector>
 
-namespace soul::types
+namespace Soul::Types
 {
 	/** @brief TypeKind is a concept that specifies types present in the language's type system. */
 	template <typename T>
@@ -185,4 +185,4 @@ namespace soul::types
 	{
 		return std::tie(lhs._type) <=> std::tie(rhs._type);
 	}
-}  // namespace soul::types
+}  // namespace Soul::Types

@@ -10,11 +10,9 @@
 #include <set>
 #include <source_location>
 
-namespace soul::parser::ut
+namespace Soul::Parser::UT
 {
-	using namespace soul::ast::visitors;
-	using namespace soul::lexer;
-	using namespace soul::parser;
+	using namespace Soul::AST::Visitors;
 
 	struct Case
 	{
@@ -92,7 +90,7 @@ namespace soul::parser::ut
 		const auto input = read_file(param.script_path);
 		ASSERT_TRUE(input.has_value()) << "failed to read: " << param.script_path;
 
-		const auto tokens      = Lexer::Tokenize(*input);  // NOLINT(bugprone-unchecked-optional-access)
+		const auto tokens      = Lexer::Lexer::Tokenize(*input);  // NOLINT(bugprone-unchecked-optional-access)
 		const auto result_tree = Parser::parse("test_module", tokens);
 
 		StringifyVisitor stringify;
@@ -113,4 +111,4 @@ namespace soul::parser::ut
 		ASSERT_TRUE(expected_output.has_value()) << "failed to read: " << param.expected_output_path;
 		ASSERT_EQ(expected_output.value(), stringify.string());  // NOLINT(bugprone-unchecked-optional-access)
 	}
-}  // namespace soul::parser::ut
+}  // namespace Soul::Parser::UT

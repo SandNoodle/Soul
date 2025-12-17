@@ -1,5 +1,5 @@
 #pragma once
-namespace soul::ir
+namespace Soul::IR
 {
 	constexpr BasicBlock::BasicBlock(Label label) : label(label) {}
-}  // namespace soul::ir
+}  // namespace Soul::IR

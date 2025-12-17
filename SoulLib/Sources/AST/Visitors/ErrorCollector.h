@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief ErrorPropagationVisitor traverses the AST while gathering info of any `ErrorNode`s that might be present.
@@ -46,4 +46,4 @@ namespace soul::ast::visitors
 		using DefaultTraverseVisitor::visit;
 		void visit(const ErrorNode&) override;
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

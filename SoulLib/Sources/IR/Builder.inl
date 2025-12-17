@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-namespace soul::ir
+namespace Soul::IR
 {
 	constexpr IRBuilder::IRBuilder() : _module(std::make_unique<Module>("")) {}
 
@@ -41,8 +41,8 @@ namespace soul::ir
 	constexpr auto IRBuilder::set_module_name(std::string_view name) -> void { _module->name = std::string(name); }
 
 	constexpr auto IRBuilder::create_function(std::string_view identifier,
-	                                          types::Type return_type,
-	                                          std::vector<types::Type> parameters) -> void
+	                                          Types::Type return_type,
+	                                          std::vector<Types::Type> parameters) -> void
 	{
 		_next_instruction_version = 0;
 		_module->functions.emplace_back(
@@ -50,7 +50,7 @@ namespace soul::ir
 		_current_block = create_basic_block();
 	}
 
-	constexpr auto IRBuilder::reserve_slot(std::string_view identifier, types::Type type) -> StackSlot*
+	constexpr auto IRBuilder::reserve_slot(std::string_view identifier, Types::Type type) -> StackSlot*
 	{
 		auto* slot                 = static_cast<StackSlot*>(emit<StackSlot>(std::move(type)));
 		_slots_mapping[identifier] = slot;
@@ -96,4 +96,4 @@ namespace soul::ir
 		_current_block->instructions.back()->version = _next_instruction_version++;
 		return static_cast<Inst*>(_current_block->instructions.back().get());
 	}
-}  // namespace soul::ir
+}  // namespace Soul::IR

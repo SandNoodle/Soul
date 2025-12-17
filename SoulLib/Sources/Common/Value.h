@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace soul
+namespace Soul
 {
 	class Value;
 
@@ -18,29 +18,29 @@ namespace soul
 
 	namespace detail
 	{
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		using PrimitiveKindToValueType
 			= VTDictionary<V,
-		                   VTTranslation<types::PrimitiveType::Kind::Boolean, bool>,
-		                   VTTranslation<types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float32, f32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float64, f64>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int32, i32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int64, i64>,
-		                   VTTranslation<types::PrimitiveType::Kind::String, std::string>>::Type;
+		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float32, f32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float64, f64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int32, i32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int64, i64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string>>::Type;
 
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		using PrimitiveKindToViewType
 			= VTDictionary<V,
-		                   VTTranslation<types::PrimitiveType::Kind::Boolean, bool>,
-		                   VTTranslation<types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float32, f32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float64, f64>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int32, i32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int64, i64>,
-		                   VTTranslation<types::PrimitiveType::Kind::String, std::string_view>>::Type;
+		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float32, f32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float64, f64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int32, i32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int64, i64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string_view>>::Type;
 
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		class ValueBase
 		{
 			public:
@@ -56,55 +56,55 @@ namespace soul
 			constexpr auto operator<=>(const ValueBase& other) const noexcept = default;
 			[[nodiscard]] constexpr operator ViewType() const noexcept;
 
-			[[nodiscard]] constexpr types::Type type() const noexcept;
+			[[nodiscard]] constexpr Types::Type type() const noexcept;
 		};
 
-		template <types::PrimitiveType::Kind... Vs>
+		template <Types::PrimitiveType::Kind... Vs>
 		class ScalarBase
 		{
 			public:
-			template <types::PrimitiveType::Kind V>
+			template <Types::PrimitiveType::Kind V>
 			using ValueType = ValueBase<V>;
 
 			private:
 			std::variant<ValueBase<Vs>...> _value;
 
 			public:
-			template <types::PrimitiveType::Kind V>
+			template <Types::PrimitiveType::Kind V>
 			constexpr ScalarBase(ValueType<V> value);
 			constexpr bool operator==(const ScalarBase& other) const noexcept  = default;
 			constexpr auto operator<=>(const ScalarBase& other) const noexcept = default;
 			explicit operator std::string() const;
 
-			template <types::PrimitiveType::Kind V, typename... Args>
+			template <Types::PrimitiveType::Kind V, typename... Args>
 			static constexpr ValueType<V> create(Args&&... args);
 
 			/**
 			 * @brief Verifies if Scalar of a given type.
 			 * @return \b true if it is, \b false otherwise.
 			 */
-			template <types::PrimitiveType::Kind V>
+			template <Types::PrimitiveType::Kind V>
 			constexpr bool is() const noexcept;
 
 			/**
 			 * @brief Returns the underlying value (of a given type).
 			 * @important Does not perform any validation - assumes that Value::is<T> was used first.
 			 */
-			template <types::PrimitiveType::Kind V>
+			template <Types::PrimitiveType::Kind V>
 			constexpr ValueBase<V>::ViewType as() const noexcept;
 
-			[[nodiscard]] types::Type type() const;
+			[[nodiscard]] Types::Type type() const;
 		};
 	}  // namespace detail
 
 	/** @brief Represents a value of some primitive type. */
-	using Scalar = detail::ScalarBase<types::PrimitiveType::Kind::Boolean,
-	                                  types::PrimitiveType::Kind::Char,
-	                                  types::PrimitiveType::Kind::Float32,
-	                                  types::PrimitiveType::Kind::Float64,
-	                                  types::PrimitiveType::Kind::Int32,
-	                                  types::PrimitiveType::Kind::Int64,
-	                                  types::PrimitiveType::Kind::String>;
+	using Scalar = detail::ScalarBase<Types::PrimitiveType::Kind::Boolean,
+	                                  Types::PrimitiveType::Kind::Char,
+	                                  Types::PrimitiveType::Kind::Float32,
+	                                  Types::PrimitiveType::Kind::Float64,
+	                                  Types::PrimitiveType::Kind::Int32,
+	                                  Types::PrimitiveType::Kind::Int64,
+	                                  Types::PrimitiveType::Kind::String>;
 
 	/**
 	 * @brief Represents a reference to some variable, function name, etc.
@@ -127,7 +127,7 @@ namespace soul
 
 		static constexpr Identifier create(ViewType value);
 
-		[[nodiscard]] types::Type type() const noexcept;
+		[[nodiscard]] Types::Type type() const noexcept;
 	};
 
 	/**
@@ -147,7 +147,7 @@ namespace soul
 		constexpr auto operator<=>(const Array& other) const         = default;
 		explicit operator std::string() const;
 
-		[[nodiscard]] types::Type type() const;
+		[[nodiscard]] Types::Type type() const;
 	};
 
 	/**
@@ -167,7 +167,7 @@ namespace soul
 		constexpr auto operator<=>(const Struct& other) const         = default;
 		explicit operator std::string() const;
 
-		[[nodiscard]] types::Type type() const;
+		[[nodiscard]] Types::Type type() const;
 	};
 
 	/** @brief Represents a value of an unknown type. */
@@ -198,7 +198,7 @@ namespace soul
 		constexpr Value(Value&&) noexcept      = default;
 		constexpr Value(Identifier value);
 		constexpr Value(Variant value);
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		constexpr Value(Scalar::ValueType<V> value);
 
 		constexpr Value& operator=(const Value&) noexcept      = default;
@@ -222,9 +222,9 @@ namespace soul
 		template <ValueKind T>
 		[[nodiscard]] constexpr const T& as() const noexcept;
 
-		[[nodiscard]] types::Type type() const;
+		[[nodiscard]] Types::Type type() const;
 
 		friend std::partial_ordering operator<=>(const Value& lhs, const Value& rhs);
 	};
-}  // namespace soul
+}  // namespace Soul
 #include "Common/Value.inl"

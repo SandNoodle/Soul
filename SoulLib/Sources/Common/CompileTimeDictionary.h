@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace soul
+namespace Soul
 {
 	namespace detail
 	{
@@ -77,4 +77,4 @@ namespace soul
 	struct VTDictionary : public detail::TBase<V == Ts::k_value, typename Ts::Type>...
 	{
 	};
-}  // namespace soul
+}  // namespace Soul

@@ -2,7 +2,7 @@
 
 #include "AST/ASTFwd.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief Base class for visiting nodes in the Abstract Syntax Tree.
@@ -36,4 +36,4 @@ namespace soul::ast::visitors
 		virtual constexpr void visit(const VariableDeclarationNode&) {}
 		virtual constexpr void visit(const WhileNode&) {}
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

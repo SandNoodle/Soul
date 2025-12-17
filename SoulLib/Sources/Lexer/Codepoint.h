@@ -2,7 +2,7 @@
 
 #include "Core/Types.h"
 
-namespace soul
+namespace Soul
 {
 	/**
 	 * @brief Represents a single character encoded in a UTF-8 format.
@@ -61,4 +61,4 @@ namespace soul
 			return IsAsciiAlphabetic(c) || c == k_low_line;
 		}
 	};
-}  // namespace soul
+}  // namespace Soul

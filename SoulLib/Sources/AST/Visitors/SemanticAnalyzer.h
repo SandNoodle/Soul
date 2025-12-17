@@ -3,7 +3,7 @@
 #include "AST/ASTFwd.h"
 #include "AST/Visitors/Copy.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief SemanticAnalyzerVisitor traverses the AST while verifying that each construct present is valid and
@@ -37,4 +37,4 @@ namespace soul::ast::visitors
 		private:
 		VariableDeclarationNode* get_variable(std::string_view identifier);
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

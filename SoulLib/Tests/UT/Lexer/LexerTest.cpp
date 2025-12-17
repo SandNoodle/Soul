@@ -5,7 +5,7 @@
 #include <array>
 #include <string_view>
 
-namespace soul::lexer::ut
+namespace Soul::Lexer::UT
 {
 	using namespace std::string_view_literals;
 
@@ -286,4 +286,4 @@ namespace soul::lexer::ut
 			EXPECT_EQ(k_expected_tokens[index].location, result_tokens[index].location);
 		}
 	}
-}  // namespace soul::lexer::ut
+}  // namespace Soul::Lexer::UT

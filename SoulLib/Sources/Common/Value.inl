@@ -1,48 +1,48 @@
 #pragma once
 
-namespace soul
+namespace Soul
 {
 	namespace detail
 	{
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		constexpr ValueBase<V>::ValueBase(ViewType value) noexcept : _value(static_cast<ValueType>(std::move(value)))
 		{
 		}
 
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		constexpr ValueBase<V>::operator ViewType() const noexcept
 		{
 			return static_cast<ViewType>(_value);
 		}
 
-		template <types::PrimitiveType::Kind V>
-		constexpr auto ValueBase<V>::type() const noexcept -> types::Type
+		template <Types::PrimitiveType::Kind V>
+		constexpr auto ValueBase<V>::type() const noexcept -> Types::Type
 		{
 			return V;
 		}
 
-		template <types::PrimitiveType::Kind... Vs>
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind... Vs>
+		template <Types::PrimitiveType::Kind V>
 		constexpr ScalarBase<Vs...>::ScalarBase(ValueType<V> value) : _value(std::move(value))
 		{
 		}
 
-		template <types::PrimitiveType::Kind... Vs>
-		template <types::PrimitiveType::Kind V, typename... Args>
+		template <Types::PrimitiveType::Kind... Vs>
+		template <Types::PrimitiveType::Kind V, typename... Args>
 		constexpr auto ScalarBase<Vs...>::create(Args&&... args) -> ValueType<V>
 		{
 			return ValueType<V>(std::forward<Args>(args)...);
 		}
 
-		template <types::PrimitiveType::Kind... Vs>
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind... Vs>
+		template <Types::PrimitiveType::Kind V>
 		constexpr auto ScalarBase<Vs...>::is() const noexcept -> bool
 		{
 			return std::holds_alternative<ValueBase<V>>(_value);
 		}
 
-		template <types::PrimitiveType::Kind... Vs>
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind... Vs>
+		template <Types::PrimitiveType::Kind V>
 		constexpr auto ScalarBase<Vs...>::as() const noexcept -> ValueBase<V>::ViewType
 		{
 			return std::get<ValueBase<V>>(_value);
@@ -63,7 +63,7 @@ namespace soul
 
 	constexpr Value::Value(Variant value) : _value(std::move(value)) {}
 
-	template <types::PrimitiveType::Kind V>
+	template <Types::PrimitiveType::Kind V>
 	constexpr Value::Value(Scalar::ValueType<V> value) : _value(std::move(value))
 	{
 	}
@@ -79,4 +79,4 @@ namespace soul
 	{
 		return std::get<T>(_value);
 	}
-}  // namespace soul
+}  // namespace Soul

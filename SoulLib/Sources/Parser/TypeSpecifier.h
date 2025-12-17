@@ -7,7 +7,7 @@
 #include <string>
 #include <variant>
 
-namespace soul::parser
+namespace Soul::Parser
 {
 	class ArrayTypeSpecifier;
 	class BaseTypeSpecifier;
@@ -144,4 +144,4 @@ namespace soul::parser
 	extern const BaseTypeSpecifier k_base_specifier_usize;
 
 	extern const BaseTypeSpecifier k_base_specifier_void;
-}  // namespace soul::parser
+}  // namespace Soul::Parser

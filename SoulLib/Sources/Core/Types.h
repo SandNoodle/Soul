@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace soul
+namespace Soul
 {
 	using u8  = std::uint8_t;
 	using u16 = std::uint16_t;
@@ -19,4 +19,4 @@ namespace soul
 	using f64 = double;
 	static_assert(sizeof(f32) == sizeof(u32), "expected f32 to be 4 bytes.");
 	static_assert(sizeof(f64) == sizeof(u64), "expected f64 to be 4 bytes.");
-}  // namespace soul
+}  // namespace Soul

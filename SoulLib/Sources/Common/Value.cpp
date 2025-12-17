@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace soul
+namespace Soul
 {
 	template <>
 	Scalar::operator std::string() const
@@ -22,15 +22,15 @@ namespace soul
 	}
 
 	template <>
-	types::Type Scalar::type() const
+	Types::Type Scalar::type() const
 	{
-		return std::visit([](const auto& v) -> types::Type { return v.type(); }, _value);
+		return std::visit([](const auto& v) -> Types::Type { return v.type(); }, _value);
 	}
 
-	types::Type Identifier::type() const noexcept
+	Types::Type Identifier::type() const noexcept
 	{
 		// NOTE: We can't know the Identifier's type before resolving, thus unknown.
-		return types::Type{};
+		return Types::Type{};
 	}
 
 	Identifier::operator std::string() const { return _value; }
@@ -49,10 +49,10 @@ namespace soul
 		return ss.str();
 	}
 
-	types::Type Array::type() const
+	Types::Type Array::type() const
 	{
 		if (_values.empty()) [[unlikely]] {
-			return types::Type{};
+			return Types::Type{};
 		}
 
 		const auto& first_type = _values[0].type();
@@ -60,10 +60,10 @@ namespace soul
 			= std::ranges::any_of(_values, [&first_type](const auto& v) -> bool { return v.type() != first_type; });
 		if (!is_same_type) [[unlikely]] {
 			// NOTE: We expect all array values to have the same type.
-			return types::Type{ types::ArrayType{ types::Type{} } };
+			return Types::Type{ Types::ArrayType{ Types::Type{} } };
 		}
 
-		return types::Type{ types::ArrayType{ first_type } };
+		return Types::Type{ Types::ArrayType{ first_type } };
 	}
 
 	Struct::operator std::string() const
@@ -80,14 +80,14 @@ namespace soul
 		return ss.str();
 	}
 
-	types::Type Struct::type() const
+	Types::Type Struct::type() const
 	{
-		types::StructType::ContainedTypes member_types{};
+		Types::StructType::ContainedTypes member_types{};
 		member_types.reserve(_members.size());
 		for (const auto& member : _members) {
 			member_types.emplace_back(member.type());
 		}
-		return types::Type{ types::StructType{ std::move(member_types) } };
+		return Types::Type{ Types::StructType{ std::move(member_types) } };
 	}
 
 	Value::operator std::string() const
@@ -111,25 +111,25 @@ namespace soul
 			[&value](const auto& v) -> std::string_view {
 				if constexpr (std::same_as<std::remove_cvref_t<decltype(v)>, Scalar>) {
 					const auto& scalar = value.as<Scalar>();
-					if (scalar.is<types::PrimitiveType::Kind::Boolean>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Boolean>()) {
 						return "value_type_boolean"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::Char>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Char>()) {
 						return "value_type_char"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::Float32>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Float32>()) {
 						return "value_type_float32"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::Float64>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Float64>()) {
 						return "value_type_float64"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::Int32>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Int32>()) {
 						return "value_type_int32"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::Int64>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::Int64>()) {
 						return "value_type_int64"sv;
 					}
-					if (scalar.is<types::PrimitiveType::Kind::String>()) {
+					if (scalar.is<Types::PrimitiveType::Kind::String>()) {
 						return "value_type_string"sv;
 					}
 					return k_unknown;
@@ -146,14 +146,14 @@ namespace soul
 			value._value);
 	}
 
-	types::Type Value::type() const
+	Types::Type Value::type() const
 	{
 		return std::visit(
-			[](const auto& v) -> types::Type {
+			[](const auto& v) -> Types::Type {
 				if constexpr (!std::same_as<std::remove_cvref_t<decltype(v)>, UnknownValue>) {
 					return v.type();
 				} else {
-					return types::Type{};
+					return Types::Type{};
 				}
 			},
 			_value);
@@ -161,4 +161,4 @@ namespace soul
 
 	std::partial_ordering operator<=>(const Value& lhs, const Value& rhs) { return lhs._value <=> rhs._value; }
 
-}  // namespace soul
+}  // namespace Soul

@@ -3,7 +3,7 @@
 #include "AST/ASTFwd.h"
 #include "AST/Visitors/Copy.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief DesugarVisitor traverses the AST while substituting high-level nodes (such as ForNode or ForeachNode)
@@ -19,4 +19,4 @@ namespace soul::ast::visitors
 		void visit(const BinaryNode&) override;
 		void visit(const ForLoopNode&) override;
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	/**
 	 * @brief TypeDiscovererVisitor traverses the AST while making note of each type declaration.
@@ -18,10 +18,10 @@ namespace soul::ast::visitors
 	class TypeDiscovererVisitor final : public CopyVisitor
 	{
 		public:
-		using Types = std::vector<std::pair<parser::TypeSpecifier, types::Type>>;
+		using TypeDeclarations = std::vector<std::pair<Parser::TypeSpecifier, Types::Type>>;
 
 		private:
-		Types _registered_types = basic_types();
+		TypeDeclarations _registered_types = basic_types();
 
 		public:
 		TypeDiscovererVisitor()                                 = default;
@@ -33,9 +33,9 @@ namespace soul::ast::visitors
 		TypeDiscovererVisitor& operator=(TypeDiscovererVisitor&&) noexcept = default;
 
 		/** @brief Returns name-to-type map of all discovered (and basic) types for a given AST. */
-		Types discovered_types() noexcept;
+		TypeDeclarations discovered_types() noexcept;
 
-		static Types basic_types() noexcept;
+		static TypeDeclarations basic_types() noexcept;
 
 		using CopyVisitor::accept;
 
@@ -43,4 +43,4 @@ namespace soul::ast::visitors
 		using CopyVisitor::visit;
 		void visit(const StructDeclarationNode&) override;
 	};
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

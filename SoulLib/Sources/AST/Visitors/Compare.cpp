@@ -3,7 +3,7 @@
 #include <format>
 #include <typeindex>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
 	CompareVisitor::operator bool() const noexcept { return _ordering == std::partial_ordering::equivalent; }
 
@@ -425,4 +425,4 @@ namespace soul::ast::visitors
 		SOUL_AST_NODES
 #undef SOUL_AST_NODE
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

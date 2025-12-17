@@ -2,7 +2,7 @@
 
 #include <format>
 
-namespace soul::parser
+namespace Soul::Parser
 {
 	using namespace std::string_view_literals;
 
@@ -129,4 +129,4 @@ namespace soul::parser
 	const BaseTypeSpecifier k_base_specifier_isize = BaseTypeSpecifier{ "isize"sv };
 	const BaseTypeSpecifier k_base_specifier_usize = BaseTypeSpecifier{ "usize"sv };
 	const BaseTypeSpecifier k_base_specifier_void  = BaseTypeSpecifier{ "void"sv };
-}  // namespace soul::parser
+}  // namespace Soul::Parser

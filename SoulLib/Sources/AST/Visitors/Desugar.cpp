@@ -2,9 +2,9 @@
 
 #include <array>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	using namespace soul::types;
+	using namespace Soul::Types;
 
 	void DesugarVisitor::visit(const BinaryNode& node)
 	{
@@ -67,4 +67,4 @@ namespace soul::ast::visitors
 		_current_clone       = BlockNode::create(std::move(statements));
 		_current_clone->type = node.statements->type;
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

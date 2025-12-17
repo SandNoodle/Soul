@@ -6,10 +6,10 @@
 
 #include <format>
 
-namespace soul::ast::visitors::ut
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::types;
-	using namespace soul::parser;
+	using namespace Soul::Types;
+	using namespace Soul::Parser;
 	using namespace std::string_view_literals;
 
 	class TypeDiscovererTest : public ::testing::Test
@@ -183,4 +183,4 @@ namespace soul::ast::visitors::ut
 		EXPECT_FALSE(third_parameter.expression);
 		EXPECT_FALSE(third_parameter.is_mutable);
 	}
-}  // namespace soul::ast::visitors::ut
+}  // namespace Soul::AST::Visitors::UT

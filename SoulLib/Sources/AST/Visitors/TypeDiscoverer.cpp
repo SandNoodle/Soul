@@ -3,12 +3,15 @@
 #include "Core/Types.h"
 #include "Types/Type.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	using namespace soul::types;
-	using namespace soul::parser;
+	using namespace Soul::Types;
+	using namespace Soul::Parser;
 
-	TypeDiscovererVisitor::Types TypeDiscovererVisitor::discovered_types() noexcept { return _registered_types; }
+	TypeDiscovererVisitor::TypeDeclarations TypeDiscovererVisitor::discovered_types() noexcept
+	{
+		return _registered_types;
+	}
 
 	void TypeDiscovererVisitor::visit(const StructDeclarationNode& node)
 	{
@@ -45,10 +48,10 @@ namespace soul::ast::visitors
 		_registered_types.emplace_back(
 			std::make_pair(type_specifier, Type{ StructType{ std::move(contained_types) } }));
 	}
-	TypeDiscovererVisitor::Types TypeDiscovererVisitor::basic_types() noexcept
+	TypeDiscovererVisitor::TypeDeclarations TypeDiscovererVisitor::basic_types() noexcept
 	{
 		using namespace std::string_view_literals;
-		static const Types k_basic_types = {
+		static const TypeDeclarations k_basic_types = {
 			std::make_pair(k_base_specifier_i8, PrimitiveType::Kind::Int8),
 			std::make_pair(k_base_specifier_i16, PrimitiveType::Kind::Int16),
 			std::make_pair(k_base_specifier_i32, PrimitiveType::Kind::Int32),
@@ -75,4 +78,4 @@ namespace soul::ast::visitors
 		};
 		return k_basic_types;
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

@@ -3,17 +3,17 @@
 #include <array>
 #include <ranges>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	using namespace soul::types;
-	using namespace soul::ir;
+	using namespace Soul::Types;
+	using namespace Soul::IR;
 
-	namespace detail
+	namespace Detail
 	{
 		class ReserveStackSlotVisitor : public DefaultTraverseVisitor
 		{
 			public:
-			std::vector<std::pair<std::string, types::Type>> required_slots;
+			std::vector<std::pair<std::string, Types::Type>> required_slots;
 
 			public:
 			using DefaultTraverseVisitor::accept;
@@ -27,7 +27,7 @@ namespace soul::ast::visitors
 		{
 			required_slots.emplace_back(std::make_pair(node.name, node.type));
 		}
-	}  // namespace detail
+	}  // namespace Detail
 
 	std::unique_ptr<Module> LowerVisitor::get() noexcept { return _builder.build(); }
 
@@ -79,7 +79,7 @@ namespace soul::ast::visitors
 
 	void LowerVisitor::visit(const FunctionDeclarationNode& node)
 	{
-		std::vector<types::Type> parameters{};
+		std::vector<Types::Type> parameters{};
 		parameters.reserve(node.parameters.size());
 		for (const auto& parameter : node.parameters) {
 			parameters.emplace_back(parameter->type);
@@ -88,7 +88,7 @@ namespace soul::ast::visitors
 		_builder.create_function(node.name, node.type, std::move(parameters));
 
 		// NOTE: Traverse the tree while gathering all variable declarations and reserve stack slots for them.
-		detail::ReserveStackSlotVisitor reserve_stack_slot_visitor{};
+		Detail::ReserveStackSlotVisitor reserve_stack_slot_visitor{};
 		reserve_stack_slot_visitor.accept(&static_cast<ASTNode&>(const_cast<FunctionDeclarationNode&>(node)));
 		for (const auto& [slot_name, slot_type] : reserve_stack_slot_visitor.required_slots) {
 			std::ignore = _builder.reserve_slot(slot_name, slot_type);
@@ -238,36 +238,36 @@ namespace soul::ast::visitors
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const BlockNode&)
+	IR::Instruction* LowerVisitor::emit(const BlockNode&)
 	{
 		// ERROR: should NEVER be visited directly.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const CastNode& node)
+	IR::Instruction* LowerVisitor::emit(const CastNode& node)
 	{
 		return _builder.emit<Cast>(node.type, emit(node.expression.get()));
 	}
 
-	ir::Instruction* LowerVisitor::emit(const ErrorNode&)
+	IR::Instruction* LowerVisitor::emit(const ErrorNode&)
 	{
 		// ERROR: AST should be in a valid state at this point.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const ForLoopNode&)
+	IR::Instruction* LowerVisitor::emit(const ForLoopNode&)
 	{
 		// ERROR: should've been replaced with WhileNode at this point.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const ForeachLoopNode&)
+	IR::Instruction* LowerVisitor::emit(const ForeachLoopNode&)
 	{
 		// ERROR: should've been replaced with ForLoop node at this point.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const FunctionCallNode& node)
+	IR::Instruction* LowerVisitor::emit(const FunctionCallNode& node)
 	{
 		std::vector<Instruction*> parameters;
 		parameters.reserve(node.parameters.size());
@@ -277,19 +277,19 @@ namespace soul::ast::visitors
 		return _builder.emit<Call>(node.type, node.name, std::move(parameters));
 	}
 
-	ir::Instruction* LowerVisitor::emit(const FunctionDeclarationNode&)
+	IR::Instruction* LowerVisitor::emit(const FunctionDeclarationNode&)
 	{
 		// ERROR: should NEVER be visited directly.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const IfNode&)
+	IR::Instruction* LowerVisitor::emit(const IfNode&)
 	{
 		// ERROR: should NEVER be visited directly.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const LiteralNode& node)
+	IR::Instruction* LowerVisitor::emit(const LiteralNode& node)
 	{
 		// IMPORTANT: We assume that visiting LiteralNode will always result in a READ operation for Identifiers, as
 		// any special (i.e. writing) logic will be handled beforehand.
@@ -300,7 +300,7 @@ namespace soul::ast::visitors
 		return _builder.emit<Const>(node.type, node.value);
 	}
 
-	ir::Instruction* LowerVisitor::emit(const LoopControlNode& node)
+	IR::Instruction* LowerVisitor::emit(const LoopControlNode& node)
 	{
 		if (_loop_jump_targets.empty()) [[unlikely]] {
 			return _builder.emit<Unreachable>();
@@ -318,25 +318,25 @@ namespace soul::ast::visitors
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const ModuleNode&)
+	IR::Instruction* LowerVisitor::emit(const ModuleNode&)
 	{
 		// ERROR: should NEVER be visited directly.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const ReturnNode& node)
+	IR::Instruction* LowerVisitor::emit(const ReturnNode& node)
 	{
 		auto* expression{ emit(node.expression.get()) };
 		return _builder.emit<Return>(expression);
 	}
 
-	ir::Instruction* LowerVisitor::emit(const StructDeclarationNode&)
+	IR::Instruction* LowerVisitor::emit(const StructDeclarationNode&)
 	{
 		// NOTE: ERROR; at this point this node should not be present.
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const UnaryNode& node)
+	IR::Instruction* LowerVisitor::emit(const UnaryNode& node)
 	{
 		auto* expression{ emit(node.expression.get()) };
 		switch (node.op) {
@@ -349,16 +349,16 @@ namespace soul::ast::visitors
 		return _builder.emit<Unreachable>();
 	}
 
-	ir::Instruction* LowerVisitor::emit(const VariableDeclarationNode& node)
+	IR::Instruction* LowerVisitor::emit(const VariableDeclarationNode& node)
 	{
 		auto* slot{ _builder.get_slot(node.name) };
 		auto* value{ emit(node.expression.get()) };
 		return _builder.emit<StackStore>(slot, value);
 	}
 
-	ir::Instruction* LowerVisitor::emit(const WhileNode&)
+	IR::Instruction* LowerVisitor::emit(const WhileNode&)
 	{
 		// ERROR: should NEVER be visited directly.
 		return _builder.emit<Unreachable>();
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

@@ -1,8 +1,8 @@
 #include "AST/Visitors/Stringify.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	using namespace soul::types;
+	using namespace Soul::Types;
 
 	StringifyVisitor::StringifyVisitor(Options options) : _options(options) {}
 
@@ -198,4 +198,4 @@ namespace soul::ast::visitors
 			_ss << ",\n";
 		}
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

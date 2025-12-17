@@ -2,7 +2,7 @@
 
 #include <concepts>
 
-namespace soul::ast
+namespace Soul::AST
 {
 #define SOUL_AST_NODES                     \
 	SOUL_AST_NODE(BinaryNode)              \
@@ -48,4 +48,4 @@ namespace soul::ast
 	                || std::same_as<T, VariableDeclarationNode>  //
 	                || std::same_as<T, WhileNode>                //
 		;
-}  // namespace soul::ast
+}  // namespace Soul::AST

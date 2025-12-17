@@ -9,10 +9,10 @@
 #include "AST/Visitors/TypeDiscoverer.h"
 #include "AST/Visitors/TypeResolver.h"
 
-namespace soul::ast::visitors::ut
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::types;
-	using namespace soul::parser;
+	using namespace Soul::Types;
+	using namespace Soul::Parser;
 
 	class DesugarVisitorTest : public ::testing::Test
 	{
@@ -188,4 +188,4 @@ namespace soul::ast::visitors::ut
 
 		verify(expected_module.get(), result_module.get());
 	}
-}  // namespace soul::ast::visitors::ut
+}  // namespace Soul::AST::Visitors::UT

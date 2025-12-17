@@ -7,10 +7,11 @@
 #include <format>
 #include <utility>
 
-namespace soul::parser
+namespace Soul::Parser
 {
-	using namespace soul::ast;
-	using namespace soul::types;
+	using namespace Soul::AST;
+	using namespace Soul::Lexer;
+	using namespace Soul::Types;
 
 	/** @brief Operator precedence (LOWEST to HIGHEST) */
 	enum class Parser::Precedence : u8
@@ -44,12 +45,12 @@ namespace soul::parser
 	{
 	}
 
-	ast::ASTNode::Dependency Parser::parse(std::string_view module_name, std::span<const Token> tokens)
+	AST::ASTNode::Dependency Parser::parse(std::string_view module_name, std::span<const Token> tokens)
 	{
 		return Parser{ module_name, tokens }.parse();
 	}
 
-	ast::ASTNode::Dependency Parser::parse()
+	AST::ASTNode::Dependency Parser::parse()
 	{
 		if (_tokens.empty()) {
 			return ModuleNode::create(std::string(_module_name), {});
@@ -387,7 +388,7 @@ namespace soul::parser
 		                                       BlockNode::create(std::move(statements)));
 	}
 
-	ast::ASTNode::Dependency Parser::parse_grouping()
+	AST::ASTNode::Dependency Parser::parse_grouping()
 	{
 		// <grouping_expression> ::= '(' <expression> ')'
 
@@ -514,7 +515,7 @@ namespace soul::parser
 		return ErrorNode::create("[INTERNAL] unknown literal");
 	}
 
-	ast::ASTNode::Dependency Parser::parse_loop_control()
+	AST::ASTNode::Dependency Parser::parse_loop_control()
 	{  // <loop_control> ::= <keyword_break> | <keyword_continue>
 
 		auto token = require(std::array{ Token::Type::KeywordBreak, Token::Type::KeywordContinue });
@@ -532,7 +533,7 @@ namespace soul::parser
 		return LoopControlNode::create(control_type);
 	}
 
-	ast::ASTNode::Dependency Parser::parse_return()
+	AST::ASTNode::Dependency Parser::parse_return()
 	{
 		// <return_statement> ::= <keyword_return> [ <expression> ]
 
@@ -1053,4 +1054,4 @@ namespace soul::parser
 		return *_current_token;
 	}
 
-}  // namespace soul::parser
+}  // namespace Soul::Parser

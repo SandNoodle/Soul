@@ -8,10 +8,10 @@
 #include <format>
 #include <string_view>
 
-namespace soul::ast::visitors::ut
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::types;
-	using namespace soul::parser;
+	using namespace Soul::Types;
+	using namespace Soul::Parser;
 
 	class TypeResolverTest : public ::testing::Test
 	{
@@ -1218,4 +1218,4 @@ namespace soul::ast::visitors::ut
 		// TODO: Resolve pointer types.
 	}
 
-}  // namespace soul::ast::visitors::ut
+}  // namespace Soul::AST::Visitors::UT

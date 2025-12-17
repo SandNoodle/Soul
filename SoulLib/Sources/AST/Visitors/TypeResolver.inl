@@ -2,19 +2,19 @@
 
 #include "Types/Overloads.h"
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	types::Type TypeResolverVisitor::get_type_for_operator(
+	Types::Type TypeResolverVisitor::get_type_for_operator(
 		ASTNode::Operator op,
 		const std::ranges::forward_range auto& input_types) const noexcept
 	{
 		{
 			if (op == ASTNode::Operator::Unknown) [[unlikely]] {
-				return types::Type{};
+				return Types::Type{};
 			}
 
 			auto potential_overloads{
-				types::OperatorOverload::all()
+				Types::OperatorOverload::all()
 				| std::views::filter([op](const auto& overload) -> bool { return overload.op == op; })
 				| std::views::filter([input_count = input_types.size()](const auto& overload) -> bool {
 					  return overload.input_types.size() == input_count;
@@ -29,7 +29,7 @@ namespace soul::ast::visitors
 				  })
 			};
 			if (potential_overloads.empty()) {
-				return types::Type{};
+				return Types::Type{};
 			}
 			return potential_overloads.begin()->return_type;
 		}
@@ -60,4 +60,4 @@ namespace soul::ast::visitors
 		}
 		return *potential_declarations.begin();
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

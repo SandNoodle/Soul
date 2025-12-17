@@ -8,7 +8,7 @@
 #include <string_view>
 #include <vector>
 
-namespace soul::lexer
+namespace Soul::Lexer
 {
 	/**
 	 * @brief Lexer performs lexical analysis on an input text, i.e. converts it into a linear sequence of lexical
@@ -56,4 +56,4 @@ namespace soul::lexer
 			return false;
 		}
 	};
-}  // namespace soul::lexer
+}  // namespace Soul::Lexer

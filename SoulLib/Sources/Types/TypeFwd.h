@@ -1,10 +1,10 @@
 #pragma once
 
-namespace soul::types
+namespace Soul::Types
 {
 	class ArrayType;
 	class PointerType;
 	class PrimitiveType;
 	class StructType;
 	class Type;
-}  // namespace soul::types
+}  // namespace Soul::Types

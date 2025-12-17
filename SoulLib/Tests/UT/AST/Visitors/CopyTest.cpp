@@ -7,11 +7,11 @@
 
 #include <string>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::ast;
-	using namespace soul::parser;
-	using namespace soul::types;
+	using namespace Soul::AST;
+	using namespace Soul::Parser;
+	using namespace Soul::Types;
 
 	class CopyVisitorTest : public ::testing::Test
 	{
@@ -86,4 +86,4 @@ namespace soul::ast::visitors
 		const auto& result_module = copy_visitor.cloned();
 		ASSERT_TRUE(CompareVisitor(expected_module.get(), result_module.get()));
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors::UT

@@ -6,15 +6,15 @@
 #include <array>
 #include <format>
 
-namespace soul::ast::visitors
+namespace Soul::AST::Visitors
 {
-	using namespace soul::ast;
-	using namespace soul::parser;
-	using namespace soul::types;
+	using namespace Soul::AST;
+	using namespace Soul::Parser;
+	using namespace Soul::Types;
 
 	CastNode::Type get_cast_type(const Type& from_type, const Type& to_type);
 
-	TypeResolverVisitor::TypeResolverVisitor(Types type_map) : _registered_types(std::move(type_map)) {}
+	TypeResolverVisitor::TypeResolverVisitor(TypeDeclarations type_map) : _registered_types(std::move(type_map)) {}
 
 	void TypeResolverVisitor::visit(const BinaryNode& node)
 	{
@@ -138,7 +138,7 @@ namespace soul::ast::visitors
 
 		const auto& function_call = _current_clone->as<FunctionCallNode>();
 		auto want_types           = function_call.parameters
-		                | std::views::transform([](const auto& parameter) -> types::Type { return parameter->type; });
+		                | std::views::transform([](const auto& parameter) -> Type { return parameter->type; });
 		const auto function_declaration = get_function_declaration(node.name, want_types);
 		if (!function_declaration.has_value()) {
 			_current_clone = ErrorNode::create(std::format("cannot call non-existing function '{}'", node.name));
@@ -157,7 +157,7 @@ namespace soul::ast::visitors
 
 		auto& function_declaration = _current_clone->as<FunctionDeclarationNode>();
 		auto want_types            = function_declaration.parameters
-		                | std::views::transform([](const auto& parameter) -> types::Type { return parameter->type; });
+		                | std::views::transform([](const auto& parameter) -> Type { return parameter->type; });
 		if (get_function_declaration(node.name, want_types)) {
 			_current_clone
 				= ErrorNode::create(std::format("function declaration '{}' shadows previous one", node.name));
@@ -179,11 +179,10 @@ namespace soul::ast::visitors
 		}
 
 		_current_clone->type = get_type_or_default(node.type_specifier);
-		_functions_in_module.emplace_back(
-			node.name,
-			FunctionDeclaration{
-				.input_types = std::vector<types::Type>{ want_types.begin(), want_types.end() },
-				.return_type = function_declaration.type
+		_functions_in_module.emplace_back(node.name,
+		                                  FunctionDeclaration{
+											  .input_types = std::vector<Type>{ want_types.begin(), want_types.end() },
+											  .return_type = function_declaration.type
         });
 	}
 
@@ -414,14 +413,14 @@ namespace soul::ast::visitors
 		return CastNode::Type::Impossible;
 	}
 
-	types::Type TypeResolverVisitor::get_type_or_default(const TypeSpecifier& type_specifier) const noexcept
+	Type TypeResolverVisitor::get_type_or_default(const TypeSpecifier& type_specifier) const noexcept
 	{
 		const auto it{ std::ranges::find(
 			_registered_types, type_specifier, &decltype(_registered_types)::value_type::first) };
 		if (it != std::end(_registered_types)) {
 			return it->second;
 		}
-		return types::Type{};
+		return Type{};
 	}
 
 	std::optional<Type> TypeResolverVisitor::get_variable_type(std::string_view name) const noexcept
@@ -433,4 +432,4 @@ namespace soul::ast::visitors
 		}
 		return it->second;
 	}
-}  // namespace soul::ast::visitors
+}  // namespace Soul::AST::Visitors

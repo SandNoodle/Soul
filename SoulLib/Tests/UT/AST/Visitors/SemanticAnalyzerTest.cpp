@@ -12,10 +12,9 @@
 
 #include <string_view>
 
-namespace soul::ast::visitors::ut
+namespace Soul::AST::Visitors::UT
 {
-	using namespace soul::types;
-	using namespace soul::parser;
+	using namespace Soul::Types;
 
 	class SemanticAnalyzerVisitorTest : public ::testing::Test
 	{
@@ -25,8 +24,8 @@ namespace soul::ast::visitors::ut
 		protected:
 		ASTNode::Dependency parse(std::string_view script)
 		{
-			auto tokens = lexer::Lexer::Tokenize(script);
-			return parser::Parser::parse(k_module_name, tokens);
+			auto tokens = Lexer::Lexer::Tokenize(script);
+			return Parser::Parser::parse(k_module_name, tokens);
 		}
 
 		ASTNode::Dependency build(ASTNode::Dependency&& root, bool do_analyze)
@@ -95,13 +94,16 @@ namespace soul::ast::visitors::ut
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
-			"a", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)), false));
+		function_declaration_statements.emplace_back(
+			VariableDeclarationNode::create("a",
+		                                    Parser::k_base_specifier_i32,
+		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(123)),
+		                                    false));
 		function_declaration_statements.emplace_back(
 			ErrorNode::create("cannot assign to variable 'a', because it is not mutable."));
 		auto function_declaration
 			= FunctionDeclarationNode::create("test_function",
-		                                      k_base_specifier_void,
+		                                      Parser::k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
 		                                      BlockNode::create(std::move(function_declaration_statements)));
 
@@ -194,4 +196,4 @@ namespace soul::ast::visitors::ut
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
-}  // namespace soul::ast::visitors::ut
+}  // namespace Soul::AST::Visitors::UT

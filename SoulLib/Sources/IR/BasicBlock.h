@@ -6,7 +6,7 @@
 #include <limits>
 #include <vector>
 
-namespace soul::ir
+namespace Soul::IR
 {
 	class IRBuilder;
 
@@ -42,5 +42,5 @@ namespace soul::ir
 
 		friend IRBuilder;
 	};
-}  // namespace soul::ir
+}  // namespace Soul::IR
 #include "IR/BasicBlock.inl"

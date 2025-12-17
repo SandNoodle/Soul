@@ -3,7 +3,7 @@
 #include <sstream>
 #include <unordered_map>
 
-namespace soul::types
+namespace Soul::Types
 {
 	Type::operator std::string() const
 	{
@@ -126,4 +126,4 @@ namespace soul::types
 
 	std::ostream& operator<<(std::ostream& os, const StructType& type) { return os << std::string(type); }
 
-}  // namespace soul::types
+}  // namespace Soul::Types

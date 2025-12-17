@@ -4,7 +4,7 @@
 #include <array>
 #include <functional>
 
-namespace soul::lexer
+namespace Soul::Lexer
 {
 #define MATCH_ONE_CODEPOINT(codepoint, token_type)       \
 	case codepoint:                                      \
@@ -218,4 +218,4 @@ namespace soul::lexer
 		}
 		return Peek(0);
 	}
-};  // namespace soul::lexer
+};  // namespace Soul::Lexer

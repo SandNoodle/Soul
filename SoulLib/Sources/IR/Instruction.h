@@ -9,7 +9,7 @@
 #include <array>
 #include <limits>
 
-namespace soul::ir
+namespace Soul::IR
 {
 	/**
 	 * @brief Represents a single Instruction in the language's Intermediate Representation.
@@ -25,11 +25,11 @@ namespace soul::ir
 
 		public:
 		Version version{ k_invalid_version };
-		types::Type type{};
+		Types::Type type{};
 		Arguments args{ Instruction::no_args() };
 
 		public:
-		constexpr Instruction(types::Type type, Arguments args);
+		constexpr Instruction(Types::Type type, Arguments args);
 
 		virtual ~Instruction() = default;
 
@@ -92,7 +92,7 @@ namespace soul::ir
 	struct Cast final : public Instruction
 	{
 		public:
-		constexpr Cast(types::Type type, Instruction* arg);
+		constexpr Cast(Types::Type type, Instruction* arg);
 		virtual ~Cast() override = default;
 
 		constexpr bool operator==(const Cast& other) const noexcept  = default;
@@ -109,7 +109,7 @@ namespace soul::ir
 		std::vector<Instruction*> parameters;
 
 		public:
-		constexpr Call(types::Type return_type, std::string identifier, std::vector<Instruction*> parameters);
+		constexpr Call(Types::Type return_type, std::string identifier, std::vector<Instruction*> parameters);
 		virtual ~Call() override = default;
 
 		constexpr bool operator==(const Call& other) const noexcept  = default;
@@ -125,7 +125,7 @@ namespace soul::ir
 		Value value;
 
 		public:
-		constexpr Const(types::Type type, Value value);
+		constexpr Const(Types::Type type, Value value);
 		virtual ~Const() override = default;
 
 		constexpr bool operator==(const Const& other) const noexcept = default;
@@ -184,7 +184,7 @@ namespace soul::ir
 	struct StackSlot final : public Instruction
 	{
 		public:
-		constexpr StackSlot(types::Type type);
+		constexpr StackSlot(Types::Type type);
 
 		constexpr bool operator==(const StackSlot& other) const noexcept  = default;
 		constexpr auto operator<=>(const StackSlot& other) const noexcept = default;
@@ -234,7 +234,7 @@ namespace soul::ir
 		Index index{ k_invalid_index };
 
 		public:
-		constexpr GetArgument(types::Type type, Index index);
+		constexpr GetArgument(Types::Type type, Index index);
 
 		constexpr bool operator==(const GetArgument& other) const noexcept  = default;
 		constexpr auto operator<=>(const GetArgument& other) const noexcept = default;
@@ -248,7 +248,7 @@ namespace soul::ir
 	struct Phi final : public Instruction
 	{
 		public:
-		constexpr Phi(types::Type type);
+		constexpr Phi(Types::Type type);
 
 		constexpr bool operator==(const Phi& other) const noexcept  = default;
 		constexpr auto operator<=>(const Phi& other) const noexcept = default;
@@ -289,7 +289,7 @@ namespace soul::ir
 	struct name final : public Instruction                                      \
 	{                                                                           \
 		public:                                                                 \
-		constexpr name(types::Type type, Instruction* arg0, Instruction* arg1)  \
+		constexpr name(Types::Type type, Instruction* arg0, Instruction* arg1)  \
 			: Instruction(std::move(type), Instruction::two_args(arg0, arg1))   \
 		{                                                                       \
 		}                                                                       \
@@ -305,7 +305,7 @@ namespace soul::ir
 	{                                                                                                            \
 		public:                                                                                                  \
 		constexpr name(Instruction* arg0, Instruction* arg1)                                                     \
-			: Instruction(types::Type{ types::PrimitiveType::Kind::Boolean }, Instruction::two_args(arg0, arg1)) \
+			: Instruction(Types::Type{ Types::PrimitiveType::Kind::Boolean }, Instruction::two_args(arg0, arg1)) \
 		{                                                                                                        \
 		}                                                                                                        \
 		virtual ~name() override                                     = default;                                  \
@@ -315,5 +315,5 @@ namespace soul::ir
 	SOUL_COMPARISON_INSTRUCTIONS
 	SOUL_LOGICAL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
-}  // namespace soul::ir
+}  // namespace Soul::IR
 #include "IR/Instruction.inl"

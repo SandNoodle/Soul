@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types/type.h"
 #include "ir/basic_block.h"
+#include "types/type.h"
 
 #include <string>
 #include <string_view>

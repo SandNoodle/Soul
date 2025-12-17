@@ -40,8 +40,8 @@ namespace soul::ir
 
 	constexpr auto IRBuilder::set_module_name(std::string_view name) -> void { _module->name = std::string(name); }
 
-	constexpr auto IRBuilder::create_function(std::string_view         identifier,
-	                                          types::Type              return_type,
+	constexpr auto IRBuilder::create_function(std::string_view identifier,
+	                                          types::Type return_type,
 	                                          std::vector<types::Type> parameters) -> void
 	{
 		_next_instruction_version = 0;

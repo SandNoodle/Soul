@@ -1,10 +1,10 @@
 #pragma once
 
 #include "common/source_location.h"
-#include "types/type.h"
 #include "common/value.h"
 #include "core/types.h"
 #include "ir/instruction_fwd.h"
+#include "types/type.h"
 
 #include <array>
 #include <limits>

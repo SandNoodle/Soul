@@ -1,8 +1,8 @@
 #pragma once
 
 #include "common/compile_time_dictionary.h"
-#include "types/type.h"
 #include "core/types.h"
+#include "types/type.h"
 
 #include <concepts>
 #include <sstream>

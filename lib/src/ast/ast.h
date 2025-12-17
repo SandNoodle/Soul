@@ -2,11 +2,11 @@
 
 #include "ast/ast_fwd.h"
 #include "ast/visitors/visitor.h"
-#include "types/type.h"
 #include "common/value.h"
 #include "core/types.h"
-#include "lexer/token.h"
+#include "lexer/Token.h"
 #include "parser/type_specifier.h"
+#include "types/type.h"
 
 #include <memory>
 #include <string>
@@ -330,7 +330,7 @@ namespace soul::ast
 		 * @return New 'Function Declaration' statement node.
 		 */
 		static Dependency create(Identifier name,
-								 parser::TypeSpecifier return_type_specifier,
+		                         parser::TypeSpecifier return_type_specifier,
 		                         Dependencies parameters,
 		                         ScopeBlock statements);
 	};
@@ -511,7 +511,10 @@ namespace soul::ast
 		bool is_mutable{};
 
 		public:
-		explicit VariableDeclarationNode(Identifier name, parser::TypeSpecifier type_specifier, Dependency expr, bool is_mutable);
+		explicit VariableDeclarationNode(Identifier name,
+		                                 parser::TypeSpecifier type_specifier,
+		                                 Dependency expr,
+		                                 bool is_mutable);
 		~VariableDeclarationNode() override = default;
 
 		/**
@@ -522,7 +525,10 @@ namespace soul::ast
 		 * @param is_mutable Can the value of the expression be reassigned, i.e. is const?
 		 * @return New 'Variable Declaration' statement node.
 		 */
-		static Dependency create(Identifier name, parser::TypeSpecifier type_specifier, Dependency expr, bool is_mutable);
+		static Dependency create(Identifier name,
+		                         parser::TypeSpecifier type_specifier,
+		                         Dependency expr,
+		                         bool is_mutable);
 	};
 
 	/**

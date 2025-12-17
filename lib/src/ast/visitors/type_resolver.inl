@@ -5,7 +5,7 @@
 namespace soul::ast::visitors
 {
 	types::Type TypeResolverVisitor::get_type_for_operator(
-		ASTNode::Operator                      op,
+		ASTNode::Operator op,
 		const std::ranges::forward_range auto& input_types) const noexcept
 	{
 		{
@@ -36,7 +36,7 @@ namespace soul::ast::visitors
 	}
 
 	std::optional<TypeResolverVisitor::FunctionDeclaration> TypeResolverVisitor::get_function_declaration(
-		std::string_view                       name,
+		std::string_view name,
 		const std::ranges::forward_range auto& want_types) const noexcept
 	{
 		auto potential_declarations{

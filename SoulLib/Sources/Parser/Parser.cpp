@@ -58,7 +58,7 @@ namespace Soul::Parser
 
 		ASTNode::Dependencies statements{};
 		for (const auto& token : _tokens) {
-			if (token.type == Token::Type::SpecialError) {
+			if (token.type == Token::Type::SPECIAL_ERROR) {
 				statements.emplace_back(ErrorNode::create(ErrorNode::Message{ token.data }));
 			}
 		}
@@ -76,24 +76,24 @@ namespace Soul::Parser
 	{
 		// Statements
 		switch (current_token_or_default().type) {
-			case Token::Type::KeywordBreak:
-			case Token::Type::KeywordContinue:
+			case Token::Type::KEYWORD_BREAK:
+			case Token::Type::KEYWORD_CONTINUE:
 				return parse_loop_control();
-			case Token::Type::KeywordFn:
+			case Token::Type::KEYWORD_FN:
 				return parse_function_declaration();
-			case Token::Type::KeywordFor:
+			case Token::Type::KEYWORD_FOR:
 				return parse_for_loop();
-			case Token::Type::KeywordIf:
+			case Token::Type::KEYWORD_IF:
 				return parse_if();
-			case Token::Type::KeywordLet:
+			case Token::Type::KEYWORD_LET:
 				return parse_variable_declaration();
-			case Token::Type::KeywordReturn:
+			case Token::Type::KEYWORD_RETURN:
 				return parse_return();
-			case Token::Type::KeywordStruct:
+			case Token::Type::KEYWORD_STRUCT:
 				return parse_struct_declaration();
-			case Token::Type::KeywordWhile:
+			case Token::Type::KEYWORD_WHILE:
 				return parse_while_loop();
-			case Token::Type::SymbolBraceLeft:
+			case Token::Type::SYMBOL_BRACE_LEFT:
 				return BlockNode::create(parse_block_statement());
 			default:
 				break;
@@ -113,7 +113,7 @@ namespace Soul::Parser
 		auto prefix_rule = precedence_rule(current_token_or_default().type).prefix;
 		if (!prefix_rule) [[unlikely]] {
 			return create_error(std::format("[INTERNAL] no prefix precedence rule for '{}' was specified.",
-			                                Token::internal_name(current_token_or_default().type)));
+			                                Token::NameInternal(current_token_or_default().type)));
 		}
 
 		auto prefix_expression = (this->*prefix_rule)();
@@ -122,7 +122,7 @@ namespace Soul::Parser
 			auto infix_rule = precedence_rule(current_token_or_default().type).infix;
 			if (!infix_rule) [[unlikely]] {
 				return create_error(std::format("[INTERNAL] no infix precedence rule for '{}' was specified.",
-				                                Token::internal_name(current_token_or_default().type)));
+				                                Token::NameInternal(current_token_or_default().type)));
 			}
 			prefix_expression = (this->*infix_rule)(std::move(prefix_expression));
 		}
@@ -137,31 +137,31 @@ namespace Soul::Parser
 		// <binary_operator>
 		static constexpr std::array k_binary_operators = {
 			// Comparison operators
-			Token::Type::SymbolGreater,
-			Token::Type::SymbolGreaterEqual,
-			Token::Type::SymbolLess,
-			Token::Type::SymbolLessEqual,
-			Token::Type::SymbolEqualEqual,
-			Token::Type::SymbolBangEqual,
+			Token::Type::SYMBOL_GREATER,
+			Token::Type::SYMBOL_GREATER_EQUAL,
+			Token::Type::SYMBOL_LESS,
+			Token::Type::SYMBOL_LESS_EQUAL,
+			Token::Type::SYMBOL_EQUAL_EQUAL,
+			Token::Type::SYMBOL_BANG_EQUAL,
 
 			// Assignment
-			Token::Type::SymbolEqual,
-			Token::Type::SymbolPlusEqual,
-			Token::Type::SymbolMinusEqual,
-			Token::Type::SymbolStarEqual,
-			Token::Type::SymbolSlashEqual,
-			Token::Type::SymbolPercentEqual,
+			Token::Type::SYMBOL_EQUAL,
+			Token::Type::SYMBOL_PLUS_EQUAL,
+			Token::Type::SYMBOL_MINUS_EQUAL,
+			Token::Type::SYMBOL_STAR_EQUAL,
+			Token::Type::SYMBOL_SLASH_EQUAL,
+			Token::Type::SYMBOL_PERCENT_EQUAL,
 
 			// Arithmetic operators
-			Token::Type::SymbolPlus,
-			Token::Type::SymbolMinus,
-			Token::Type::SymbolStar,
-			Token::Type::SymbolSlash,
-			Token::Type::SymbolPercent,
+			Token::Type::SYMBOL_PLUS,
+			Token::Type::SYMBOL_MINUS,
+			Token::Type::SYMBOL_STAR,
+			Token::Type::SYMBOL_SLASH,
+			Token::Type::SYMBOL_PERCENT,
 
 			// Logical
-			Token::Type::SymbolAmpersandAmpersand,
-			Token::Type::SymbolPipePipe,
+			Token::Type::SYMBOL_AMPERSAND_AMPERSAND,
+			Token::Type::SYMBOL_PIPE_PIPE,
 		};
 		auto binary_operator = require(k_binary_operators);
 		if (!binary_operator) {
@@ -181,16 +181,16 @@ namespace Soul::Parser
 		// <cast_expression> ::= <keyword_cast> '<' <type_specifier> '>' '(' <expression> ')'
 
 		// <keyword_cast>
-		if (!require(Token::Type::KeywordCast)) {
+		if (!require(Token::Type::KEYWORD_CAST)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordCast),
+			                                Token::Name(Token::Type::KEYWORD_CAST),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// '<'
-		if (!require(Token::Type::SymbolLess)) {
+		if (!require(Token::Type::SYMBOL_LESS)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolLess),
+			                                Token::Name(Token::Type::SYMBOL_LESS),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -201,16 +201,16 @@ namespace Soul::Parser
 		}
 
 		// '>'
-		if (!require(Token::Type::SymbolGreater)) {
+		if (!require(Token::Type::SYMBOL_GREATER)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolGreater),
+			                                Token::Name(Token::Type::SYMBOL_GREATER),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// '('
-		if (!require(Token::Type::SymbolParenLeft)) {
+		if (!require(Token::Type::SYMBOL_PAREN_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenLeft),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -218,9 +218,9 @@ namespace Soul::Parser
 		auto expression = parse_expression();
 
 		// ')'
-		if (!require(Token::Type::SymbolParenRight)) {
+		if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenRight),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -233,54 +233,54 @@ namespace Soul::Parser
 		// <block_statement>
 
 		// <keyword_for>
-		if (!require(Token::Type::KeywordFor)) {
+		if (!require(Token::Type::KEYWORD_FOR)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordFor),
+			                                Token::Name(Token::Type::KEYWORD_FOR),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// '('
-		if (!require(Token::Type::SymbolParenLeft)) {
+		if (!require(Token::Type::SYMBOL_PAREN_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenLeft),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// [Optional] <expression>
 		ASTNode::Dependency initialization = nullptr;
-		if (!match(Token::Type::SymbolSemicolon)) {
+		if (!match(Token::Type::SYMBOL_SEMICOLON)) {
 			initialization = parse_parameter_declaration();
 
 			// ';'
-			if (!require(Token::Type::SymbolSemicolon)) {
+			if (!require(Token::Type::SYMBOL_SEMICOLON)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolSemicolon),
+				                                Token::Name(Token::Type::SYMBOL_SEMICOLON),
 				                                std::string(current_token_or_default().data)));
 			}
 		}
 
 		// [Optional] <expression>
 		ASTNode::Dependency condition = nullptr;
-		if (!match(Token::Type::SymbolSemicolon)) {
+		if (!match(Token::Type::SYMBOL_SEMICOLON)) {
 			condition = parse_expression();
 
 			// ';'
-			if (!require(Token::Type::SymbolSemicolon)) {
+			if (!require(Token::Type::SYMBOL_SEMICOLON)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolSemicolon),
+				                                Token::Name(Token::Type::SYMBOL_SEMICOLON),
 				                                std::string(current_token_or_default().data)));
 			}
 		}
 
 		// [Optional] <expression>
 		ASTNode::Dependency update = nullptr;
-		if (!match(Token::Type::SymbolParenRight)) {
+		if (!match(Token::Type::SYMBOL_PAREN_RIGHT)) {
 			update = parse_expression();
 
 			// ')'
-			if (!require(Token::Type::SymbolParenRight)) {
+			if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolParenRight),
+				                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 		}
@@ -307,23 +307,23 @@ namespace Soul::Parser
 
 		// [Optional] '(' <parameter_list> ')'
 		ASTNode::Dependencies parameters{};
-		if (!require(Token::Type::SymbolParenLeft)) {
+		if (!require(Token::Type::SYMBOL_PAREN_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenLeft),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
-		const bool parenthesis_next = current_token_or_default().type == Token::Type::SymbolParenRight;
+		const bool parenthesis_next = current_token_or_default().type == Token::Type::SYMBOL_PAREN_RIGHT;
 		if (!parenthesis_next) {
 			do {
 				// <expression>
 				parameters.emplace_back(parse_expression());
-			} while (match(Token::Type::SymbolComma));
+			} while (match(Token::Type::SYMBOL_COMMA));
 		}
 
-		if (!require(Token::Type::SymbolParenRight)) {
+		if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenRight),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -337,14 +337,14 @@ namespace Soul::Parser
 		// <block_statement>
 
 		// <keyword_fn>
-		if (!require(Token::Type::KeywordFn)) {
+		if (!require(Token::Type::KEYWORD_FN)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordFn),
+			                                Token::Name(Token::Type::KEYWORD_FN),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// <identifier>
-		auto name_identifier = require(Token::Type::LiteralIdentifier);
+		auto name_identifier = require(Token::Type::LITERAL_IDENTIFIER);
 		if (!name_identifier) {
 			return create_error(std::format("expected function identifier, but got: '{}'",
 			                                std::string(current_token_or_default().data)));
@@ -352,25 +352,25 @@ namespace Soul::Parser
 
 		// [Optional] '(' <parameter_list> ')'
 		ASTNode::Dependencies parameters{};
-		if (match(Token::Type::SymbolParenLeft)) {
-			const bool parenthesis_next = current_token_or_default().type == Token::Type::SymbolParenRight;
+		if (match(Token::Type::SYMBOL_PAREN_LEFT)) {
+			const bool parenthesis_next = current_token_or_default().type == Token::Type::SYMBOL_PAREN_RIGHT;
 			if (!parenthesis_next) {
 				do {
 					parameters.emplace_back(parse_parameter_declaration());
-				} while (match(Token::Type::SymbolComma));
+				} while (match(Token::Type::SYMBOL_COMMA));
 			}
 
-			if (!require(Token::Type::SymbolParenRight)) {
+			if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolParenRight),
+				                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 		}
 
 		// '::'
-		if (!require(Token::Type::SymbolColonColon)) {
+		if (!require(Token::Type::SYMBOL_COLON_COLON)) {
 			return create_error(std::format("expected type separator '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolColonColon),
+			                                Token::Name(Token::Type::SYMBOL_COLON_COLON),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -393,9 +393,9 @@ namespace Soul::Parser
 		// <grouping_expression> ::= '(' <expression> ')'
 
 		// '('
-		if (!require(Token::Type::SymbolParenLeft)) {
+		if (!require(Token::Type::SYMBOL_PAREN_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenLeft),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -403,9 +403,9 @@ namespace Soul::Parser
 		auto expression = parse_expression();
 
 		// ')'
-		if (!require(Token::Type::SymbolParenRight)) {
+		if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenRight),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -417,16 +417,16 @@ namespace Soul::Parser
 		// <if_statement> ::= <keyword_if> '(' <expression> ')' <block_statement> [ <keyword_else> <block_statement> ]
 
 		// <keyword_if>
-		if (!require(Token::Type::KeywordIf)) {
+		if (!require(Token::Type::KEYWORD_IF)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordIf),
+			                                Token::Name(Token::Type::KEYWORD_IF),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// '('
-		if (!require(Token::Type::SymbolParenLeft)) {
+		if (!require(Token::Type::SYMBOL_PAREN_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenLeft),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -434,9 +434,9 @@ namespace Soul::Parser
 		auto condition = parse_expression();
 
 		// ')'
-		if (!require(Token::Type::SymbolParenRight)) {
+		if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolParenRight),
+			                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -445,7 +445,7 @@ namespace Soul::Parser
 
 		// [ <keyword_else> <block_statement> ]
 		ASTNode::Dependencies false_statements{};
-		if (match(Token::Type::KeywordElse)) {
+		if (match(Token::Type::KEYWORD_ELSE)) {
 			false_statements = parse_block_statement();
 		}
 
@@ -458,19 +458,19 @@ namespace Soul::Parser
 	{
 		// <literal> ::= <integer_literal>  | <float_literal> | <string_literal> | <keyword_true> | <keyword_false>
 
-		const auto& token = require(std::array{ Token::Type::KeywordFalse,
-		                                        Token::Type::KeywordNull,
-		                                        Token::Type::KeywordTrue,
-		                                        Token::Type::LiteralFloat,
-		                                        Token::Type::LiteralIdentifier,
-		                                        Token::Type::LiteralInteger,
-		                                        Token::Type::LiteralString });
+		const auto& token = require(std::array{ Token::Type::KEYWORD_FALSE,
+		                                        Token::Type::KEYWORD_NULL,
+		                                        Token::Type::KEYWORD_TRUE,
+		                                        Token::Type::LITERAL_FLOAT,
+		                                        Token::Type::LITERAL_IDENTIFIER,
+		                                        Token::Type::LITERAL_INTEGER,
+		                                        Token::Type::LITERAL_STRING });
 		if (!token) {
 			return create_error(std::format("expected literal expression, but got: '{}'",
-			                                Token::name(current_token_or_default().type)));
+			                                Token::Name(current_token_or_default().type)));
 		}
 
-		if (token->type == Token::Type::LiteralFloat) {
+		if (token->type == Token::Type::LITERAL_FLOAT) {
 			auto result = parse_integral_value<Float64>(token->data);
 			if (!result.has_value()) {
 				return create_error(std::format("failed to parse float expression, because: '{}'", result.error()));
@@ -481,7 +481,7 @@ namespace Soul::Parser
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(*result));
 		}
 
-		if (token->type == Token::Type::LiteralInteger) {
+		if (token->type == Token::Type::LITERAL_INTEGER) {
 			auto result = parse_integral_value<Int64>(token->data);
 			if (!result.has_value()) {
 				return create_error(std::format("failed to parse integer expression, because: '{}'", result.error()));
@@ -492,23 +492,23 @@ namespace Soul::Parser
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(*result));
 		}
 
-		if (token->type == Token::Type::LiteralString) {
+		if (token->type == Token::Type::LITERAL_STRING) {
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::String>(token->data));
 		}
 
-		if (token->type == Token::Type::LiteralIdentifier) {
+		if (token->type == Token::Type::LITERAL_IDENTIFIER) {
 			return LiteralNode::create(Identifier::create(token->data));
 		}
 
-		if (token->type == Token::Type::KeywordTrue) {
+		if (token->type == Token::Type::KEYWORD_TRUE) {
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(true));
 		}
 
-		if (token->type == Token::Type::KeywordFalse) {
+		if (token->type == Token::Type::KEYWORD_FALSE) {
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Boolean>(false));
 		}
 
-		if (token->type == Token::Type::KeywordNull) {
+		if (token->type == Token::Type::KEYWORD_NULL) {
 			return LiteralNode::create({});
 		}
 
@@ -518,17 +518,17 @@ namespace Soul::Parser
 	AST::ASTNode::Dependency Parser::parse_loop_control()
 	{  // <loop_control> ::= <keyword_break> | <keyword_continue>
 
-		auto token = require(std::array{ Token::Type::KeywordBreak, Token::Type::KeywordContinue });
+		auto token = require(std::array{ Token::Type::KEYWORD_BREAK, Token::Type::KEYWORD_CONTINUE });
 		if (!token) {
 			return create_error(std::format("expected '{}' or '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordBreak),
-			                                Token::name(Token::Type::KeywordContinue),
+			                                Token::Name(Token::Type::KEYWORD_BREAK),
+			                                Token::Name(Token::Type::KEYWORD_CONTINUE),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// <keyword_break> | <keyword_continue>
-		const auto control_type
-			= token->type == Token::Type::KeywordBreak ? LoopControlNode::Type::Break : LoopControlNode::Type::Continue;
+		const auto control_type = token->type == Token::Type::KEYWORD_BREAK ? LoopControlNode::Type::Break
+		                                                                    : LoopControlNode::Type::Continue;
 
 		return LoopControlNode::create(control_type);
 	}
@@ -538,15 +538,15 @@ namespace Soul::Parser
 		// <return_statement> ::= <keyword_return> [ <expression> ]
 
 		// <keyword_return>
-		if (!require(Token::Type::KeywordReturn)) {
+		if (!require(Token::Type::KEYWORD_RETURN)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordReturn),
+			                                Token::Name(Token::Type::KEYWORD_RETURN),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// [ <expression> ]
 		ASTNode::Dependency expression = nullptr;
-		if (current_token_or_default().type != Token::Type::SymbolSemicolon) {
+		if (current_token_or_default().type != Token::Type::SYMBOL_SEMICOLON) {
 			expression = parse_expression();
 		}
 
@@ -558,58 +558,59 @@ namespace Soul::Parser
 		// <struct_declaration> ::= <keyword_struct> <identifier> '{' <parameter_declaration> [',' ... ] '}'
 
 		// <keyword_struct>
-		if (!require(Token::Type::KeywordStruct)) {
+		if (!require(Token::Type::KEYWORD_STRUCT)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordStruct),
+			                                Token::Name(Token::Type::KEYWORD_STRUCT),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// <identifier>
-		auto name_identifier = require(Token::Type::LiteralIdentifier);
+		auto name_identifier = require(Token::Type::LITERAL_IDENTIFIER);
 		if (!name_identifier) {
 			return create_error(
 				std::format("expected struct identifier, but got: '{}'", std::string(current_token_or_default().data)));
 		}
 
 		// '{'
-		if (!require(Token::Type::SymbolBraceLeft)) {
+		if (!require(Token::Type::SYMBOL_BRACE_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolBraceLeft),
+			                                Token::Name(Token::Type::SYMBOL_BRACE_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		ASTNode::Dependencies parameters{};
-		if (const auto current_type = current_token_or_default().type; current_type != Token::Type::SymbolBraceRight) {
-			if (current_type == Token::Type::SpecialEndOfFile) {
+		if (const auto current_type = current_token_or_default().type;
+		    current_type != Token::Type::SYMBOL_BRACE_RIGHT) {
+			if (current_type == Token::Type::SPECIAL_END_OF_FILE) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolBraceRight),
+				                                Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 
-			while (!match(Token::Type::SymbolBraceRight)) {
+			while (!match(Token::Type::SYMBOL_BRACE_RIGHT)) {
 				parameters.emplace_back(parse_parameter_declaration());
 
 				// ','
-				if (current_token_or_default().type != Token::Type::SymbolBraceRight
-				    && !require(Token::Type::SymbolComma)) {
+				if (current_token_or_default().type != Token::Type::SYMBOL_BRACE_RIGHT
+				    && !require(Token::Type::SYMBOL_COMMA)) {
 					return create_error(std::format("expected '{}', but got: '{}'",
-					                                Token::name(Token::Type::SymbolComma),
+					                                Token::Name(Token::Type::SYMBOL_COMMA),
 					                                std::string(current_token_or_default().data)));
 				}
 			}
 
 			// '}'
 			const auto previous_token = peek(-1);
-			if (!previous_token || previous_token->type != Token::Type::SymbolBraceRight) {
+			if (!previous_token || previous_token->type != Token::Type::SYMBOL_BRACE_RIGHT) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolBraceRight),
+				                                Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 		} else {
 			// '}'
-			if (!require(Token::Type::SymbolBraceRight)) {
+			if (!require(Token::Type::SYMBOL_BRACE_RIGHT)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolBraceRight),
+				                                Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 		};
@@ -623,10 +624,10 @@ namespace Soul::Parser
 
 		// <unary_operator>
 		static constexpr std::array k_unary_operators = {
-			Token::Type::SymbolBang,
-			Token::Type::SymbolMinus,
-			Token::Type::SymbolMinusMinus,
-			Token::Type::SymbolPlusPlus,
+			Token::Type::SYMBOL_BANG,
+			Token::Type::SYMBOL_MINUS,
+			Token::Type::SYMBOL_MINUS_MINUS,
+			Token::Type::SYMBOL_PLUS_PLUS,
 		};
 		auto unary_operator = require(k_unary_operators);
 		if (!unary_operator) {
@@ -645,26 +646,26 @@ namespace Soul::Parser
 		// <variable_declaration> ::= <keyword_let> [ <keyword_mut> ] <identifier> ':' <type_specifier> '=' <expression>
 
 		// <keyword_let>
-		if (!require(Token::Type::KeywordLet)) {
+		if (!require(Token::Type::KEYWORD_LET)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordLet),
+			                                Token::Name(Token::Type::KEYWORD_LET),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// [Optional] <keyword_mut>
-		const bool is_mutable = match(Token::Type::KeywordMut);
+		const bool is_mutable = match(Token::Type::KEYWORD_MUT);
 
 		// <identifier>
-		auto name_identifier = require(Token::Type::LiteralIdentifier);
+		auto name_identifier = require(Token::Type::LITERAL_IDENTIFIER);
 		if (!name_identifier) {
 			return create_error(std::format("expected variable identifier, but got: '{}'",
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// ':'
-		if (!require(Token::Type::SymbolColon)) {
+		if (!require(Token::Type::SYMBOL_COLON)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolColon),
+			                                Token::Name(Token::Type::SYMBOL_COLON),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -675,9 +676,9 @@ namespace Soul::Parser
 		}
 
 		// '='
-		if (!require(Token::Type::SymbolEqual)) {
+		if (!require(Token::Type::SYMBOL_EQUAL)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolEqual),
+			                                Token::Name(Token::Type::SYMBOL_EQUAL),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -693,22 +694,22 @@ namespace Soul::Parser
 		// <while_loop> ::= <keyword_while> [ '(' <expression> ')' ] <block_statement>
 
 		// <keyword_while>
-		if (!require(Token::Type::KeywordWhile)) {
+		if (!require(Token::Type::KEYWORD_WHILE)) {
 			return create_error(std::format("expected '{}' keyword, but got: '{}'",
-			                                Token::name(Token::Type::KeywordWhile),
+			                                Token::Name(Token::Type::KEYWORD_WHILE),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		// [Optional] '(' <expression> ')'
 		ASTNode::Dependency condition{};
-		if (match(Token::Type::SymbolParenLeft)) {
+		if (match(Token::Type::SYMBOL_PAREN_LEFT)) {
 			// <expression>
 			condition = parse_expression();
 
 			// ')'
-			if (!require(Token::Type::SymbolParenRight)) {
+			if (!require(Token::Type::SYMBOL_PAREN_RIGHT)) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolParenRight),
+				                                Token::Name(Token::Type::SYMBOL_PAREN_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 		} else {
@@ -726,23 +727,23 @@ namespace Soul::Parser
 		// <block_statement> ::= '{' [ <statement> ';' ... ] '}'
 
 		ASTNode::Dependencies statements{};
-		if (!require(Token::Type::SymbolBraceLeft)) {
+		if (!require(Token::Type::SYMBOL_BRACE_LEFT)) {
 			statements.emplace_back(create_error(std::format("expected '{}', but got: '{}'",
-			                                                 Token::name(Token::Type::SymbolBraceLeft),
+			                                                 Token::Name(Token::Type::SYMBOL_BRACE_LEFT),
 			                                                 std::string(current_token_or_default().data))));
 			return statements;
 		}
 
-		while (!match(Token::Type::SymbolBraceRight)) {
-			if (current_token_or_default().type == Token::Type::SpecialEndOfFile) {
+		while (!match(Token::Type::SYMBOL_BRACE_RIGHT)) {
+			if (current_token_or_default().type == Token::Type::SPECIAL_END_OF_FILE) {
 				break;
 			}
 
 			// NOTE: We might be looking at a stray semicolon(s). Consume until nothing is left.
-			while (match(Token::Type::SymbolSemicolon)) {
+			while (match(Token::Type::SYMBOL_SEMICOLON)) {
 				// ...
 			}
-			if (match(Token::Type::SymbolBraceRight)) {
+			if (match(Token::Type::SYMBOL_BRACE_RIGHT)) {
 				break;
 			}
 
@@ -768,11 +769,11 @@ namespace Soul::Parser
 				return false;
 			}(statements.back().get());
 
-			if (must_consume_semicolon && current_token_or_default().type != Token::Type::SymbolBraceRight) {
+			if (must_consume_semicolon && current_token_or_default().type != Token::Type::SYMBOL_BRACE_RIGHT) {
 				// ';'
-				if (!require(Token::Type::SymbolSemicolon)) {
+				if (!require(Token::Type::SYMBOL_SEMICOLON)) {
 					statements.emplace_back(create_error(std::format("expected '{}', but got: '{}'",
-					                                                 Token::name(Token::Type::SymbolSemicolon),
+					                                                 Token::Name(Token::Type::SYMBOL_SEMICOLON),
 					                                                 std::string(current_token_or_default().data))));
 					return statements;
 				}
@@ -780,9 +781,9 @@ namespace Soul::Parser
 		}
 
 		const auto previous_token = peek(-1);
-		if (!previous_token || previous_token->type != Token::Type::SymbolBraceRight) {
+		if (!previous_token || previous_token->type != Token::Type::SYMBOL_BRACE_RIGHT) {
 			statements.emplace_back(create_error(std::format("expected '{}', but got: '{}'",
-			                                                 Token::name(Token::Type::SymbolBraceRight),
+			                                                 Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 			                                                 std::string(current_token_or_default().data))));
 			return statements;
 		}
@@ -793,29 +794,29 @@ namespace Soul::Parser
 	ASTNode::Dependency Parser::parse_initializer_list()
 	{
 		// <initializer_list> ::= '{' [ <expression> [ ',' ...] ] '}'
-		static constexpr auto k_delimiter = Token::Type::SymbolComma;
+		static constexpr auto k_delimiter = Token::Type::SYMBOL_COMMA;
 
-		if (!require(Token::Type::SymbolBraceLeft)) {
+		if (!require(Token::Type::SYMBOL_BRACE_LEFT)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolBraceLeft),
+			                                Token::Name(Token::Type::SYMBOL_BRACE_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
 		ASTNode::Dependencies expressions{};
-		while (!match(Token::Type::SymbolBraceRight)) {
-			if (current_token_or_default().type == Token::Type::SpecialEndOfFile) {
+		while (!match(Token::Type::SYMBOL_BRACE_RIGHT)) {
+			if (current_token_or_default().type == Token::Type::SPECIAL_END_OF_FILE) {
 				return create_error(std::format("expected '{}', but got: '{}'",
-				                                Token::name(Token::Type::SymbolBraceRight),
+				                                Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 				                                std::string(current_token_or_default().data)));
 			}
 
 			expressions.emplace_back(parse_expression());
 
 			// We need to consume the ',' symbol only if the next statement is not a right brace...
-			if (current_token_or_default().type != Token::Type::SymbolBraceRight) {
+			if (current_token_or_default().type != Token::Type::SYMBOL_BRACE_RIGHT) {
 				if (!require(k_delimiter)) {
 					return create_error(std::format("expected '{}', but got: '{}'",
-					                                Token::name(k_delimiter),
+					                                Token::Name(k_delimiter),
 					                                std::string(current_token_or_default().data)));
 				}
 			}
@@ -829,16 +830,16 @@ namespace Soul::Parser
 		// <parameter_declaration> ::= <identifier> ':' <type_specifier> [ '=' <expression> ]
 
 		// <identifier>
-		auto name_identifier = require(Token::Type::LiteralIdentifier);
+		auto name_identifier = require(Token::Type::LITERAL_IDENTIFIER);
 		if (!name_identifier) {
 			return create_error(
 				std::format("expected name identifier, but got: '{}'", std::string(current_token_or_default().data)));
 		}
 
 		// ':'
-		if (!require(Token::Type::SymbolColon)) {
+		if (!require(Token::Type::SYMBOL_COLON)) {
 			return create_error(std::format("expected '{}', but got: '{}'",
-			                                Token::name(Token::Type::SymbolBraceLeft),
+			                                Token::Name(Token::Type::SYMBOL_BRACE_LEFT),
 			                                std::string(current_token_or_default().data)));
 		}
 
@@ -850,7 +851,7 @@ namespace Soul::Parser
 
 		// [ '=' <expression> ]
 		ASTNode::Dependency expression = nullptr;
-		if (match(Token::Type::SymbolEqual)) {
+		if (match(Token::Type::SYMBOL_EQUAL)) {
 			expression = parse_expression();
 		}
 
@@ -869,15 +870,15 @@ namespace Soul::Parser
 		}
 
 		// <base_type_specifier> ::= <identifier>
-		if (current_token->type == Token::Type::LiteralIdentifier) {
-			require(Token::Type::LiteralIdentifier);
+		if (current_token->type == Token::Type::LITERAL_IDENTIFIER) {
+			require(Token::Type::LITERAL_IDENTIFIER);
 			return TypeSpecifier(BaseTypeSpecifier(std::string(current_token->data)));
 		}
 
 		// <array_type_specifier> ::=  '[' <type_specifier> [ ',' <integer_literal> ] ']'
-		if (current_token->type == Token::Type::SymbolBracketLeft) {
+		if (current_token->type == Token::Type::SYMBOL_BRACKET_LEFT) {
 			// '['
-			if (!require(Token::Type::SymbolBracketLeft)) {
+			if (!require(Token::Type::SYMBOL_BRACKET_LEFT)) {
 				return std::nullopt;
 			}
 			auto type_specifier = parse_type_specifier();
@@ -887,9 +888,9 @@ namespace Soul::Parser
 
 			// [Optional] ','
 			ArrayTypeSpecifier::Size array_size = ArrayTypeSpecifier::k_unbound_size;
-			if (match(Token::Type::SymbolComma)) {
+			if (match(Token::Type::SYMBOL_COMMA)) {
 				// <integer_literal>
-				const auto integer_literal = require(Token::Type::LiteralInteger);
+				const auto integer_literal = require(Token::Type::LITERAL_INTEGER);
 				if (!integer_literal) {
 					return std::nullopt;
 				}
@@ -902,15 +903,15 @@ namespace Soul::Parser
 			}
 
 			// ']'
-			if (!require(Token::Type::SymbolBracketRight)) {
+			if (!require(Token::Type::SYMBOL_BRACKET_RIGHT)) {
 				return std::nullopt;
 			}
 			return TypeSpecifier(ArrayTypeSpecifier(std::move(*type_specifier), array_size));
 		}
 
 		// <pointer_type_specifier> ::= '*' <type_specifier>
-		if (current_token->type == Token::Type::SymbolStar) {
-			require(Token::Type::SymbolStar);
+		if (current_token->type == Token::Type::SYMBOL_STAR) {
+			require(Token::Type::SYMBOL_STAR);
 			auto type_specifier = parse_type_specifier();
 			if (!type_specifier) {
 				return std::nullopt;
@@ -925,10 +926,10 @@ namespace Soul::Parser
 	ASTNode::Dependency Parser::create_error(ErrorNode::Message error_message)
 	{
 		static constexpr std::array k_synchronization_tokens = {
-			Token::Type::KeywordElse,      Token::Type::KeywordFn,        Token::Type::KeywordFor,
-			Token::Type::KeywordIf,        Token::Type::KeywordLet,       Token::Type::KeywordNative,
-			Token::Type::KeywordStruct,    Token::Type::KeywordWhile,     Token::Type::SymbolSemicolon,
-			Token::Type::SymbolBraceRight, Token::Type::SymbolParenRight,
+			Token::Type::KEYWORD_ELSE,       Token::Type::KEYWORD_FN,         Token::Type::KEYWORD_FOR,
+			Token::Type::KEYWORD_IF,         Token::Type::KEYWORD_LET,        Token::Type::KEYWORD_NATIVE,
+			Token::Type::KEYWORD_STRUCT,     Token::Type::KEYWORD_WHILE,      Token::Type::SYMBOL_SEMICOLON,
+			Token::Type::SYMBOL_BRACE_RIGHT, Token::Type::SYMBOL_PAREN_RIGHT,
 		};
 		while (_current_token != std::end(_tokens)) {
 			if (std::ranges::contains(k_synchronization_tokens, _current_token->type)) {
@@ -984,54 +985,54 @@ namespace Soul::Parser
 	{
 		switch (type) {
 			// Assignment
-			case Token::Type::SymbolEqual:
-			case Token::Type::SymbolPlusEqual:
-			case Token::Type::SymbolMinusEqual:
-			case Token::Type::SymbolStarEqual:
-			case Token::Type::SymbolSlashEqual:
-			case Token::Type::SymbolPercentEqual:
+			case Token::Type::SYMBOL_EQUAL:
+			case Token::Type::SYMBOL_PLUS_EQUAL:
+			case Token::Type::SYMBOL_MINUS_EQUAL:
+			case Token::Type::SYMBOL_STAR_EQUAL:
+			case Token::Type::SYMBOL_SLASH_EQUAL:
+			case Token::Type::SYMBOL_PERCENT_EQUAL:
 				return { Parser::Precedence::Assign, nullptr, &Parser::parse_binary };
 
 			// Comparison
-			case Token::Type::SymbolLess:
-			case Token::Type::SymbolLessEqual:
-			case Token::Type::SymbolGreater:
-			case Token::Type::SymbolGreaterEqual:
+			case Token::Type::SYMBOL_LESS:
+			case Token::Type::SYMBOL_LESS_EQUAL:
+			case Token::Type::SYMBOL_GREATER:
+			case Token::Type::SYMBOL_GREATER_EQUAL:
 				return { Precedence::Compare, nullptr, &Parser::parse_binary };
 
 			// Logical
-			case Token::Type::SymbolBang:
+			case Token::Type::SYMBOL_BANG:
 				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr };
 
 			// Literals
-			case Token::Type::LiteralFloat:
-			case Token::Type::LiteralIdentifier:
-			case Token::Type::LiteralInteger:
-			case Token::Type::LiteralString:
-			case Token::Type::KeywordTrue:
-			case Token::Type::KeywordFalse:
-			case Token::Type::KeywordNull:
+			case Token::Type::LITERAL_FLOAT:
+			case Token::Type::LITERAL_IDENTIFIER:
+			case Token::Type::LITERAL_INTEGER:
+			case Token::Type::LITERAL_STRING:
+			case Token::Type::KEYWORD_TRUE:
+			case Token::Type::KEYWORD_FALSE:
+			case Token::Type::KEYWORD_NULL:
 				return { Precedence::None, &Parser::parse_literal, nullptr };
 
 			// Arithmetic
-			case Token::Type::SymbolMinus:
+			case Token::Type::SYMBOL_MINUS:
 				return { Parser::Precedence::Additive, &Parser::parse_unary, &Parser::parse_binary };
-			case Token::Type::SymbolPlus:
+			case Token::Type::SYMBOL_PLUS:
 				return { Parser::Precedence::Additive, nullptr, &Parser::parse_binary };
-			case Token::Type::SymbolPercent:
-			case Token::Type::SymbolSlash:
-			case Token::Type::SymbolStar:
+			case Token::Type::SYMBOL_PERCENT:
+			case Token::Type::SYMBOL_SLASH:
+			case Token::Type::SYMBOL_STAR:
 				return { Parser::Precedence::Multiplicative, nullptr, &Parser::parse_binary };
-			case Token::Type::SymbolPlusPlus:
-			case Token::Type::SymbolMinusMinus:
+			case Token::Type::SYMBOL_PLUS_PLUS:
+			case Token::Type::SYMBOL_MINUS_MINUS:
 				return { Parser::Precedence::Prefix, &Parser::parse_unary, nullptr };
 
 			// Other
-			case Token::Type::KeywordCast:
+			case Token::Type::KEYWORD_CAST:
 				return { Precedence::None, &Parser::parse_cast, nullptr };
-			case Token::Type::SymbolParenLeft:
+			case Token::Type::SYMBOL_PAREN_LEFT:
 				return { Precedence::Postfix, &Parser::parse_grouping, &Parser::parse_function_call };
-			case Token::Type::SymbolBraceLeft:
+			case Token::Type::SYMBOL_BRACE_LEFT:
 				return { Precedence::None, &Parser::parse_initializer_list, nullptr };
 			default:
 				break;
@@ -1045,8 +1046,8 @@ namespace Soul::Parser
 		if (_current_token == std::end(_tokens)) {
 			auto last_token = _tokens.back();
 			return Token{
-				.type     = Token::Type::SpecialEndOfFile,
-				.data     = Token::internal_name(Token::Type::SpecialEndOfFile),
+				.type     = Token::Type::SPECIAL_END_OF_FILE,
+				.data     = Token::NameInternal(Token::Type::SPECIAL_END_OF_FILE),
 				.location = SourceOffset{ last_token.location.row,
                                          static_cast<UInt32>(last_token.location.column + last_token.data.size()) }
 			};

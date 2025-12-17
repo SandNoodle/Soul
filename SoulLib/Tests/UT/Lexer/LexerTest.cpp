@@ -25,9 +25,9 @@ namespace Soul::Lexer::UT
 		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::LiteralIdentifier, "my_identifier"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::LiteralIdentifier, "invalid_variable"sv, SourceOffset{ 1, 14 }),
-			Token(Token::Type::LiteralIdentifier, "this_should_work"sv, SourceOffset{ 1, 32 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "my_identifier"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "invalid_variable"sv, SourceOffset{ 1, 14 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "this_should_work"sv, SourceOffset{ 1, 32 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -44,21 +44,21 @@ namespace Soul::Lexer::UT
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::KeywordBreak, "break"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::KeywordCast, "cast"sv, SourceOffset{ 1, 6 }),
-			Token(Token::Type::KeywordContinue, "continue"sv, SourceOffset{ 1, 11 }),
-			Token(Token::Type::KeywordElse, "else"sv, SourceOffset{ 1, 20 }),
-			Token(Token::Type::KeywordFalse, "false"sv, SourceOffset{ 1, 25 }),
-			Token(Token::Type::KeywordFn, "fn"sv, SourceOffset{ 1, 31 }),
-			Token(Token::Type::KeywordFor, "for"sv, SourceOffset{ 1, 34 }),
-			Token(Token::Type::KeywordIf, "if"sv, SourceOffset{ 1, 38 }),
-			Token(Token::Type::KeywordLet, "let"sv, SourceOffset{ 1, 41 }),
-			Token(Token::Type::KeywordMut, "mut"sv, SourceOffset{ 1, 45 }),
-			Token(Token::Type::KeywordNative, "native"sv, SourceOffset{ 1, 49 }),
-			Token(Token::Type::KeywordReturn, "return"sv, SourceOffset{ 1, 56 }),
-			Token(Token::Type::KeywordStruct, "struct"sv, SourceOffset{ 1, 63 }),
-			Token(Token::Type::KeywordTrue, "true"sv, SourceOffset{ 1, 70 }),
-			Token(Token::Type::KeywordWhile, "while"sv, SourceOffset{ 1, 75 }),
+			Token(Token::Type::KEYWORD_BREAK, "break"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::KEYWORD_CAST, "cast"sv, SourceOffset{ 1, 6 }),
+			Token(Token::Type::KEYWORD_CONTINUE, "continue"sv, SourceOffset{ 1, 11 }),
+			Token(Token::Type::KEYWORD_ELSE, "else"sv, SourceOffset{ 1, 20 }),
+			Token(Token::Type::KEYWORD_FALSE, "false"sv, SourceOffset{ 1, 25 }),
+			Token(Token::Type::KEYWORD_FN, "fn"sv, SourceOffset{ 1, 31 }),
+			Token(Token::Type::KEYWORD_FOR, "for"sv, SourceOffset{ 1, 34 }),
+			Token(Token::Type::KEYWORD_IF, "if"sv, SourceOffset{ 1, 38 }),
+			Token(Token::Type::KEYWORD_LET, "let"sv, SourceOffset{ 1, 41 }),
+			Token(Token::Type::KEYWORD_MUT, "mut"sv, SourceOffset{ 1, 45 }),
+			Token(Token::Type::KEYWORD_NATIVE, "native"sv, SourceOffset{ 1, 49 }),
+			Token(Token::Type::KEYWORD_RETURN, "return"sv, SourceOffset{ 1, 56 }),
+			Token(Token::Type::KEYWORD_STRUCT, "struct"sv, SourceOffset{ 1, 63 }),
+			Token(Token::Type::KEYWORD_TRUE, "true"sv, SourceOffset{ 1, 70 }),
+			Token(Token::Type::KEYWORD_WHILE, "while"sv, SourceOffset{ 1, 75 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -75,43 +75,43 @@ namespace Soul::Lexer::UT
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::SymbolAmpersand, "&"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::SymbolAmpersandAmpersand, "&&"sv, SourceOffset{ 1, 2 }),
-			Token(Token::Type::SymbolBang, "!"sv, SourceOffset{ 1, 5 }),
-			Token(Token::Type::SymbolBangEqual, "!="sv, SourceOffset{ 1, 7 }),
-			Token(Token::Type::SymbolBraceLeft, "{"sv, SourceOffset{ 1, 10 }),
-			Token(Token::Type::SymbolBraceRight, "}"sv, SourceOffset{ 1, 12 }),
-			Token(Token::Type::SymbolBracketLeft, "["sv, SourceOffset{ 1, 14 }),
-			Token(Token::Type::SymbolBracketRight, "]"sv, SourceOffset{ 1, 16 }),
-			Token(Token::Type::SymbolCaret, "^"sv, SourceOffset{ 1, 18 }),
-			Token(Token::Type::SymbolColon, ":"sv, SourceOffset{ 1, 20 }),
-			Token(Token::Type::SymbolColonColon, "::"sv, SourceOffset{ 1, 22 }),
-			Token(Token::Type::SymbolComma, ","sv, SourceOffset{ 1, 25 }),
-			Token(Token::Type::SymbolDot, "."sv, SourceOffset{ 1, 27 }),
-			Token(Token::Type::SymbolEqual, "="sv, SourceOffset{ 1, 29 }),
-			Token(Token::Type::SymbolEqualEqual, "=="sv, SourceOffset{ 1, 31 }),
-			Token(Token::Type::SymbolGreater, ">"sv, SourceOffset{ 1, 34 }),
-			Token(Token::Type::SymbolGreaterEqual, ">="sv, SourceOffset{ 1, 36 }),
-			Token(Token::Type::SymbolLess, "<"sv, SourceOffset{ 1, 39 }),
-			Token(Token::Type::SymbolLessEqual, "<="sv, SourceOffset{ 1, 41 }),
-			Token(Token::Type::SymbolMinus, "-"sv, SourceOffset{ 1, 44 }),
-			Token(Token::Type::SymbolMinusEqual, "-="sv, SourceOffset{ 1, 46 }),
-			Token(Token::Type::SymbolMinusMinus, "--"sv, SourceOffset{ 1, 49 }),
-			Token(Token::Type::SymbolPercent, "%"sv, SourceOffset{ 1, 52 }),
-			Token(Token::Type::SymbolPercentEqual, "%="sv, SourceOffset{ 1, 54 }),
-			Token(Token::Type::SymbolParenLeft, "("sv, SourceOffset{ 1, 57 }),
-			Token(Token::Type::SymbolParenRight, ")"sv, SourceOffset{ 1, 59 }),
-			Token(Token::Type::SymbolPipe, "|"sv, SourceOffset{ 1, 61 }),
-			Token(Token::Type::SymbolPipePipe, "||"sv, SourceOffset{ 1, 63 }),
-			Token(Token::Type::SymbolPlus, "+"sv, SourceOffset{ 1, 66 }),
-			Token(Token::Type::SymbolPlusEqual, "+="sv, SourceOffset{ 1, 68 }),
-			Token(Token::Type::SymbolPlusPlus, "++"sv, SourceOffset{ 1, 71 }),
-			Token(Token::Type::SymbolQuestionMark, "?"sv, SourceOffset{ 1, 74 }),
-			Token(Token::Type::SymbolSemicolon, ";"sv, SourceOffset{ 1, 76 }),
-			Token(Token::Type::SymbolSlash, "/"sv, SourceOffset{ 1, 78 }),
-			Token(Token::Type::SymbolSlashEqual, "/="sv, SourceOffset{ 1, 80 }),
-			Token(Token::Type::SymbolStar, "*"sv, SourceOffset{ 1, 83 }),
-			Token(Token::Type::SymbolStarEqual, "*="sv, SourceOffset{ 1, 85 }),
+			Token(Token::Type::SYMBOL_AMPERSAND, "&"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::SYMBOL_AMPERSAND_AMPERSAND, "&&"sv, SourceOffset{ 1, 2 }),
+			Token(Token::Type::SYMBOL_BANG, "!"sv, SourceOffset{ 1, 5 }),
+			Token(Token::Type::SYMBOL_BANG_EQUAL, "!="sv, SourceOffset{ 1, 7 }),
+			Token(Token::Type::SYMBOL_BRACE_LEFT, "{"sv, SourceOffset{ 1, 10 }),
+			Token(Token::Type::SYMBOL_BRACE_RIGHT, "}"sv, SourceOffset{ 1, 12 }),
+			Token(Token::Type::SYMBOL_BRACKET_LEFT, "["sv, SourceOffset{ 1, 14 }),
+			Token(Token::Type::SYMBOL_BRACKET_RIGHT, "]"sv, SourceOffset{ 1, 16 }),
+			Token(Token::Type::SYMBOL_CARET, "^"sv, SourceOffset{ 1, 18 }),
+			Token(Token::Type::SYMBOL_COLON, ":"sv, SourceOffset{ 1, 20 }),
+			Token(Token::Type::SYMBOL_COLON_COLON, "::"sv, SourceOffset{ 1, 22 }),
+			Token(Token::Type::SYMBOL_COMMA, ","sv, SourceOffset{ 1, 25 }),
+			Token(Token::Type::SYMBOL_DOT, "."sv, SourceOffset{ 1, 27 }),
+			Token(Token::Type::SYMBOL_EQUAL, "="sv, SourceOffset{ 1, 29 }),
+			Token(Token::Type::SYMBOL_EQUAL_EQUAL, "=="sv, SourceOffset{ 1, 31 }),
+			Token(Token::Type::SYMBOL_GREATER, ">"sv, SourceOffset{ 1, 34 }),
+			Token(Token::Type::SYMBOL_GREATER_EQUAL, ">="sv, SourceOffset{ 1, 36 }),
+			Token(Token::Type::SYMBOL_LESS, "<"sv, SourceOffset{ 1, 39 }),
+			Token(Token::Type::SYMBOL_LESS_EQUAL, "<="sv, SourceOffset{ 1, 41 }),
+			Token(Token::Type::SYMBOL_MINUS, "-"sv, SourceOffset{ 1, 44 }),
+			Token(Token::Type::SYMBOL_MINUS_EQUAL, "-="sv, SourceOffset{ 1, 46 }),
+			Token(Token::Type::SYMBOL_MINUS_MINUS, "--"sv, SourceOffset{ 1, 49 }),
+			Token(Token::Type::SYMBOL_PERCENT, "%"sv, SourceOffset{ 1, 52 }),
+			Token(Token::Type::SYMBOL_PERCENT_EQUAL, "%="sv, SourceOffset{ 1, 54 }),
+			Token(Token::Type::SYMBOL_PAREN_LEFT, "("sv, SourceOffset{ 1, 57 }),
+			Token(Token::Type::SYMBOL_PAREN_RIGHT, ")"sv, SourceOffset{ 1, 59 }),
+			Token(Token::Type::SYMBOL_PIPE, "|"sv, SourceOffset{ 1, 61 }),
+			Token(Token::Type::SYMBOL_PIPE_PIPE, "||"sv, SourceOffset{ 1, 63 }),
+			Token(Token::Type::SYMBOL_PLUS, "+"sv, SourceOffset{ 1, 66 }),
+			Token(Token::Type::SYMBOL_PLUS_EQUAL, "+="sv, SourceOffset{ 1, 68 }),
+			Token(Token::Type::SYMBOL_PLUS_PLUS, "++"sv, SourceOffset{ 1, 71 }),
+			Token(Token::Type::SYMBOL_QUESTION_MARK, "?"sv, SourceOffset{ 1, 74 }),
+			Token(Token::Type::SYMBOL_SEMICOLON, ";"sv, SourceOffset{ 1, 76 }),
+			Token(Token::Type::SYMBOL_SLASH, "/"sv, SourceOffset{ 1, 78 }),
+			Token(Token::Type::SYMBOL_SLASH_EQUAL, "/="sv, SourceOffset{ 1, 80 }),
+			Token(Token::Type::SYMBOL_STAR, "*"sv, SourceOffset{ 1, 83 }),
+			Token(Token::Type::SYMBOL_STAR_EQUAL, "*="sv, SourceOffset{ 1, 85 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -128,19 +128,19 @@ namespace Soul::Lexer::UT
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::LiteralFloat, "0.0"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::LiteralFloat, "7.52"sv, SourceOffset{ 1, 4 }),
-			Token(Token::Type::LiteralInteger, "4098"sv, SourceOffset{ 1, 9 }),
-			Token(Token::Type::LiteralFloat, "4098.0"sv, SourceOffset{ 1, 14 }),
-			Token(Token::Type::LiteralFloat, "-8192.32"sv, SourceOffset{ 1, 21 }),
-			Token(Token::Type::LiteralFloat, "1000000000000.0"sv, SourceOffset{ 1, 30 }),
-			Token(Token::Type::LiteralInteger, "0"sv, SourceOffset{ 1, 46 }),
-			Token(Token::Type::LiteralInteger, "54"sv, SourceOffset{ 1, 48 }),
-			Token(Token::Type::LiteralInteger, "1024"sv, SourceOffset{ 1, 51 }),
-			Token(Token::Type::LiteralFloat, "-0.01"sv, SourceOffset{ 1, 56 }),
-			Token(Token::Type::LiteralFloat, "5.47"sv, SourceOffset{ 1, 62 }),
-			Token(Token::Type::LiteralInteger, "-8192"sv, SourceOffset{ 1, 67 }),
-			Token(Token::Type::LiteralInteger, "1000000000000"sv, SourceOffset{ 1, 73 }),
+			Token(Token::Type::LITERAL_FLOAT, "0.0"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::LITERAL_FLOAT, "7.52"sv, SourceOffset{ 1, 4 }),
+			Token(Token::Type::LITERAL_INTEGER, "4098"sv, SourceOffset{ 1, 9 }),
+			Token(Token::Type::LITERAL_FLOAT, "4098.0"sv, SourceOffset{ 1, 14 }),
+			Token(Token::Type::LITERAL_FLOAT, "-8192.32"sv, SourceOffset{ 1, 21 }),
+			Token(Token::Type::LITERAL_FLOAT, "1000000000000.0"sv, SourceOffset{ 1, 30 }),
+			Token(Token::Type::LITERAL_INTEGER, "0"sv, SourceOffset{ 1, 46 }),
+			Token(Token::Type::LITERAL_INTEGER, "54"sv, SourceOffset{ 1, 48 }),
+			Token(Token::Type::LITERAL_INTEGER, "1024"sv, SourceOffset{ 1, 51 }),
+			Token(Token::Type::LITERAL_FLOAT, "-0.01"sv, SourceOffset{ 1, 56 }),
+			Token(Token::Type::LITERAL_FLOAT, "5.47"sv, SourceOffset{ 1, 62 }),
+			Token(Token::Type::LITERAL_INTEGER, "-8192"sv, SourceOffset{ 1, 67 }),
+			Token(Token::Type::LITERAL_INTEGER, "1000000000000"sv, SourceOffset{ 1, 73 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -156,9 +156,9 @@ namespace Soul::Lexer::UT
 		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::LiteralString, "my_value"sv, SourceOffset{ 1, 2 }),
-			Token(Token::Type::LiteralString, "no space after previous one"sv, SourceOffset{ 1, 12 }),
-			Token(Token::Type::LiteralString, "520"sv, SourceOffset{ 1, 42 }),
+			Token(Token::Type::LITERAL_STRING, "my_value"sv, SourceOffset{ 1, 2 }),
+			Token(Token::Type::LITERAL_STRING, "no space after previous one"sv, SourceOffset{ 1, 12 }),
+			Token(Token::Type::LITERAL_STRING, "520"sv, SourceOffset{ 1, 42 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -177,7 +177,7 @@ namespace Soul::Lexer::UT
 		EXPECT_EQ(
 			result_tokens[0],
 			Token(
-				Token::Type::SpecialError, "unterminated string literal; did you forget '\"'?", SourceOffset{ 1, 0 }));
+				Token::Type::SPECIAL_ERROR, "unterminated string literal; did you forget '\"'?", SourceOffset{ 1, 0 }));
 	}
 
 	TEST_F(LexerTest, Compressed)
@@ -186,13 +186,13 @@ namespace Soul::Lexer::UT
 		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::KeywordLet, "let"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::LiteralIdentifier, "variable"sv, SourceOffset{ 1, 4 }),
-			Token(Token::Type::SymbolColon, ":"sv, SourceOffset{ 1, 12 }),
-			Token(Token::Type::LiteralIdentifier, "int"sv, SourceOffset{ 1, 13 }),
-			Token(Token::Type::SymbolEqual, "="sv, SourceOffset{ 1, 16 }),
-			Token(Token::Type::LiteralInteger, "320"sv, SourceOffset{ 1, 17 }),
-			Token(Token::Type::SymbolSemicolon, ";"sv, SourceOffset{ 1, 20 }),
+			Token(Token::Type::KEYWORD_LET, "let"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "variable"sv, SourceOffset{ 1, 4 }),
+			Token(Token::Type::SYMBOL_COLON, ":"sv, SourceOffset{ 1, 12 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "int"sv, SourceOffset{ 1, 13 }),
+			Token(Token::Type::SYMBOL_EQUAL, "="sv, SourceOffset{ 1, 16 }),
+			Token(Token::Type::LITERAL_INTEGER, "320"sv, SourceOffset{ 1, 17 }),
+			Token(Token::Type::SYMBOL_SEMICOLON, ";"sv, SourceOffset{ 1, 20 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -209,27 +209,27 @@ namespace Soul::Lexer::UT
 		const auto result_tokens = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::KeywordFn, "fn"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::LiteralIdentifier, "main"sv, SourceOffset{ 1, 3 }),
-			Token(Token::Type::SymbolParenLeft, "("sv, SourceOffset{ 1, 7 }),
-			Token(Token::Type::LiteralIdentifier, "some_var"sv, SourceOffset{ 1, 8 }),
-			Token(Token::Type::SymbolColon, ":"sv, SourceOffset{ 1, 17 }),
-			Token(Token::Type::LiteralIdentifier, "int"sv, SourceOffset{ 1, 19 }),
-			Token(Token::Type::SymbolParenRight, ")"sv, SourceOffset{ 1, 22 }),
-			Token(Token::Type::SymbolColonColon, "::"sv, SourceOffset{ 1, 24 }),
-			Token(Token::Type::LiteralIdentifier, "void"sv, SourceOffset{ 1, 27 }),
-			Token(Token::Type::SymbolBraceLeft, "{"sv, SourceOffset{ 1, 32 }),
-			Token(Token::Type::KeywordLet, "let"sv, SourceOffset{ 2, 1 }),
-			Token(Token::Type::LiteralIdentifier, "my_variable"sv, SourceOffset{ 2, 5 }),
-			Token(Token::Type::SymbolColon, ":"sv, SourceOffset{ 2, 17 }),
-			Token(Token::Type::LiteralIdentifier, "str"sv, SourceOffset{ 2, 19 }),
-			Token(Token::Type::SymbolEqual, "="sv, SourceOffset{ 2, 23 }),
-			Token(Token::Type::LiteralString, "my_string"sv, SourceOffset{ 2, 27 }),
-			Token(Token::Type::SymbolSemicolon, ";"sv, SourceOffset{ 2, 36 }),
-			Token(Token::Type::KeywordReturn, "return"sv, SourceOffset{ 3, 1 }),
-			Token(Token::Type::LiteralInteger, "0"sv, SourceOffset{ 3, 8 }),
-			Token(Token::Type::SymbolSemicolon, ";"sv, SourceOffset{ 3, 9 }),
-			Token(Token::Type::SymbolBraceRight, "}"sv, SourceOffset{ 4, 0 }),
+			Token(Token::Type::KEYWORD_FN, "fn"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "main"sv, SourceOffset{ 1, 3 }),
+			Token(Token::Type::SYMBOL_PAREN_LEFT, "("sv, SourceOffset{ 1, 7 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "some_var"sv, SourceOffset{ 1, 8 }),
+			Token(Token::Type::SYMBOL_COLON, ":"sv, SourceOffset{ 1, 17 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "int"sv, SourceOffset{ 1, 19 }),
+			Token(Token::Type::SYMBOL_PAREN_RIGHT, ")"sv, SourceOffset{ 1, 22 }),
+			Token(Token::Type::SYMBOL_COLON_COLON, "::"sv, SourceOffset{ 1, 24 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "void"sv, SourceOffset{ 1, 27 }),
+			Token(Token::Type::SYMBOL_BRACE_LEFT, "{"sv, SourceOffset{ 1, 32 }),
+			Token(Token::Type::KEYWORD_LET, "let"sv, SourceOffset{ 2, 1 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "my_variable"sv, SourceOffset{ 2, 5 }),
+			Token(Token::Type::SYMBOL_COLON, ":"sv, SourceOffset{ 2, 17 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "str"sv, SourceOffset{ 2, 19 }),
+			Token(Token::Type::SYMBOL_EQUAL, "="sv, SourceOffset{ 2, 23 }),
+			Token(Token::Type::LITERAL_STRING, "my_string"sv, SourceOffset{ 2, 27 }),
+			Token(Token::Type::SYMBOL_SEMICOLON, ";"sv, SourceOffset{ 2, 36 }),
+			Token(Token::Type::KEYWORD_RETURN, "return"sv, SourceOffset{ 3, 1 }),
+			Token(Token::Type::LITERAL_INTEGER, "0"sv, SourceOffset{ 3, 8 }),
+			Token(Token::Type::SYMBOL_SEMICOLON, ";"sv, SourceOffset{ 3, 9 }),
+			Token(Token::Type::SYMBOL_BRACE_RIGHT, "}"sv, SourceOffset{ 4, 0 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -252,9 +252,9 @@ namespace Soul::Lexer::UT
 		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::SymbolSemicolon, ";"sv, SourceOffset{ 1, 1 }),
-			Token(Token::Type::SymbolPlus, "+"sv, SourceOffset{ 3, 0 }),
-			Token(Token::Type::SymbolPlusEqual, "+="sv, SourceOffset{ 4, 0 }),
+			Token(Token::Type::SYMBOL_SEMICOLON, ";"sv, SourceOffset{ 1, 1 }),
+			Token(Token::Type::SYMBOL_PLUS, "+"sv, SourceOffset{ 3, 0 }),
+			Token(Token::Type::SYMBOL_PLUS_EQUAL, "+="sv, SourceOffset{ 4, 0 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());
@@ -270,14 +270,14 @@ namespace Soul::Lexer::UT
 		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		static constexpr std::array k_expected_tokens = {
-			Token(Token::Type::LiteralIdentifier, "bool"sv, SourceOffset{ 1, 0 }),
-			Token(Token::Type::LiteralIdentifier, "chr"sv, SourceOffset{ 1, 5 }),
-			Token(Token::Type::LiteralIdentifier, "f32"sv, SourceOffset{ 1, 9 }),
-			Token(Token::Type::LiteralIdentifier, "f64"sv, SourceOffset{ 1, 13 }),
-			Token(Token::Type::LiteralIdentifier, "i32"sv, SourceOffset{ 1, 17 }),
-			Token(Token::Type::LiteralIdentifier, "i64"sv, SourceOffset{ 1, 21 }),
-			Token(Token::Type::LiteralIdentifier, "str"sv, SourceOffset{ 1, 25 }),
-			Token(Token::Type::LiteralIdentifier, "void"sv, SourceOffset{ 1, 29 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "bool"sv, SourceOffset{ 1, 0 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "chr"sv, SourceOffset{ 1, 5 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "f32"sv, SourceOffset{ 1, 9 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "f64"sv, SourceOffset{ 1, 13 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "i32"sv, SourceOffset{ 1, 17 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "i64"sv, SourceOffset{ 1, 21 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "str"sv, SourceOffset{ 1, 25 }),
+			Token(Token::Type::LITERAL_IDENTIFIER, "void"sv, SourceOffset{ 1, 29 }),
 		};
 
 		ASSERT_EQ(k_expected_tokens.size(), result_tokens.size());

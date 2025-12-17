@@ -28,7 +28,7 @@ namespace Soul::Types
 	class PrimitiveType
 	{
 		public:
-		enum class Kind : u8
+		enum class Kind : UInt8
 		{
 			Unknown,
 			Boolean,

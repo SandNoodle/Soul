@@ -81,7 +81,7 @@ namespace Soul::Lexer
 	{
 		SourceOffset location = SourceOffset{ _current_location.row,
 			                                  std::min(_current_location.column,
-			                                           _current_location.column - static_cast<u32>(data.size())) };
+			                                           _current_location.column - static_cast<UInt32>(data.size())) };
 		return Token{ type, data, location };
 	};
 

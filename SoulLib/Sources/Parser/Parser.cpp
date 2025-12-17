@@ -14,7 +14,7 @@ namespace Soul::Parser
 	using namespace Soul::Types;
 
 	/** @brief Operator precedence (LOWEST to HIGHEST) */
-	enum class Parser::Precedence : u8
+	enum class Parser::Precedence : UInt8
 	{
 		None,
 		Assign,          // =
@@ -471,22 +471,22 @@ namespace Soul::Parser
 		}
 
 		if (token->type == Token::Type::LiteralFloat) {
-			auto result = parse_integral_value<f64>(token->data);
+			auto result = parse_integral_value<Float64>(token->data);
 			if (!result.has_value()) {
 				return create_error(std::format("failed to parse float expression, because: '{}'", result.error()));
 			}
-			if (*result <= std::numeric_limits<f32>::lowest() || *result >= std::numeric_limits<f32>::max()) {
+			if (*result <= std::numeric_limits<Float32>::lowest() || *result >= std::numeric_limits<Float32>::max()) {
 				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float64>(*result));
 			}
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Float32>(*result));
 		}
 
 		if (token->type == Token::Type::LiteralInteger) {
-			auto result = parse_integral_value<i64>(token->data);
+			auto result = parse_integral_value<Int64>(token->data);
 			if (!result.has_value()) {
 				return create_error(std::format("failed to parse integer expression, because: '{}'", result.error()));
 			}
-			if (*result <= std::numeric_limits<i32>::lowest() || *result >= std::numeric_limits<i32>::max()) {
+			if (*result <= std::numeric_limits<Int32>::lowest() || *result >= std::numeric_limits<Int32>::max()) {
 				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int64>(*result));
 			}
 			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::Int32>(*result));
@@ -894,7 +894,7 @@ namespace Soul::Parser
 					return std::nullopt;
 				}
 
-				auto array_size_literal_result = parse_integral_value<i64>(integer_literal->data);
+				auto array_size_literal_result = parse_integral_value<Int64>(integer_literal->data);
 				if (!array_size_literal_result.has_value()) {
 					return std::nullopt;
 				}
@@ -1048,7 +1048,7 @@ namespace Soul::Parser
 				.type     = Token::Type::SpecialEndOfFile,
 				.data     = Token::internal_name(Token::Type::SpecialEndOfFile),
 				.location = SourceOffset{ last_token.location.row,
-                                         static_cast<u32>(last_token.location.column + last_token.data.size()) }
+                                         static_cast<UInt32>(last_token.location.column + last_token.data.size()) }
 			};
 		}
 		return *_current_token;

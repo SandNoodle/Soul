@@ -16,7 +16,7 @@ namespace Soul::AST::Visitors
 	class StringifyVisitor final : public DefaultTraverseVisitor
 	{
 		public:
-		enum Options : u8
+		enum Options : UInt8
 		{
 			None       = 0 << 0,
 			PrintTypes = 1 << 0,

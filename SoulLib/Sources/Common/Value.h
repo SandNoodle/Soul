@@ -23,10 +23,10 @@ namespace Soul
 			= VTDictionary<V,
 		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
 		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float32, f32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float64, f64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int32, i32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int64, i64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float32, Float32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float64, Float64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int32, Int32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int64, Int64>,
 		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string>>::Type;
 
 		template <Types::PrimitiveType::Kind V>
@@ -34,10 +34,10 @@ namespace Soul
 			= VTDictionary<V,
 		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
 		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float32, f32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Float64, f64>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int32, i32>,
-		                   VTTranslation<Types::PrimitiveType::Kind::Int64, i64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float32, Float32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float64, Float64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int32, Int32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int64, Int64>,
 		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string_view>>::Type;
 
 		template <Types::PrimitiveType::Kind V>

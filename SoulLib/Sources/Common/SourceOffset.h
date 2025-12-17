@@ -13,8 +13,8 @@ namespace Soul
 	struct SourceOffset
 	{
 		public:
-		u32 row    = 1;
-		u32 column = 0;
+		UInt32 row    = 1;
+		UInt32 column = 0;
 
 		public:
 		constexpr bool operator==(SourceOffset other) const noexcept

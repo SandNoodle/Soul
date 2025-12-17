@@ -59,7 +59,7 @@ namespace Soul::Parser
 	class ArrayTypeSpecifier
 	{
 		public:
-		using Size = u64;
+		using Size = UInt64;
 
 		static constexpr Size k_unbound_size = std::numeric_limits<Size>::max();
 

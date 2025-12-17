@@ -19,7 +19,7 @@ namespace Soul::Parser
 	{
 		private:
 		struct PrecedenceRule;
-		enum class Precedence : u8;
+		enum class Precedence : UInt8;
 
 		private:
 		std::span<const Lexer::Token> _tokens                  = {};

@@ -10,7 +10,7 @@ namespace Soul
 	struct Codepoint
 	{
 		public:
-		using ValueType                        = u32;
+		using ValueType                        = UInt32;
 		static constexpr ValueType k_eof       = 0xFFFFFFFF;  // U+FFFF END OF FILE (EOF)
 		static constexpr ValueType k_plus_sign = 0x2B;        // U+002B PLUS SIGN (+)
 		static constexpr ValueType k_hyphen    = 0x2D;        // U+002D HYPHEN (-)

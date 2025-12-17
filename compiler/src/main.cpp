@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-enum class OptimizationLevel : Soul::u8
+enum class OptimizationLevel : Soul::UInt8
 {
 	/// @brief No optimizations (other than essential ones). Corresponds to Clang's O0.
 	None = 0,
@@ -30,7 +30,7 @@ struct CompilerArguments
 	std::string_view output_filename;
 	std::vector<std::string_view> input_files;
 	OptimizationLevel optimization_level;
-	Soul::u16 thread_count;
+	Soul::UInt16 thread_count;
 	bool output_soul_ir;
 };
 

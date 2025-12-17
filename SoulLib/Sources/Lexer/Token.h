@@ -14,7 +14,7 @@ namespace Soul::Lexer
 	struct Token
 	{
 		public:
-		enum class Type : u8;
+		enum class Type : UInt8;
 
 		public:
 		Type type;
@@ -39,7 +39,7 @@ namespace Soul::Lexer
 	/**
 	 * @brief Represents the `type` of the Token, i.e. does it describe a keyword, literal, normal or a special symbol.
 	 */
-	enum class Token::Type : u8
+	enum class Token::Type : UInt8
 	{
 		KeywordBreak,
 		KeywordCast,

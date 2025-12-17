@@ -18,7 +18,7 @@ namespace Soul::IR
 	struct Instruction
 	{
 		public:
-		using Version   = u32;
+		using Version   = UInt32;
 		using Arguments = std::array<Instruction*, 2>;
 
 		static constexpr Version k_invalid_version = std::numeric_limits<Version>::max();

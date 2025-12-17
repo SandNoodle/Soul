@@ -17,7 +17,7 @@ namespace Soul::IR
 	struct BasicBlock
 	{
 		public:
-		using Label        = u32;
+		using Label        = UInt32;
 		using Instructions = std::vector<std::unique_ptr<Instruction>>;
 		using BasicBlocks  = std::vector<BasicBlock*>;
 

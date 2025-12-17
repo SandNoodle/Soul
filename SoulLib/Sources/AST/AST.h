@@ -40,7 +40,7 @@ namespace Soul::AST
 		using Reference    = ASTNode*;
 		using Identifier   = std::string;
 		using ScopeBlock   = Dependency;
-		enum class Operator : u8;
+		enum class Operator : UInt8;
 
 		public:
 		Types::Type type = {};
@@ -89,7 +89,7 @@ namespace Soul::AST
 	/**
 	 * @brief Operator which represents the type of binding relation between nodes.
 	 */
-	enum class ASTNode::Operator : u8
+	enum class ASTNode::Operator : UInt8
 	{
 		Unknown,
 
@@ -175,7 +175,7 @@ namespace Soul::AST
 	class CastNode : public VisitorAcceptor<CastNode>
 	{
 		public:
-		enum class Type : u8
+		enum class Type : UInt8
 		{
 			Implicit,
 			Explicit,

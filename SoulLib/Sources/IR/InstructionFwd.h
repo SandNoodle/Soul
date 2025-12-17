@@ -2,7 +2,7 @@
 
 #include <concepts>
 
-namespace Soul::ir
+namespace Soul::IR
 {
 	struct BasicBlock;
 	struct Function;
@@ -69,4 +69,4 @@ namespace Soul::ir
 #define SOUL_INSTRUCTION(name) struct name;
 	SOUL_ALL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
-}  // namespace Soul::ir
+}  // namespace Soul::IR

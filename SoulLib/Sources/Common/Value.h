@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Common/compile_time_dictionary.h"
-#include "Core/types.h"
-#include "Types/type.h"
+#include "Common/CompileTimeDictionary.h"
+#include "Soul.h"
+#include "Types/Type.h"
 
 #include <concepts>
 #include <sstream>
@@ -18,16 +18,16 @@ namespace Soul
 
 	namespace detail
 	{
-		template <types::PrimitiveType::Kind V>
+		template <Types::PrimitiveType::Kind V>
 		using PrimitiveKindToValueType
 			= VTDictionary<V,
-		                   VTTranslation<types::PrimitiveType::Kind::Boolean, bool>,
-		                   VTTranslation<types::PrimitiveType::Kind::Char, char>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float32, f32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Float64, f64>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int32, i32>,
-		                   VTTranslation<types::PrimitiveType::Kind::Int64, i64>,
-		                   VTTranslation<types::PrimitiveType::Kind::String, std::string>>::Type;
+		                   VTTranslation<Types::PrimitiveType::Kind::Boolean, bool>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Char, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float32, f32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Float64, f64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int32, i32>,
+		                   VTTranslation<Types::PrimitiveType::Kind::Int64, i64>,
+		                   VTTranslation<Types::PrimitiveType::Kind::String, std::string>>::Type;
 
 		template <types::PrimitiveType::Kind V>
 		using PrimitiveKindToViewType

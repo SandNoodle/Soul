@@ -10,5 +10,5 @@ set(SOUL_VERSION_PATCH 0)
 # ----- [ Options ] -----
 option(SOUL_BUILD_TESTS "Build tests" ON)
 
-add_subdirectory(compiler)
-add_subdirectory(lib)
+add_subdirectory(Soul)
+add_subdirectory(SoulLib)

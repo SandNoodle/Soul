@@ -30,12 +30,12 @@ Soul is:
 
 This repository contains both embedded runtime and the compiler project.
 
-- For embedding the runtime see [here](docs/QUICK_START_RUNTIME.md).
-- For building the compiler see [here](docs/QUICK_START_COMPILER.md).
+- For embedding the runtime see [here](Docs/QUICK_START_RUNTIME.md).
+- For building the compiler see [here](Docs/QUICK_START_COMPILER.md).
 
 ## Documentation
 
-See [docs](docs/) directory for an up-to-date project documentation.
+See [docs](Docs/) directory for an up-to-date project documentation.
 
 ## Contributing
 

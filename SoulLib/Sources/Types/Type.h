@@ -1,16 +1,66 @@
 #pragma once
 
-#include "Core/types.h"
-#include "Types/types_fwd.h"
+#include "Soul.h"
+// #include "Types/TypeFwd.h"
 
-#include <concepts>
-#include <memory>
-#include <ostream>
-#include <variant>
-#include <vector>
-
-namespace Soul::types
+namespace Soul::Types
 {
+	using TypeIndex = UInt32;
+
+	enum class PrimitiveTypeKind : UInt8
+	{
+		PRIMITIVE_KIND_UNKNOWN,
+
+		PRIMITIVE_KIND_BOOL,
+
+		PRIMITIVE_KIND_CHAR,
+		PRIMITIVE_KIND_STRING,
+
+		PRIMITIVE_KIND_INT8,
+		PRIMITIVE_KIND_INT16,
+		PRIMITIVE_KIND_INT32,
+		PRIMITIVE_KIND_INT64,
+		PRIMITIVE_KIND_INT128,
+
+		PRIMITIVE_KIND_UINT8,
+		PRIMITIVE_KIND_UINT16,
+		PRIMITIVE_KIND_UINT32,
+		PRIMITIVE_KIND_UINT64,
+		PRIMITIVE_KIND_UINT128,
+
+		PRIMITIVE_KIND_FLOAT16,
+		PRIMITIVE_KIND_FLOAT32,
+		PRIMITIVE_KIND_FLOAT64,
+
+		PRIMITIVE_KIND_ISIZE,
+		PRIMITIVE_KIND_USIZE,
+
+		PRIMITIVE_KIND_VOID,
+	};
+
+	struct PrimitiveType
+	{
+		PrimitiveTypeKind kind;
+	};
+
+	struct ArrayType
+	{
+	};
+
+	struct StructType
+	{
+	};
+
+	struct PointerType
+	{
+	};
+
+	struct Type
+	{
+	};
+#if 0
+
+
 	/** @brief TypeKind is a concept that specifies types present in the language's type system. */
 	template <typename T>
 	concept TypeKind = std::same_as<T, PrimitiveType>  //
@@ -28,34 +78,34 @@ namespace Soul::types
 	class PrimitiveType
 	{
 		public:
-		enum class Kind : u8
+		enum class Kind : UInt8
 		{
-			Unknown,
-			Boolean,
-			Char,
-			Float32,
-			Float64,
-			Int8,
-			Int16,
-			Int32,
-			Int64,
-			Int128,
-			String,
-			UInt8,
-			UInt16,
-			UInt32,
-			UInt64,
-			UInt128,
-			ISize,
-			USize,
-			Void,
+			PRIMITIVE_KIND_UNKNOWN,
+			PRIMITIVE_KIND_BOOLEAN,
+			PRIMITIVE_KIND_CHAR,
+			PRIMITIVE_KIND_FLOAT32,
+			PRIMITIVE_KIND_FLOAT64,
+			PRIMITIVE_KIND_INT8,
+			PRIMITIVE_KIND_INT16,
+			PRIMITIVE_KIND_INT32,
+			PRIMITIVE_KIND_INT64,
+			PRIMITIVE_KIND_INT128,
+			PRIMITIVE_KIND_STRING,
+			PRIMITIVE_KIND_UINT8,
+			PRIMITIVE_KIND_UINT16,
+			PRIMITIVE_KIND_UINT32,
+			PRIMITIVE_KIND_UINT64,
+			PRIMITIVE_KIND_UINT128,
+			PRIMITIVE_KIND_ISIZE,
+			PRIMITIVE_KIND_USIZE,
+			PRIMITIVE_KIND_VOID,
 		};
 
 		public:
-		Kind type = Kind::Unknown;
+		Kind type = Kind::PRIMITIVE_KIND_UNKNOWN;
 
 		public:
-		constexpr PrimitiveType(Kind type = Kind::Unknown) : type(type) {}
+		constexpr PrimitiveType(Kind type = Kind::PRIMITIVE_KIND_UNKNOWN) : type(type) {}
 
 		bool operator==(const PrimitiveType&) const noexcept         = default;
 		std::strong_ordering operator<=>(const PrimitiveType&) const = default;
@@ -140,10 +190,11 @@ namespace Soul::types
 	class Type
 	{
 		public:
+		using Index   = UInt32;
 		using Variant = std::variant<PrimitiveType, PointerType, ArrayType, StructType>;
 
 		private:
-		Variant _type = PrimitiveType::Kind::Unknown;
+		Variant _type = PrimitiveType::Kind::PRIMITIVE_KIND_UNKNOWN;
 
 		public:
 		constexpr Type() noexcept            = default;
@@ -162,7 +213,7 @@ namespace Soul::types
 		 * @return \b true if it is, \b false otherwise.
 		 */
 		template <TypeKind T>
-		[[nodiscard]] constexpr bool is() const noexcept
+		[[nodiscard]] constexpr bool Is() const noexcept
 		{
 			return std::holds_alternative<T>(_type);
 		}
@@ -172,7 +223,7 @@ namespace Soul::types
 		 * @important Does not perform any validation - assumes that Type::is<T> was used first.
 		 */
 		template <TypeKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept
+		[[nodiscard]] constexpr const T& As() const noexcept
 		{
 			return std::get<T>(_type);
 		}
@@ -185,4 +236,5 @@ namespace Soul::types
 	{
 		return std::tie(lhs._type) <=> std::tie(rhs._type);
 	}
-}  // namespace Soul::types
+#endif
+}  // namespace Soul::Types

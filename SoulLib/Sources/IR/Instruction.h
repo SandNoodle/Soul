@@ -1,15 +1,14 @@
 #pragma once
 
-#include "Common/SourceOffset.h"
-#include "Common/value.h"
-#include "Core/types.h"
-#include "IR/instruction_fwd.h"
-#include "Types/type.h"
+#include "Common/Value.h"
+#include "IR/InstructionFwd.h"
+#include "Soul.h"
+#include "Types/Type.h"
 
 #include <array>
 #include <limits>
 
-namespace Soul::ir
+namespace Soul::IR
 {
 	/**
 	 * @brief Represents a single Instruction in the language's Intermediate Representation.
@@ -18,18 +17,19 @@ namespace Soul::ir
 	struct Instruction
 	{
 		public:
-		using Version   = u32;
+		using Version   = UInt32;
+		using TypeIndex = Types::TypeIndex;
 		using Arguments = std::array<Instruction*, 2>;
 
 		static constexpr Version k_invalid_version = std::numeric_limits<Version>::max();
 
 		public:
-		Version version{ k_invalid_version };
-		types::Type type{};
-		Arguments args{ Instruction::no_args() };
+		Version version = k_invalid_version;
+		TypeIndex type_index;
+		Arguments args = NoArguments();
 
 		public:
-		constexpr Instruction(types::Type type, Arguments args);
+		SOUL_FORCE_INLINE constexpr explicit Instruction(TypeIndex type, Arguments args);
 
 		virtual ~Instruction() = default;
 
@@ -38,26 +38,26 @@ namespace Soul::ir
 
 		/** @brief Verifies if an Instruction is of a given type. */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr bool is() const noexcept;
+		[[nodiscard]] constexpr bool Is() const noexcept;
 
 		/**
 		 * @brief Returns the requested underlying type.
 		 * @important Does not perform any validation - assumes that Instruction::is<T> was used first.
 		 */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept;
+		[[nodiscard]] constexpr const T& As() const noexcept;
 
 		/**
 		 * @brief Returns the requested underlying type.
 		 * @important Does not perform any validation - assumes that Instruction::is<T> was used first.
 		 */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr T& as() noexcept;
+		[[nodiscard]] constexpr T& As() noexcept;
 
 		protected:
-		[[nodiscard]] static constexpr Arguments no_args() noexcept;
-		[[nodiscard]] static constexpr Arguments single_arg(Instruction*) noexcept;
-		[[nodiscard]] static constexpr Arguments two_args(Instruction*, Instruction*) noexcept;
+		[[nodiscard]] static constexpr Arguments NoArguments() noexcept;
+		[[nodiscard]] static constexpr Arguments SingleArgument(Instruction*) noexcept;
+		[[nodiscard]] static constexpr Arguments TwoArguments(Instruction*, Instruction*) noexcept;
 	};
 
 	/**
@@ -92,7 +92,7 @@ namespace Soul::ir
 	struct Cast final : public Instruction
 	{
 		public:
-		constexpr Cast(types::Type type, Instruction* arg);
+		constexpr Cast(TypeIndex type_index, Instruction* arg);
 		virtual ~Cast() override = default;
 
 		constexpr bool operator==(const Cast& other) const noexcept  = default;
@@ -109,7 +109,7 @@ namespace Soul::ir
 		std::vector<Instruction*> parameters;
 
 		public:
-		constexpr Call(types::Type return_type, std::string identifier, std::vector<Instruction*> parameters);
+		constexpr Call(TypeIndex return_type, std::string identifier, std::vector<Instruction*> parameters);
 		virtual ~Call() override = default;
 
 		constexpr bool operator==(const Call& other) const noexcept  = default;
@@ -125,7 +125,7 @@ namespace Soul::ir
 		Value value;
 
 		public:
-		constexpr Const(types::Type type, Value value);
+		constexpr Const(TypeIndex type, Value value);
 		virtual ~Const() override = default;
 
 		constexpr bool operator==(const Const& other) const noexcept = default;
@@ -265,7 +265,6 @@ namespace Soul::ir
 		Instruction* phi;
 
 		public:
-		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 		constexpr Upsilon(Instruction* value, Instruction* phi = nullptr);
 
 		constexpr bool operator==(const Upsilon& other) const noexcept  = default;
@@ -289,8 +288,8 @@ namespace Soul::ir
 	struct name final : public Instruction                                      \
 	{                                                                           \
 		public:                                                                 \
-		constexpr name(types::Type type, Instruction* arg0, Instruction* arg1)  \
-			: Instruction(std::move(type), Instruction::two_args(arg0, arg1))   \
+		constexpr name(TypeIndex type, Instruction* arg0, Instruction* arg1)    \
+			: Instruction(type_index, Instruction::TwoArguments(arg0, arg1))    \
 		{                                                                       \
 		}                                                                       \
 		virtual ~name() override                                     = default; \
@@ -300,20 +299,20 @@ namespace Soul::ir
 	SOUL_ARITHMETIC_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
 
-#define SOUL_INSTRUCTION(name)                                                                                   \
-	struct name final : public Instruction                                                                       \
-	{                                                                                                            \
-		public:                                                                                                  \
-		constexpr name(Instruction* arg0, Instruction* arg1)                                                     \
-			: Instruction(types::Type{ types::PrimitiveType::Kind::Boolean }, Instruction::two_args(arg0, arg1)) \
-		{                                                                                                        \
-		}                                                                                                        \
-		virtual ~name() override                                     = default;                                  \
-		constexpr bool operator==(const name& other) const noexcept  = default;                                  \
-		constexpr auto operator<=>(const name& other) const noexcept = default;                                  \
+#define SOUL_INSTRUCTION(name)                                                                                       \
+	struct name final : public Instruction                                                                           \
+	{                                                                                                                \
+		public:                                                                                                      \
+		constexpr name(Instruction* arg0, Instruction* arg1)                                                         \
+			: Instruction(types::Type{ types::PrimitiveType::Kind::Boolean }, Instruction::TwoArguments(arg0, arg1)) \
+		{                                                                                                            \
+		}                                                                                                            \
+		virtual ~name() override                                     = default;                                      \
+		constexpr bool operator==(const name& other) const noexcept  = default;                                      \
+		constexpr auto operator<=>(const name& other) const noexcept = default;                                      \
 	};
 	SOUL_COMPARISON_INSTRUCTIONS
 	SOUL_LOGICAL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
-}  // namespace Soul::ir
-#include "IR/instruction.inl"
+}  // namespace Soul::IR
+#include "IR/Instruction.inl"

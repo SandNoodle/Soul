@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS False)
 
 # ----- [ Files ] -----
 set(Soul_SOURCES
-        src/main.cpp
+        Sources/main.cpp
 )
 
 add_executable(Soul ${Soul_SOURCES})
@@ -29,5 +29,5 @@ target_compile_definitions(Soul PRIVATE
 
 # ----- [ TESTS ] -----
 if (SOUL_BUILD_TESTS)
-    add_subdirectory(test)
+    add_subdirectory(Tests)
 endif ()

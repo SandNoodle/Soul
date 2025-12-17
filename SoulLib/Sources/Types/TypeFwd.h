@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Soul::types
+namespace Soul::Types
 {
 	class ArrayType;
 	class PointerType;

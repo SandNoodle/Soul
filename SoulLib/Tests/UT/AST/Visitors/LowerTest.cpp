@@ -1,16 +1,16 @@
-#include "AST/Visitors/lower.h"
+#include "AST/Visitors/Lower.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/Visitors/desugar.h"
-#include "AST/Visitors/error_collector.h"
-#include "AST/Visitors/type_discoverer.h"
-#include "AST/Visitors/type_resolver.h"
-#include "AST/ast.h"
-#include "common/compile_time_dictionary.h"
-#include "ir/instruction.h"
-#include "ir/ir.h"
-#include "ir/visitors/print.h"
+#include "AST/AST.h"
+#include "AST/Visitors/Desugar.h"
+#include "AST/Visitors/ErrorCollector.h"
+#include "AST/Visitors/TypeDiscoverer.h"
+#include "AST/Visitors/TypeResolver.h"
+#include "Common/CompileTimeDictionary.h"
+#include "IR/IR.h"
+#include "IR/Instruction.h"
+#include "IR/Visitors/Print.h"
 
 namespace soul::ast::visitors::ut
 {

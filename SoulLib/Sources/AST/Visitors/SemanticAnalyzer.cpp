@@ -1,6 +1,6 @@
-#include "AST/Visitors/semantic_analyzer.h"
+#include "AST/Visitors/SemanticAnalyzer.h"
 
-#include "AST/ast.h"
+#include "AST/AST.h"
 
 namespace soul::ast::visitors
 {

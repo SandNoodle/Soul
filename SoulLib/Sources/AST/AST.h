@@ -1,12 +1,12 @@
 #pragma once
 
-#include "AST/Visitors/visitor.h"
-#include "AST/ast_fwd.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/Visitor.h"
+#include "Common/Value.h"
+#include "Core/Types.h"
 #include "Lexer/Token.h"
-#include "common/value.h"
-#include "core/types.h"
-#include "parser/type_specifier.h"
-#include "types/type.h"
+#include "Parser/TypeSpecifier.h"
+#include "Types/Type.h"
 
 #include <memory>
 #include <string>

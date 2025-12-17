@@ -1,4 +1,4 @@
-#include "AST/Visitors/lower.h"
+#include "AST/Visitors/Lower.h"
 
 #include <array>
 #include <ranges>

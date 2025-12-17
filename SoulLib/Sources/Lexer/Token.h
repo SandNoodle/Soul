@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common/source_location.h"
-#include "core/types.h"
+#include "Common/SourceOffset.h"
+#include "Core/Types.h"
 
 #include <format>
 #include <string>
@@ -19,7 +19,7 @@ namespace soul
 		public:
 		Type type;
 		std::string_view data;
-		SourceLocation location;
+		SourceOffset location;
 
 		bool operator==(const Token& other) const noexcept;
 		std::strong_ordering operator<=>(const Token& other) const noexcept;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/types.h"
+#include "Core/Types.h"
 
 namespace soul
 {

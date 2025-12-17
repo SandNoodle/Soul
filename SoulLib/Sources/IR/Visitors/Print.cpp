@@ -1,7 +1,7 @@
-#include "ir/visitors/print.h"
+#include "IR/Visitors/Print.h"
 
-#include "ir/instruction.h"
-#include "ir/ir.h"
+#include "IR/IR.h"
+#include "IR/Instruction.h"
 
 #include <format>
 #include <ranges>

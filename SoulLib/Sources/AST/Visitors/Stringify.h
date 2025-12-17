@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AST/Visitors/default_traverse.h"
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
-#include "core/types.h"
+#include "AST/AST.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/DefaultTraverse.h"
+#include "Core/Types.h"
 
 #include <sstream>
 
@@ -69,4 +69,4 @@ namespace soul::ast::visitors
 			requires(std::same_as<ASTNode::Dependency, std::ranges::range_value_t<T>>);
 	};
 }  // namespace soul::ast::visitors
-#include "AST/Visitors/stringify.inl"
+#include "AST/Visitors/Stringify.inl"

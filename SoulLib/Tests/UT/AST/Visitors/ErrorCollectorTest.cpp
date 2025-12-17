@@ -1,8 +1,8 @@
-#include "AST/Visitors/error_collector.h"
+#include "AST/Visitors/ErrorCollector.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/ast.h"
+#include "AST/AST.h"
 
 namespace soul::ast::visitors::ut
 {

@@ -1,4 +1,4 @@
-#include "AST/Visitors/copy.h"
+#include "AST/Visitors/Copy.h"
 
 namespace soul::ast::visitors
 {

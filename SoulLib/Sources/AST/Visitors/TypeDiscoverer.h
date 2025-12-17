@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AST/Visitors/copy.h"
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
-#include "parser/type_specifier.h"
-#include "types/types_fwd.h"
+#include "AST/AST.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/Copy.h"
+#include "Parser/TypeSpecifier.h"
+#include "Types/TypeFwd.h"
 
 #include <string_view>
 #include <tuple>

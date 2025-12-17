@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ir/instruction_fwd.h"
+#include "IR/InstructionFwd.h"
 
 #include <format>
 #include <sstream>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/types.h"
-#include "ir/instruction.h"
+#include "Core/Types.h"
+#include "IR/Instruction.h"
 
 #include <limits>
 #include <vector>
@@ -43,4 +43,4 @@ namespace soul::ir
 		friend IRBuilder;
 	};
 }  // namespace soul::ir
-#include "ir/basic_block.inl"
+#include "IR/BasicBlock.inl"

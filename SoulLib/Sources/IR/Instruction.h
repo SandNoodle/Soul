@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common/source_location.h"
-#include "common/value.h"
-#include "core/types.h"
-#include "ir/instruction_fwd.h"
-#include "types/type.h"
+#include "Common/SourceOffset.h"
+#include "Common/Value.h"
+#include "Core/Types.h"
+#include "IR/InstructionFwd.h"
+#include "Types/Type.h"
 
 #include <array>
 #include <limits>
@@ -316,4 +316,4 @@ namespace soul::ir
 	SOUL_LOGICAL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
 }  // namespace soul::ir
-#include "ir/instruction.inl"
+#include "IR/Instruction.inl"

@@ -1,7 +1,7 @@
-#include "AST/Visitors/type_resolver.h"
+#include "AST/Visitors/TypeResolver.h"
 
-#include "core/types.h"
-#include "types/type.h"
+#include "Core/Types.h"
+#include "Types/Type.h"
 
 #include <array>
 #include <format>

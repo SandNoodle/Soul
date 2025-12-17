@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AST/Visitors/default_traverse.h"
-#include "AST/ast.h"
-#include "core/types.h"
+#include "AST/AST.h"
+#include "AST/Visitors/DefaultTraverse.h"
+#include "Core/Types.h"
 
 #include <limits>
 #include <tuple>

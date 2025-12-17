@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/types.h"
-#include "types/types_fwd.h"
+#include "Core/Types.h"
+#include "Types/TypeFwd.h"
 
 #include <concepts>
 #include <memory>

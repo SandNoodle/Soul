@@ -1,4 +1,4 @@
-#include "AST/Visitors/error_collector.h"
+#include "AST/Visitors/ErrorCollector.h"
 
 namespace soul::ast::visitors
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ir/basic_block.h"
-#include "types/type.h"
+#include "IR/BasicBlock.h"
+#include "Types/Type.h"
 
 #include <string>
 #include <string_view>
@@ -33,4 +33,4 @@ namespace soul::ir
 		constexpr Module(std::string_view name);
 	};
 }  // namespace soul::ir
-#include "ir/ir.inl"
+#include "IR/IR.inl"

@@ -79,9 +79,9 @@ namespace soul::lexer
 
 	Token Lexer::CreateToken(Token::Type type, std::string_view data)
 	{
-		SourceLocation location = SourceLocation{ _current_location.row,
-			                                      std::min(_current_location.column,
-			                                               _current_location.column - static_cast<u32>(data.size())) };
+		SourceOffset location = SourceOffset{ _current_location.row,
+			                                  std::min(_current_location.column,
+			                                           _current_location.column - static_cast<u32>(data.size())) };
 		return Token{ type, data, location };
 	};
 

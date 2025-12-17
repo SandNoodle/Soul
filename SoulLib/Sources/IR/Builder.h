@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ir/basic_block.h"
-#include "ir/instruction.h"
-#include "ir/ir.h"
+#include "IR/BasicBlock.h"
+#include "IR/IR.h"
+#include "IR/Instruction.h"
 
 #include <memory>
 #include <unordered_map>
@@ -70,4 +70,4 @@ namespace soul::ir
 		constexpr Instruction* emit_impl(Args&&... args);
 	};
 }  // namespace soul::ir
-#include "ir/builder.inl"
+#include "IR/Builder.inl"

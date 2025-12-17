@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AST/Visitors/default_traverse.h"
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
+#include "AST/AST.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/DefaultTraverse.h"
 
 #include <cassert>
 

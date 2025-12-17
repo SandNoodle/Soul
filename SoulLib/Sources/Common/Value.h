@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common/compile_time_dictionary.h"
-#include "core/types.h"
-#include "types/type.h"
+#include "Common/CompileTimeDictionary.h"
+#include "Core/Types.h"
+#include "Types/Type.h"
 
 #include <concepts>
 #include <sstream>
@@ -227,4 +227,4 @@ namespace soul
 		friend std::partial_ordering operator<=>(const Value& lhs, const Value& rhs);
 	};
 }  // namespace soul
-#include "common/value.inl"
+#include "Common/Value.inl"

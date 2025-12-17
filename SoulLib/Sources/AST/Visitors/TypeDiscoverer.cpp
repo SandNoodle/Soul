@@ -1,7 +1,7 @@
-#include "AST/Visitors/type_discoverer.h"
+#include "AST/Visitors/TypeDiscoverer.h"
 
-#include "core/types.h"
-#include "types/type.h"
+#include "Core/Types.h"
+#include "Types/Type.h"
 
 namespace soul::ast::visitors
 {

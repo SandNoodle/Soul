@@ -1,4 +1,4 @@
-#include "AST/Visitors/stringify.h"
+#include "AST/Visitors/Stringify.h"
 
 namespace soul::ast::visitors
 {

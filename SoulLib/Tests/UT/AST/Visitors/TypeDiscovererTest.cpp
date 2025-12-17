@@ -1,8 +1,8 @@
-#include "AST/Visitors/type_discoverer.h"
+#include "AST/Visitors/TypeDiscoverer.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/ast.h"
+#include "AST/AST.h"
 
 #include <format>
 

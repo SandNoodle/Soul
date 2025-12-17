@@ -1,4 +1,4 @@
-#include "parser/type_specifier.h"
+#include "Parser/TypeSpecifier.h"
 
 #include <format>
 

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Common/SourceOffset.h"
+#include "Core/Types.h"
 #include "Lexer/Codepoint.h"
 #include "Lexer/Token.h"
-#include "common/source_location.h"
-#include "core/types.h"
 
 #include <string_view>
 #include <vector>
@@ -20,7 +20,7 @@ namespace soul::lexer
 		std::string_view _script{};
 		std::size_t _offset_start;
 		std::size_t _offset_current;
-		SourceLocation _current_location;
+		SourceOffset _current_location;
 
 		public:
 		[[nodiscard]] static std::vector<Token> Tokenize(std::string_view script);

@@ -1,4 +1,4 @@
-#include "AST/Visitors/desugar.h"
+#include "AST/Visitors/Desugar.h"
 
 #include <array>
 

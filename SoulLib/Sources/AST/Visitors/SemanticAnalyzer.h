@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AST/Visitors/copy.h"
-#include "AST/ast_fwd.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/Copy.h"
 
 namespace soul::ast::visitors
 {

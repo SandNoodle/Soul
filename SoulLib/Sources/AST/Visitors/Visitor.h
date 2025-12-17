@@ -1,8 +1,6 @@
 #pragma once
 
-#include "AST/ast_fwd.h"
-
-#include <utility>
+#include "AST/ASTFwd.h"
 
 namespace soul::ast::visitors
 {

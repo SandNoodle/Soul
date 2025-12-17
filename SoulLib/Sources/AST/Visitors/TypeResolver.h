@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AST/Visitors/copy.h"
-#include "AST/Visitors/type_discoverer.h"
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
-#include "types/types_fwd.h"
+#include "AST/AST.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/Copy.h"
+#include "AST/Visitors/TypeDiscoverer.h"
+#include "Types/TypeFwd.h"
 
 #include <optional>
 #include <ranges>
@@ -78,4 +78,4 @@ namespace soul::ast::visitors
 			const std::ranges::forward_range auto& want_types) const noexcept;
 	};
 }  // namespace soul::ast::visitors
-#include "AST/Visitors/type_resolver.inl"
+#include "AST/Visitors/TypeResolver.inl"

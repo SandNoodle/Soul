@@ -1,11 +1,9 @@
 #pragma once
 
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
+#include "AST/AST.h"
+#include "Core/Types.h"
 #include "Lexer/Token.h"
-#include "core/types.h"
-#include "parser/type_specifier.h"
-#include "types/types_fwd.h"
+#include "Parser/TypeSpecifier.h"
 
 #include <expected>
 #include <span>

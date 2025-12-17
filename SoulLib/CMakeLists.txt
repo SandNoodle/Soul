@@ -13,51 +13,51 @@ set(SoulLib_SOURCES
         Sources/AST/ast.cpp
         Sources/AST/ast.h
         Sources/AST/ASTFwd.h
-        Sources/AST/Visitors/compare.cpp
-        Sources/AST/Visitors/compare.h
-        Sources/AST/Visitors/copy.cpp
-        Sources/AST/Visitors/copy.h
+        Sources/AST/Visitors/Compare.cpp
+        Sources/AST/Visitors/Compare.h
+        Sources/AST/Visitors/Copy.cpp
+        Sources/AST/Visitors/Copy.h
         Sources/AST/Visitors/DefaultTraverse.cpp
         Sources/AST/Visitors/DefaultTraverse.h
-        Sources/AST/Visitors/desugar.cpp
-        Sources/AST/Visitors/desugar.h
+        Sources/AST/Visitors/Desugar.cpp
+        Sources/AST/Visitors/Desugar.h
         Sources/AST/Visitors/ErrorCollector.cpp
         Sources/AST/Visitors/ErrorCollector.h
-        Sources/AST/Visitors/lower.cpp
-        Sources/AST/Visitors/lower.h
+        Sources/AST/Visitors/Lower.cpp
+        Sources/AST/Visitors/Lower.h
         Sources/AST/Visitors/SemanticAnalyzer.cpp
         Sources/AST/Visitors/SemanticAnalyzer.h
-        Sources/AST/Visitors/stringify.cpp
-        Sources/AST/Visitors/stringify.h
+        Sources/AST/Visitors/Stringify.cpp
+        Sources/AST/Visitors/Stringify.h
         Sources/AST/Visitors/TypeDiscoverer.cpp
         Sources/AST/Visitors/TypeDiscoverer.h
         Sources/AST/Visitors/TypeResolver.cpp
         Sources/AST/Visitors/TypeResolver.h
-        Sources/AST/Visitors/visitor.h
+        Sources/AST/Visitors/Visitor.h
         Sources/Common/CompileTimeDictionary.h
         Sources/Common/SourceOffset.h
-        Sources/Types/overloads.cpp
-        Sources/Types/overloads.h
-        Sources/Types/type.cpp
-        Sources/Types/type.h
+        Sources/Types/Overloads.cpp
+        Sources/Types/Overloads.h
+        Sources/Types/Type.cpp
+        Sources/Types/Type.h
         Sources/Types/TypeFwd.h
-        Sources/Common/value.cpp
-        Sources/Common/value.h
-        Sources/Core/types.h
+        Sources/Common/Value.cpp
+        Sources/Common/Value.h
+        Sources/Core/Types.h
         Sources/IR/BasicBlock.h
-        Sources/IR/builder.h
+        Sources/IR/Builder.h
         Sources/IR/instruction.h
         Sources/IR/InstructionFwd.h
-        Sources/IR/ir.h
-        Sources/IR/Visitors/print.cpp
-        Sources/IR/Visitors/print.h
-        Sources/Lexer/codepoint.h
-        Sources/Lexer/lexer.cpp
-        Sources/Lexer/lexer.h
-        Sources/Lexer/token.cpp
-        Sources/Lexer/token.h
-        Sources/Parser/parser.cpp
-        Sources/Parser/parser.h
+        Sources/IR/IR.h
+        Sources/IR/Visitors/Print.cpp
+        Sources/IR/Visitors/Print.h
+        Sources/Lexer/Codepoint.h
+        Sources/Lexer/Lexer.cpp
+        Sources/Lexer/Lexer.h
+        Sources/Lexer/Token.cpp
+        Sources/Lexer/Token.h
+        Sources/Parser/Parser.cpp
+        Sources/Parser/Parser.h
         Sources/Parser/TypeSpecifier.cpp
         Sources/Parser/TypeSpecifier.h
 )
@@ -65,7 +65,7 @@ set(SoulLib_SOURCES
 add_library(SoulLib STATIC ${SoulLib_SOURCES})
 set_target_properties(SoulLib PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(SoulLib PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Sources>
         $<INSTALL_INTERFACE:soul>
 )
 

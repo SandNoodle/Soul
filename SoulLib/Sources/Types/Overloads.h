@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AST/ast.h"
+#include "AST/AST.h"
 
 #include <span>
 #include <vector>

@@ -1,9 +1,9 @@
-#include "AST/Visitors/copy.h"
+#include "AST/Visitors/Copy.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/Visitors/compare.h"
-#include "AST/ast.h"
+#include "AST/AST.h"
+#include "AST/Visitors/Compare.h"
 
 #include <string>
 

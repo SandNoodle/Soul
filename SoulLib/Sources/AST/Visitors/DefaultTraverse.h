@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AST/Visitors/visitor.h"
-#include "AST/ast.h"
-#include "AST/ast_fwd.h"
+#include "AST/AST.h"
+#include "AST/ASTFwd.h"
+#include "AST/Visitors/Visitor.h"
 
 #include <functional>
 

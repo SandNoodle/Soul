@@ -1,4 +1,4 @@
-#include "AST/Visitors/compare.h"
+#include "AST/Visitors/Compare.h"
 
 #include <format>
 #include <typeindex>

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "AST/Visitors/stringify.h"
+#include "AST/Visitors/Stringify.h"
 #include "Lexer/Lexer.h"
 #include "Parser/Parser.h"
 

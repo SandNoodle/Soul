@@ -1,10 +1,11 @@
-#include "parser/parser.h"
+#include "Parser/Parser.h"
 
-#include "AST/ast.h"
+#include "AST/AST.h"
 
 #include <algorithm>
 #include <array>
 #include <format>
+#include <utility>
 
 namespace soul::parser
 {
@@ -1045,8 +1046,8 @@ namespace soul::parser
 			return Token{
 				.type     = Token::Type::SpecialEndOfFile,
 				.data     = Token::internal_name(Token::Type::SpecialEndOfFile),
-				.location = SourceLocation{ last_token.location.row,
-                                           static_cast<u32>(last_token.location.column + last_token.data.size()) }
+				.location = SourceOffset{ last_token.location.row,
+                                         static_cast<u32>(last_token.location.column + last_token.data.size()) }
 			};
 		}
 		return *_current_token;

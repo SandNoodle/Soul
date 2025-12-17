@@ -1,13 +1,13 @@
-#include "AST/Visitors/desugar.h"
+#include "AST/Visitors/Desugar.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/Visitors/compare.h"
-#include "AST/Visitors/error_collector.h"
-#include "AST/Visitors/stringify.h"
-#include "AST/Visitors/type_discoverer.h"
-#include "AST/Visitors/type_resolver.h"
-#include "AST/ast.h"
+#include "AST/AST.h"
+#include "AST/Visitors/Compare.h"
+#include "AST/Visitors/ErrorCollector.h"
+#include "AST/Visitors/Stringify.h"
+#include "AST/Visitors/TypeDiscoverer.h"
+#include "AST/Visitors/TypeResolver.h"
 
 namespace soul::ast::visitors::ut
 {

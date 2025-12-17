@@ -1,9 +1,9 @@
-#include "AST/Visitors/type_resolver.h"
+#include "AST/Visitors/TypeResolver.h"
 
 #include <gtest/gtest.h>
 
-#include "AST/Visitors/error_collector.h"
-#include "AST/ast.h"
+#include "AST/AST.h"
+#include "AST/Visitors/ErrorCollector.h"
 
 #include <format>
 #include <string_view>

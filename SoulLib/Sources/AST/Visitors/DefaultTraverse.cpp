@@ -1,4 +1,4 @@
-#include "AST/Visitors/default_traverse.h"
+#include "AST/Visitors/DefaultTraverse.h"
 
 namespace soul::ast::visitors
 {

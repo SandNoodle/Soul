@@ -13,9 +13,9 @@ namespace Soul::IR::Visitors
 	static constexpr auto k_nullptr   = "__nullptr__"sv;
 	static constexpr auto k_separator = ", "sv;
 
-	std::string PrintVisitor::string() const { return _ss.str(); }
+	std::string PrintVisitor::String() const { return _ss.str(); }
 
-	void PrintVisitor::accept(const Module& module)
+	void PrintVisitor::Accept(const Module& module)
 	{
 		_ss << std::format("module @{}\n\n", module.name);
 		for (const auto& function : module.functions) {
@@ -48,8 +48,8 @@ namespace Soul::IR::Visitors
 					}
 					_ss << std::format("\t\t%{} = ", instruction->version);
 #define SOUL_INSTRUCTION(name)          \
-	if (instruction->is<name>()) {      \
-		visit(instruction->as<name>()); \
+	if (instruction->Is<name>()) {      \
+		visit(instruction->As<name>()); \
 	}
 					SOUL_ALL_INSTRUCTIONS
 #undef SOUL_INSTRUCTION

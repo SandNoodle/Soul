@@ -87,7 +87,7 @@ namespace Soul::Types
 
 		PointerType& operator=(const PointerType&) noexcept;
 		PointerType& operator=(PointerType&&) noexcept;
-		bool operator==(const PointerType&) const noexcept = default;
+		bool operator==(const PointerType&) const noexcept;
 		std::strong_ordering operator<=>(const PointerType&) const;
 		explicit operator std::string() const;
 
@@ -111,7 +111,7 @@ namespace Soul::Types
 
 		ArrayType& operator=(const ArrayType&) noexcept;
 		ArrayType& operator=(ArrayType&&) noexcept;
-		bool operator==(const ArrayType&) const noexcept = default;
+		bool operator==(const ArrayType&) const noexcept;
 		std::strong_ordering operator<=>(const ArrayType&) const;
 		explicit operator std::string() const;
 

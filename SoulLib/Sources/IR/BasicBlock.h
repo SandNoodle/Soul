@@ -12,7 +12,7 @@ namespace Soul::IR
 
 	/**
 	 * @brief BasicBlock represents a straight-line code sequence with no branches
-	 * (with exception to basic block' inputs and outputs).
+	 * (with exception to basic block's inputs and outputs).
 	 */
 	struct BasicBlock
 	{

@@ -35,23 +35,23 @@ namespace Soul::IR
 		IRBuilder& operator=(const IRBuilder&)     = delete;
 		IRBuilder& operator=(IRBuilder&&) noexcept = default;
 
-		constexpr std::unique_ptr<Module> build() noexcept;
+		constexpr std::unique_ptr<Module> Build() noexcept;
 
-		constexpr void set_module_name(std::string_view name);
+		constexpr void SetModuleName(std::string_view name);
 
 		/**
 		 * @brief Creates a new function in the module (with a single basic block initialized).
 		 * @warning Switches the current basic block to a newly initialized one.
 		 */
-		constexpr void create_function(std::string_view identifier,
-		                               Types::Type return_type,
-		                               std::vector<Types::Type> parameters);
-		constexpr StackSlot* reserve_slot(std::string_view identifier, Types::Type type);
-		constexpr StackSlot* get_slot(std::string_view identifier);
+		constexpr void CreateFunction(std::string_view identifier,
+		                              Types::Type return_type,
+		                              std::vector<Types::Type> parameters);
+		constexpr StackSlot* ReserveSlot(std::string_view identifier, Types::Type type);
+		constexpr StackSlot* GetSlot(std::string_view identifier);
 
-		constexpr void switch_to(BasicBlock* block);
-		constexpr BasicBlock* create_basic_block();
-		constexpr BasicBlock* current_basic_block() const noexcept;
+		constexpr void SwitchTo(BasicBlock* block);
+		constexpr BasicBlock* CreateBasicBlock();
+		constexpr BasicBlock* CurrentBasicBlock() const noexcept;
 
 		/**
 		 * @brief Constructs new Instruction and appends it to the end of the current BasicBlock.
@@ -62,12 +62,12 @@ namespace Soul::IR
 		 */
 		template <InstructionKind Inst, typename... Args>
 			requires(!(std::is_same_v<Inst, Upsilon> || std::is_same_v<Inst, Phi>))
-		constexpr Instruction* emit(Args&&... args);
+		constexpr Instruction* Emit(Args&&... args);
 
 		private:
 		template <InstructionKind Inst, typename... Args>
 			requires(std::is_constructible_v<Inst, std::remove_cvref_t<Args>...>)
-		constexpr Instruction* emit_impl(Args&&... args);
+		constexpr Instruction* EmitImpl(Args&&... args);
 	};
 }  // namespace Soul::IR
 #include "IR/Builder.inl"

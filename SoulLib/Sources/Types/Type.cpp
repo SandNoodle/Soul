@@ -59,6 +59,8 @@ namespace Soul::Types
 		return *this;
 	}
 
+	bool PointerType::operator==(const PointerType& other) const noexcept { return *_type == *other._type; }
+
 	std::strong_ordering PointerType::operator<=>(const PointerType& other) const { return *_type <=> *other._type; }
 
 	PointerType::operator std::string() const { return "*" + std::string(*_type); }
@@ -90,6 +92,8 @@ namespace Soul::Types
 		*_type = std::move(*other._type.get());
 		return *this;
 	}
+
+	bool ArrayType::operator==(const ArrayType& other) const noexcept { return *_type == *other._type; }
 
 	std::strong_ordering ArrayType::operator<=>(const ArrayType& other) const { return *_type <=> *other._type; }
 

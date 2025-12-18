@@ -20,9 +20,9 @@ namespace Soul::IR::Visitors
 
 		public:
 		/** @brief Returns textual representation of an IR. */
-		std::string string() const;
+		std::string String() const;
 
-		void accept(const Module& module);
+		void Accept(const Module& module);
 
 		private:
 #define SOUL_INSTRUCTION(name) void visit(const name&);

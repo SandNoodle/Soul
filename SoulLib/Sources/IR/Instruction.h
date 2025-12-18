@@ -24,9 +24,9 @@ namespace Soul::IR
 		static constexpr Version k_invalid_version = std::numeric_limits<Version>::max();
 
 		public:
-		Version version{ k_invalid_version };
-		Types::Type type{};
-		Arguments args{ Instruction::no_args() };
+		Version version  = k_invalid_version;
+		Types::Type type = {};
+		Arguments args   = NoArguments();
 
 		public:
 		constexpr Instruction(Types::Type type, Arguments args);
@@ -38,26 +38,26 @@ namespace Soul::IR
 
 		/** @brief Verifies if an Instruction is of a given type. */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr bool is() const noexcept;
+		[[nodiscard]] constexpr bool Is() const noexcept;
 
 		/**
 		 * @brief Returns the requested underlying type.
-		 * @important Does not perform any validation - assumes that Instruction::is<T> was used first.
+		 * @important Does not perform any validation - assumes that Instruction::Is<T> was used first.
 		 */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept;
+		[[nodiscard]] constexpr const T& As() const noexcept;
 
 		/**
 		 * @brief Returns the requested underlying type.
-		 * @important Does not perform any validation - assumes that Instruction::is<T> was used first.
+		 * @important Does not perform any validation - assumes that Instruction::Is<T> was used first.
 		 */
 		template <InstructionKind T>
-		[[nodiscard]] constexpr T& as() noexcept;
+		[[nodiscard]] constexpr T& As() noexcept;
 
 		protected:
-		[[nodiscard]] static constexpr Arguments no_args() noexcept;
-		[[nodiscard]] static constexpr Arguments single_arg(Instruction*) noexcept;
-		[[nodiscard]] static constexpr Arguments two_args(Instruction*, Instruction*) noexcept;
+		[[nodiscard]] static constexpr Arguments NoArguments() noexcept;
+		[[nodiscard]] static constexpr Arguments OneArgument(Instruction*) noexcept;
+		[[nodiscard]] static constexpr Arguments TwoArguments(Instruction*, Instruction*) noexcept;
 	};
 
 	/**
@@ -285,32 +285,32 @@ namespace Soul::IR
 		constexpr auto operator<=>(const Not& other) const noexcept = default;
 	};
 
-#define SOUL_INSTRUCTION(name)                                                  \
-	struct name final : public Instruction                                      \
-	{                                                                           \
-		public:                                                                 \
-		constexpr name(Types::Type type, Instruction* arg0, Instruction* arg1)  \
-			: Instruction(std::move(type), Instruction::two_args(arg0, arg1))   \
-		{                                                                       \
-		}                                                                       \
-		virtual ~name() override                                     = default; \
-		constexpr bool operator==(const name& other) const noexcept  = default; \
-		constexpr auto operator<=>(const name& other) const noexcept = default; \
+#define SOUL_INSTRUCTION(name)                                                    \
+	struct name final : public Instruction                                        \
+	{                                                                             \
+		public:                                                                   \
+		constexpr name(Types::Type type, Instruction* arg0, Instruction* arg1)    \
+			: Instruction(std::move(type), Instruction::TwoArguments(arg0, arg1)) \
+		{                                                                         \
+		}                                                                         \
+		virtual ~name() override                                     = default;   \
+		constexpr bool operator==(const name& other) const noexcept  = default;   \
+		constexpr auto operator<=>(const name& other) const noexcept = default;   \
 	};
 	SOUL_ARITHMETIC_INSTRUCTIONS
 #undef SOUL_INSTRUCTION
 
-#define SOUL_INSTRUCTION(name)                                                                                   \
-	struct name final : public Instruction                                                                       \
-	{                                                                                                            \
-		public:                                                                                                  \
-		constexpr name(Instruction* arg0, Instruction* arg1)                                                     \
-			: Instruction(Types::Type{ Types::PrimitiveType::Kind::BOOLEAN }, Instruction::two_args(arg0, arg1)) \
-		{                                                                                                        \
-		}                                                                                                        \
-		virtual ~name() override                                     = default;                                  \
-		constexpr bool operator==(const name& other) const noexcept  = default;                                  \
-		constexpr auto operator<=>(const name& other) const noexcept = default;                                  \
+#define SOUL_INSTRUCTION(name)                                                                                       \
+	struct name final : public Instruction                                                                           \
+	{                                                                                                                \
+		public:                                                                                                      \
+		constexpr name(Instruction* arg0, Instruction* arg1)                                                         \
+			: Instruction(Types::Type{ Types::PrimitiveType::Kind::BOOLEAN }, Instruction::TwoArguments(arg0, arg1)) \
+		{                                                                                                            \
+		}                                                                                                            \
+		virtual ~name() override                                     = default;                                      \
+		constexpr bool operator==(const name& other) const noexcept  = default;                                      \
+		constexpr auto operator<=>(const name& other) const noexcept = default;                                      \
 	};
 	SOUL_COMPARISON_INSTRUCTIONS
 	SOUL_LOGICAL_INSTRUCTIONS

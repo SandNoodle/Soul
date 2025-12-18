@@ -25,7 +25,7 @@ namespace Soul::AST::Visitors::UT
 		ASTNode::Dependency parse(std::string_view script)
 		{
 			auto tokens = Lexer::Lexer::Tokenize(script);
-			return Parser::Parser::parse(k_module_name, tokens);
+			return Parser::Parser::Parse(k_module_name, tokens);
 		}
 
 		ASTNode::Dependency build(ASTNode::Dependency&& root, bool do_analyze)

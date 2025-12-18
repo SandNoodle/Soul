@@ -101,13 +101,13 @@ namespace Soul::Parser
 		explicit operator std::string() const;
 
 		template <TypeSpecifierKind T>
-		[[nodiscard]] constexpr bool is() const noexcept
+		[[nodiscard]] constexpr bool Is() const noexcept
 		{
 			return std::holds_alternative<T>(_value);
 		}
 
 		template <TypeSpecifierKind T>
-		[[nodiscard]] constexpr const T& as() const noexcept
+		[[nodiscard]] constexpr const T& As() const noexcept
 		{
 			return std::holds_alternative<T>(_value);
 		}
@@ -133,6 +133,7 @@ namespace Soul::Parser
 	extern const BaseTypeSpecifier k_base_specifier_u64;
 	extern const BaseTypeSpecifier k_base_specifier_u128;
 
+	extern const BaseTypeSpecifier k_base_specifier_f16;
 	extern const BaseTypeSpecifier k_base_specifier_f32;
 	extern const BaseTypeSpecifier k_base_specifier_f64;
 

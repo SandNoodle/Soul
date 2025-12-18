@@ -91,7 +91,7 @@ namespace Soul::Parser::UT
 		ASSERT_TRUE(input.has_value()) << "failed to read: " << param.script_path;
 
 		const auto tokens      = Lexer::Lexer::Tokenize(*input);  // NOLINT(bugprone-unchecked-optional-access)
-		const auto result_tree = Parser::parse("test_module", tokens);
+		const auto result_tree = Parser::Parse("test_module", tokens);
 
 		StringifyVisitor stringify;
 		stringify.accept(result_tree.get());

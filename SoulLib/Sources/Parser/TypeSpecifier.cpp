@@ -101,8 +101,8 @@ namespace Soul::Parser
 	TypeSpecifier::operator std::string() const
 	{
 		return std::visit(
-			[](const auto& v) -> std::string {
-				if constexpr (!std::same_as<std::remove_cvref_t<decltype(v)>, std::monostate>) {
+			[]<typename T>(const T& v) -> std::string {
+				if constexpr (!std::same_as<std::remove_cvref_t<T>, std::monostate>) {
 					return std::string(v);
 				} else {
 					return std::string("__unknown__");
@@ -121,6 +121,7 @@ namespace Soul::Parser
 	const BaseTypeSpecifier k_base_specifier_u32   = BaseTypeSpecifier{ "u32"sv };
 	const BaseTypeSpecifier k_base_specifier_u64   = BaseTypeSpecifier{ "u64"sv };
 	const BaseTypeSpecifier k_base_specifier_u128  = BaseTypeSpecifier{ "u128"sv };
+	const BaseTypeSpecifier k_base_specifier_f16   = BaseTypeSpecifier{ "f16"sv };
 	const BaseTypeSpecifier k_base_specifier_f32   = BaseTypeSpecifier{ "f32"sv };
 	const BaseTypeSpecifier k_base_specifier_f64   = BaseTypeSpecifier{ "f64"sv };
 	const BaseTypeSpecifier k_base_specifier_chr   = BaseTypeSpecifier{ "chr"sv };

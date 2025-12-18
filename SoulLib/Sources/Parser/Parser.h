@@ -5,7 +5,6 @@
 #include "Lexer/Token.h"
 #include "Parser/TypeSpecifier.h"
 
-#include <expected>
 #include <span>
 #include <string_view>
 
@@ -33,62 +32,50 @@ namespace Soul::Parser
 		 * @param tokens Tokens to be parsed.
 		 * @return Module with parsed statements.
 		 */
-		[[nodiscard]] static AST::ASTNode::Dependency parse(std::string_view module_name,
+		[[nodiscard]] static AST::ASTNode::Dependency Parse(std::string_view module_name,
 		                                                    std::span<const Lexer::Token> tokens);
 
 		private:
 		Parser(std::string_view module_name, std::span<const Lexer::Token> tokens);
 
-		AST::ASTNode::Dependency parse();
-		AST::ASTNode::Dependency parse_statement();
-		AST::ASTNode::Dependency parse_expression();
-		AST::ASTNode::Dependency parse_expression(Precedence precedence);
+		AST::ASTNode::Dependency Parse();
+		AST::ASTNode::Dependency ParseStatement();
+		AST::ASTNode::Dependency ParseExpression();
+		AST::ASTNode::Dependency ParseExpression(Precedence precedence);
 
-		AST::ASTNode::Dependency parse_binary(AST::ASTNode::Dependency lhs);
-		AST::ASTNode::Dependency parse_cast();
-		AST::ASTNode::Dependency parse_for_loop();
-		AST::ASTNode::Dependency parse_function_call(AST::ASTNode::Dependency dependency);
-		AST::ASTNode::Dependency parse_function_declaration();
-		AST::ASTNode::Dependency parse_grouping();
-		AST::ASTNode::Dependency parse_if();
-		AST::ASTNode::Dependency parse_literal();
-		AST::ASTNode::Dependency parse_loop_control();
-		AST::ASTNode::Dependency parse_return();
-		AST::ASTNode::Dependency parse_struct_declaration();
-		AST::ASTNode::Dependency parse_unary();
-		AST::ASTNode::Dependency parse_variable_declaration();
-		AST::ASTNode::Dependency parse_while_loop();
+		AST::ASTNode::Dependency ParseBinary(AST::ASTNode::Dependency lhs);
+		AST::ASTNode::Dependency ParseCast();
+		AST::ASTNode::Dependency ParseForLoop();
+		AST::ASTNode::Dependency ParseFunctionCall(AST::ASTNode::Dependency dependency);
+		AST::ASTNode::Dependency ParseFunctionDeclaration();
+		AST::ASTNode::Dependency ParseGrouping();
+		AST::ASTNode::Dependency ParseIf();
+		AST::ASTNode::Dependency ParseLiteral();
+		AST::ASTNode::Dependency ParseLoopControl();
+		AST::ASTNode::Dependency ParseReturn();
+		AST::ASTNode::Dependency ParseStructDeclaration();
+		AST::ASTNode::Dependency ParseUnary();
+		AST::ASTNode::Dependency ParseVariableDeclaration();
+		AST::ASTNode::Dependency ParseWhileLoop();
 
-		AST::ASTNode::Dependencies parse_block_statement();
-		AST::ASTNode::Dependency parse_initializer_list();
-		AST::ASTNode::Dependency parse_parameter_declaration();
-		std::optional<TypeSpecifier> parse_type_specifier();
+		AST::ASTNode::Dependencies ParseBlockStatement();
+		AST::ASTNode::Dependency ParseInitializerList();
+		AST::ASTNode::Dependency ParseParameterDeclaration();
+		std::optional<TypeSpecifier> ParseTypeSpecifier();
 
 		/**
 		 * @brief Creates new Error node in the AST and resynchronizes the parser.
 		 */
-		AST::ASTNode::Dependency create_error(AST::ErrorNode::Message error_message);
+		AST::ASTNode::Dependency CreateError(AST::ErrorNode::Message error_message);
 
-		std::optional<Lexer::Token> require(Lexer::Token::Type type);
-		std::optional<Lexer::Token> require(std::span<const Lexer::Token::Type> types);
-		std::optional<Lexer::Token> peek(std::ptrdiff_t n);
-		bool match(Lexer::Token::Type type);
+		std::optional<Lexer::Token> Require(Lexer::Token::Type type);
+		std::optional<Lexer::Token> Require(std::span<const Lexer::Token::Type> types);
+		std::optional<Lexer::Token> Peek(std::ptrdiff_t n);
+		bool Match(Lexer::Token::Type type);
 
-		PrecedenceRule precedence_rule(Lexer::Token::Type type) const noexcept;
+		PrecedenceRule GetPrecedenceRule(Lexer::Token::Type type) const noexcept;
 
 		/** @brief Returns current token or an explicit EOF one. */
-		Lexer::Token current_token_or_default() const noexcept;
-
-		template <typename T>
-			requires(std::is_arithmetic_v<T>)
-		constexpr std::expected<T, std::string> parse_integral_value(std::string_view data)
-		{
-			T value{};
-			auto result = std::from_chars(data.begin(), data.end(), value);
-			if (!result) {
-				return std::unexpected(std::make_error_condition(result.ec).message());
-			}
-			return value;
-		}
+		Lexer::Token CurrentTokenOrDefault() const noexcept;
 	};
 }  // namespace Soul::Parser

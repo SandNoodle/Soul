@@ -71,13 +71,13 @@ namespace Soul::Lexer
 		return result;
 	}
 
-	std::string_view Lexer::CurrentLexeme(std::size_t exclude_start, std::size_t exclude_end)
+	std::string_view Lexer::CurrentLexeme(std::size_t exclude_start, std::size_t exclude_end) const
 	{
 		return _script.substr(_offset_start + exclude_start,
 		                      _offset_current - _offset_start - exclude_start - exclude_end);
 	}
 
-	Token Lexer::CreateToken(Token::Type type, std::string_view data)
+	Token Lexer::CreateToken(Token::Type type, std::string_view data) const
 	{
 		SourceOffset location = SourceOffset{ _current_location.row,
 			                                  std::min(_current_location.column,

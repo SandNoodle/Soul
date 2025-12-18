@@ -30,8 +30,8 @@ namespace Soul::Lexer
 
 		std::vector<Token> Tokenize();
 
-		std::string_view CurrentLexeme(std::size_t exclude_start = 0, std::size_t exclude_end = 0);
-		Token CreateToken(Token::Type type, std::string_view data);
+		std::string_view CurrentLexeme(std::size_t exclude_start = 0, std::size_t exclude_end = 0) const;
+		Token CreateToken(Token::Type type, std::string_view data) const;
 		Token ScanToken();
 
 		Codepoint::ValueType Peek(std::size_t n) const;

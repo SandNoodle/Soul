@@ -17,17 +17,9 @@ namespace Soul
 		UInt32 column = 0;
 
 		public:
-		constexpr bool operator==(SourceOffset other) const noexcept
-		{
-			return row == other.row && column == other.column;
-		}
-
-		constexpr auto operator<=>(SourceOffset other) const noexcept
-		{
-			return std::tie(row, column) <=> std::tie(other.row, other.column);
-		}
-
-		explicit operator std::string() const { return std::format("{}:{}", row, column); }
+		bool operator==(const SourceOffset& other) const noexcept                  = default;
+		std::strong_ordering operator<=>(const SourceOffset& other) const noexcept = default;
+		explicit operator std::string() const;
 	};
 
 	template <typename T>

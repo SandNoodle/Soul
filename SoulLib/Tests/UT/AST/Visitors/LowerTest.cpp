@@ -79,9 +79,9 @@ namespace Soul::AST::Visitors::UT
 		}
 
 		template <PrimitiveType::Kind T>
-		IR::Instruction* emit_const(IR::IRBuilder& builder, detail::PrimitiveKindToValueType<T> value)
+		IR::Instruction* emit_const(IR::IRBuilder& builder, Detail::PrimitiveKindToValueType<T> value)
 		{
-			return builder.Emit<Const>(T, Scalar::create<T>(std::move(value)));
+			return builder.Emit<Const>(T, Scalar::Create<T>(std::move(value)));
 		}
 	};
 
@@ -89,10 +89,10 @@ namespace Soul::AST::Visitors::UT
 	{
 		auto inner_scope_statements = ASTNode::Dependencies{};
 		inner_scope_statements.reserve(3);
-		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)));
+		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
 		inner_scope_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::STRING>("my_string")));
-		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT64>(123)));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
+		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT64>(123)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
@@ -128,7 +128,7 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.emplace_back(CastNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(123)), k_base_specifier_str));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(123)), k_base_specifier_str));
 		auto function_declaration
 			= FunctionDeclarationNode::create(k_function_name,
 		                                      k_base_specifier_i32,
@@ -163,7 +163,7 @@ namespace Soul::AST::Visitors::UT
 			VariableDeclarationNode::create("b", k_base_specifier_bool, nullptr, true));
 		auto first_function_declaration_statements = ASTNode::Dependencies{};
 		first_function_declaration_statements.emplace_back(
-			ReturnNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1))));
+			ReturnNode::create(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1))));
 		auto first_function_declaration
 			= FunctionDeclarationNode::create(k_function_to_call,
 		                                      k_base_specifier_i32,
@@ -175,9 +175,9 @@ namespace Soul::AST::Visitors::UT
 		auto first_function_call_parameters         = ASTNode::Dependencies{};
 		first_function_call_parameters.reserve(2);
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::STRING>("my_string")));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
 		second_function_declaration_statements.emplace_back(VariableDeclarationNode::create(
 			"variable",
 			k_base_specifier_i32,
@@ -228,12 +228,12 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, If)
 	{
-		auto if_node_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto if_node_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto if_then_statements = ASTNode::Dependencies{};
 		if_then_statements.emplace_back(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::STRING>("then_branch_string")));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("then_branch_string")));
 		auto if_else_statements = ASTNode::Dependencies{};
-		if_else_statements.emplace_back(LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(false)));
+		if_else_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false)));
 
 		auto if_node = IfNode::create(std::move(if_node_condition),
 		                              BlockNode::create(std::move(if_then_statements)),
@@ -282,13 +282,13 @@ namespace Soul::AST::Visitors::UT
 	TEST_F(LowerVisitorTest, Literals)
 	{
 		static constexpr std::array<std::pair<PrimitiveType::Kind, Value>, 7> k_input_values = {
-			std::make_tuple(PrimitiveType::Kind::BOOLEAN, Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)),
-			std::make_tuple(PrimitiveType::Kind::CHAR, Scalar::create<PrimitiveType::Kind::CHAR>('c')),
-			std::make_tuple(PrimitiveType::Kind::FLOAT32, Scalar::create<PrimitiveType::Kind::FLOAT32>(3.14f)),
-			std::make_tuple(PrimitiveType::Kind::FLOAT64, Scalar::create<PrimitiveType::Kind::FLOAT64>(5.46)),
-			std::make_tuple(PrimitiveType::Kind::INT32, Scalar::create<PrimitiveType::Kind::INT32>(123)),
-			std::make_tuple(PrimitiveType::Kind::INT64, Scalar::create<PrimitiveType::Kind::INT64>(456L)),
-			std::make_tuple(PrimitiveType::Kind::STRING, Scalar::create<PrimitiveType::Kind::STRING>("my_string")),
+			std::make_tuple(PrimitiveType::Kind::BOOLEAN, Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)),
+			std::make_tuple(PrimitiveType::Kind::CHAR, Scalar::Create<PrimitiveType::Kind::CHAR>('c')),
+			std::make_tuple(PrimitiveType::Kind::FLOAT32, Scalar::Create<PrimitiveType::Kind::FLOAT32>(3.14f)),
+			std::make_tuple(PrimitiveType::Kind::FLOAT64, Scalar::Create<PrimitiveType::Kind::FLOAT64>(5.46)),
+			std::make_tuple(PrimitiveType::Kind::INT32, Scalar::Create<PrimitiveType::Kind::INT32>(123)),
+			std::make_tuple(PrimitiveType::Kind::INT64, Scalar::Create<PrimitiveType::Kind::INT64>(456L)),
+			std::make_tuple(PrimitiveType::Kind::STRING, Scalar::Create<PrimitiveType::Kind::STRING>("my_string")),
 		};
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
@@ -327,18 +327,18 @@ namespace Soul::AST::Visitors::UT
 		auto index_node
 			= VariableDeclarationNode::create(k_variable_name,
 		                                      k_base_specifier_i32,
-		                                      LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)),
+		                                      LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(0)),
 		                                      true);
 
 		auto while_node_condition
 			= BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
-		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(10)),
+		                         LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(10)),
 		                         ASTNode::Operator::Less);
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.emplace_back(
 			BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
 		                       BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
-		                                          LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+		                                          LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
 		                                          ASTNode::Operator::Add),
 		                       ASTNode::Operator::Assign));
 
@@ -401,7 +401,7 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, While_BreakAndContinue)
 	{
-		auto while_node_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto while_node_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.reserve(2);
 		while_node_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
@@ -451,12 +451,12 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, While_NestedLoops)
 	{
-		auto inner_while_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto inner_while_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto inner_while_statements = ASTNode::Dependencies{};
 		auto inner_while_node
 			= WhileNode::create(std::move(inner_while_condition), BlockNode::create(std::move(inner_while_statements)));
 
-		auto outer_while_condition  = LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(false));
+		auto outer_while_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
 		auto outer_while_statements = ASTNode::Dependencies{};
 		outer_while_statements.push_back(std::move(inner_while_node));
 		auto outer_while_node
@@ -531,7 +531,7 @@ namespace Soul::AST::Visitors::UT
 		// NOTE: It doesn't matter that the actual value has invalid type.
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.emplace_back(UnaryNode::create(
-			LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)), ASTNode::Operator::LogicalNot));
+			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)), ASTNode::Operator::LogicalNot));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
 			= FunctionDeclarationNode::create(this->k_function_name,
@@ -566,16 +566,16 @@ namespace Soul::AST::Visitors::UT
 		function_declaration_statements.emplace_back(
 			VariableDeclarationNode::create(k_first_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
 		                                    true));
 		function_declaration_statements.emplace_back(
 			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
-		                       LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(3)),
+		                       LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(3)),
 		                       ASTNode::Operator::Assign));
 		function_declaration_statements.emplace_back(
 			VariableDeclarationNode::create(k_second_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(5)),
+		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(5)),
 		                                    false));
 		function_declaration_statements.emplace_back(
 			BinaryNode::create(LiteralNode::create(Identifier::create(k_second_variable_name)),
@@ -626,7 +626,7 @@ namespace Soul::AST::Visitors::UT
 		function_declaration_statements.emplace_back(
 			VariableDeclarationNode::create(k_first_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(1)),
+		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
 		                                    false));
 		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
 			k_second_variable_name,
@@ -715,8 +715,8 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_type = TypeParam::k_type;
 
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(BinaryNode::create(LiteralNode::create(Scalar::create<k_type>(1)),
-		                                                                LiteralNode::create(Scalar::create<k_type>(2)),
+		function_declaration_statements.emplace_back(BinaryNode::create(LiteralNode::create(Scalar::Create<k_type>(1)),
+		                                                                LiteralNode::create(Scalar::Create<k_type>(2)),
 		                                                                TypeParam::k_operator));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
@@ -733,8 +733,8 @@ namespace Soul::AST::Visitors::UT
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.SetModuleName(this->k_module_name);
 		expected_ir_builder.CreateFunction(this->k_function_name, PrimitiveType::Kind::VOID, {});
-		auto* v1 = expected_ir_builder.Emit<Const>(k_type, Scalar::create<k_type>(1));
-		auto* v2 = expected_ir_builder.Emit<Const>(k_type, Scalar::create<k_type>(2));
+		auto* v1 = expected_ir_builder.Emit<Const>(k_type, Scalar::Create<k_type>(1));
+		auto* v2 = expected_ir_builder.Emit<Const>(k_type, Scalar::Create<k_type>(2));
 		if constexpr (std::is_constructible_v<InstructionCase, Types::Type, Instruction*, Instruction*>) {
 			expected_ir_builder.Emit<InstructionCase>(k_type, v1, v2);
 		} else if constexpr (std::is_constructible_v<InstructionCase, Instruction*, Instruction*>) {

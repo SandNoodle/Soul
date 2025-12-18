@@ -32,15 +32,15 @@ namespace Soul::AST::Visitors::UT
 		if_node_false_statements.emplace_back(
 			UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment));
 
-		auto if_node = IfNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)),
+		auto if_node = IfNode::create(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)),
 		                              BlockNode::create(std::move(if_node_true_statements)),
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(0)), false);
 		auto for_loop_condition
 			= BinaryNode::create(LiteralNode::create(Identifier::create("index")),
-		                         LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(10)),
+		                         LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(10)),
 		                         ASTNode::Operator::LessEqual);
 		auto for_loop_update
 			= UnaryNode::create(LiteralNode::create(Identifier::create("index")), ASTNode::Operator::Increment);
@@ -96,12 +96,12 @@ namespace Soul::AST::Visitors::UT
 		if_node_false_statements.emplace_back(
 			UnaryNode::create(ErrorNode::create("if_false_unary_expr_error"), ASTNode::Operator::Increment));
 
-		auto if_node = IfNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)),
+		auto if_node = IfNode::create(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)),
 		                              BlockNode::create(std::move(if_node_true_statements)),
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(0)), false);
 		auto for_loop_condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                                             ErrorNode::create("for_loop_condition_binary_rhs_expr_error"),
 		                                             ASTNode::Operator::LessEqual);
@@ -175,12 +175,12 @@ namespace Soul::AST::Visitors::UT
 		if_node_false_statements.emplace_back(
 			UnaryNode::create(ErrorNode::create("if_false_unary_expr_error"), ASTNode::Operator::Increment));
 
-		auto if_node = IfNode::create(LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true)),
+		auto if_node = IfNode::create(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)),
 		                              BlockNode::create(std::move(if_node_true_statements)),
 		                              BlockNode::create(std::move(if_node_false_statements)));
 
 		auto for_loop_initialization = VariableDeclarationNode::create(
-			"index", k_base_specifier_i32, LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(0)), false);
+			"index", k_base_specifier_i32, LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(0)), false);
 		auto for_loop_condition = BinaryNode::create(LiteralNode::create(Identifier::create("index")),
 		                                             ErrorNode::create("for_loop_condition_binary_rhs_expr_error"),
 		                                             ASTNode::Operator::LessEqual);

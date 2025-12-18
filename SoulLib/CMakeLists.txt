@@ -35,6 +35,7 @@ set(SoulLib_SOURCES
         Sources/AST/Visitors/TypeResolver.h
         Sources/AST/Visitors/Visitor.h
         Sources/Common/CompileTimeDictionary.h
+        Sources/Common/SourceOffset.cpp
         Sources/Common/SourceOffset.h
         Sources/Types/Overloads.cpp
         Sources/Types/Overloads.h

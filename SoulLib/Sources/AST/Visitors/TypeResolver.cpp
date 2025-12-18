@@ -207,18 +207,18 @@ namespace Soul::AST::Visitors
 	{
 		CopyVisitor::visit(node);
 
-		if (node.value.is<Identifier>()) {
-			const auto& type_identifier = get_variable_type(node.value.as<Identifier>());
+		if (node.value.Is<Identifier>()) {
+			const auto& type_identifier = get_variable_type(node.value.As<Identifier>());
 			if (!type_identifier) {
 				_current_clone = ErrorNode::create(
-					std::format("use of undeclared identifier '{}'", std::string(node.value.as<Identifier>())));
+					std::format("use of undeclared identifier '{}'", std::string(node.value.As<Identifier>())));
 				return;
 			}
 			_current_clone->type = *type_identifier;
 			return;
 		}
 
-		_current_clone->type = node.value.type();
+		_current_clone->type = node.value.GetType();
 	}
 
 	void TypeResolverVisitor::visit(const LoopControlNode& node)

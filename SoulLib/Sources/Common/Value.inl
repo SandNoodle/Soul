@@ -2,7 +2,7 @@
 
 namespace Soul
 {
-	namespace detail
+	namespace Detail
 	{
 		template <Types::PrimitiveType::Kind V>
 		constexpr ValueBase<V>::ValueBase(ViewType value) noexcept : _value(static_cast<ValueType>(std::move(value)))
@@ -16,7 +16,7 @@ namespace Soul
 		}
 
 		template <Types::PrimitiveType::Kind V>
-		constexpr auto ValueBase<V>::type() const noexcept -> Types::Type
+		constexpr auto ValueBase<V>::GetType() const noexcept -> Types::Type
 		{
 			return V;
 		}
@@ -29,25 +29,25 @@ namespace Soul
 
 		template <Types::PrimitiveType::Kind... Vs>
 		template <Types::PrimitiveType::Kind V, typename... Args>
-		constexpr auto ScalarBase<Vs...>::create(Args&&... args) -> ValueType<V>
+		constexpr auto ScalarBase<Vs...>::Create(Args&&... args) -> ValueType<V>
 		{
 			return ValueType<V>(std::forward<Args>(args)...);
 		}
 
 		template <Types::PrimitiveType::Kind... Vs>
 		template <Types::PrimitiveType::Kind V>
-		constexpr auto ScalarBase<Vs...>::is() const noexcept -> bool
+		constexpr auto ScalarBase<Vs...>::Is() const noexcept -> bool
 		{
 			return std::holds_alternative<ValueBase<V>>(_value);
 		}
 
 		template <Types::PrimitiveType::Kind... Vs>
 		template <Types::PrimitiveType::Kind V>
-		constexpr auto ScalarBase<Vs...>::as() const noexcept -> ValueBase<V>::ViewType
+		constexpr auto ScalarBase<Vs...>::As() const noexcept -> ValueBase<V>::ViewType
 		{
 			return std::get<ValueBase<V>>(_value);
 		}
-	}  // namespace detail
+	}  // namespace Detail
 
 	constexpr Identifier::Identifier(ViewType value) : _value(std::move(value)) {}
 
@@ -69,13 +69,13 @@ namespace Soul
 	}
 
 	template <ValueKind T>
-	constexpr auto Value::is() const noexcept -> bool
+	constexpr auto Value::Is() const noexcept -> bool
 	{
 		return std::holds_alternative<T>(_value);
 	}
 
 	template <ValueKind T>
-	constexpr auto Value::as() const noexcept -> const T&
+	constexpr auto Value::As() const noexcept -> const T&
 	{
 		return std::get<T>(_value);
 	}

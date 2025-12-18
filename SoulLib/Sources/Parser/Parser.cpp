@@ -340,7 +340,7 @@ namespace Soul::Parser
 			                               std::string(CurrentTokenOrDefault().data)));
 		}
 
-		return FunctionCallNode::create(std::string(dependency->as<LiteralNode>().value.as<Identifier>()),
+		return FunctionCallNode::create(std::string(dependency->as<LiteralNode>().value.As<Identifier>()),
 		                                std::move(parameters));
 	}
 
@@ -489,9 +489,9 @@ namespace Soul::Parser
 				return CreateError(std::format("failed to parse float expression, because: '{}'", result.error()));
 			}
 			if (*result <= std::numeric_limits<Float32>::lowest() || *result >= std::numeric_limits<Float32>::max()) {
-				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::FLOAT64>(*result));
+				return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::FLOAT64>(*result));
 			}
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::FLOAT32>(*result));
+			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::FLOAT32>(*result));
 		}
 
 		if (token->type == Token::Type::LITERAL_INTEGER) {
@@ -500,13 +500,13 @@ namespace Soul::Parser
 				return CreateError(std::format("failed to parse integer expression, because: '{}'", result.error()));
 			}
 			if (*result <= std::numeric_limits<Int32>::lowest() || *result >= std::numeric_limits<Int32>::max()) {
-				return LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT64>(*result));
+				return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT64>(*result));
 			}
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(*result));
+			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(*result));
 		}
 
 		if (token->type == Token::Type::LITERAL_STRING) {
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::STRING>(token->data));
+			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>(token->data));
 		}
 
 		if (token->type == Token::Type::LITERAL_IDENTIFIER) {
@@ -514,11 +514,11 @@ namespace Soul::Parser
 		}
 
 		if (token->type == Token::Type::KEYWORD_TRUE) {
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true));
+			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		}
 
 		if (token->type == Token::Type::KEYWORD_FALSE) {
-			return LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(false));
+			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
 		}
 
 		if (token->type == Token::Type::KEYWORD_NULL) {
@@ -725,7 +725,7 @@ namespace Soul::Parser
 				                               std::string(CurrentTokenOrDefault().data)));
 			}
 		} else {
-			condition = LiteralNode::create(Scalar::create<PrimitiveType::Kind::BOOLEAN>(true));
+			condition = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		}
 
 		// <block_statement>

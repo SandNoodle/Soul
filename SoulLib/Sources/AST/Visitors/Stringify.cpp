@@ -105,7 +105,7 @@ namespace Soul::AST::Visitors
 	{
 		encode("node", "literal");
 		encode_type(node.type);
-		encode("value_type", Value::internal_name(node.value));
+		encode("value_type", Value::NameInternal(node.value));
 		encode("value", std::string(node), false);
 	}
 

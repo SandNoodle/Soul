@@ -11,8 +11,8 @@ namespace Soul::AST::Visitors
 		const auto& binary_node = _current_clone->as<BinaryNode>();
 		if (binary_node.op == ASTNode::Operator::Assign && binary_node.lhs->is<LiteralNode>()) {
 			const auto& literal = binary_node.lhs->as<LiteralNode>();
-			if (literal.value.is<Identifier>()) {
-				const auto& identifier            = std::string(literal.value.as<Identifier>());
+			if (literal.value.Is<Identifier>()) {
+				const auto& identifier            = std::string(literal.value.As<Identifier>());
 				VariableDeclarationNode* variable = get_variable(identifier);
 				if (!variable) {
 					_current_clone = ErrorNode::create(
@@ -66,8 +66,8 @@ namespace Soul::AST::Visitors
 
 	void SemanticAnalyzerVisitor::visit(const LiteralNode& node)
 	{
-		if (node.value.is<Identifier>()) {
-			const auto& identifier            = node.value.as<Identifier>();
+		if (node.value.Is<Identifier>()) {
+			const auto& identifier            = node.value.As<Identifier>();
 			VariableDeclarationNode* variable = get_variable(identifier);
 			if (!variable) {
 				_current_clone

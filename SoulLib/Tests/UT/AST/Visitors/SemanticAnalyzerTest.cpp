@@ -97,7 +97,7 @@ namespace Soul::AST::Visitors::UT
 		function_declaration_statements.emplace_back(
 			VariableDeclarationNode::create("a",
 		                                    Parser::k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::create<PrimitiveType::Kind::INT32>(123)),
+		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(123)),
 		                                    false));
 		function_declaration_statements.emplace_back(
 			ErrorNode::create("cannot assign to variable 'a', because it is not mutable."));

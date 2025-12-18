@@ -189,9 +189,9 @@ namespace Soul::AST::Visitors
 		if (node.op == ASTNode::Operator::Assign) {
 			// 1. For the LHS, if Identifier is present, this will mean the value its pointing to is being overridden.
 			const bool is_write_target
-				= node.lhs->is<LiteralNode>() && node.lhs->as<LiteralNode>().value.is<Identifier>();
+				= node.lhs->is<LiteralNode>() && node.lhs->as<LiteralNode>().value.Is<Identifier>();
 			if (is_write_target) {
-				auto* slot{ _builder.GetSlot(node.lhs->as<LiteralNode>().value.as<Identifier>()) };
+				auto* slot{ _builder.GetSlot(node.lhs->as<LiteralNode>().value.As<Identifier>()) };
 				auto* value{ emit(node.rhs.get()) };
 				return _builder.Emit<StackStore>(slot, value);
 			}
@@ -293,8 +293,8 @@ namespace Soul::AST::Visitors
 	{
 		// IMPORTANT: We assume that visiting LiteralNode will always result in a READ operation for Identifiers, as
 		// any special (i.e. writing) logic will be handled beforehand.
-		if (node.value.is<Identifier>()) {
-			auto* slot = _builder.GetSlot(node.value.as<Identifier>());
+		if (node.value.Is<Identifier>()) {
+			auto* slot = _builder.GetSlot(node.value.As<Identifier>());
 			return _builder.Emit<StackLoad>(slot);
 		}
 		return _builder.Emit<Const>(node.type, node.value);

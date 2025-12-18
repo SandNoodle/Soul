@@ -22,13 +22,13 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_module_name = "semantic_analyzer_module";
 
 		protected:
-		ASTNode::Dependency parse(std::string_view script)
+		static ASTNode::Dependency Parse(std::string_view script)
 		{
 			auto tokens = Lexer::Lexer::Tokenize(script);
 			return Parser::Parser::Parse(k_module_name, tokens);
 		}
 
-		ASTNode::Dependency build(ASTNode::Dependency&& root, bool do_analyze)
+		static ASTNode::Dependency Build(ASTNode::Dependency&& root, bool do_analyze)
 		{
 			TypeDiscovererVisitor type_discoverer_visitor{};
 			type_discoverer_visitor.Accept(root.get());
@@ -57,7 +57,8 @@ namespace Soul::AST::Visitors::UT
 
 			return semantic_analyzer_root;
 		}
-		std::pair<std::string, std::string> compare(const ASTNode::Reference expected, const ASTNode::Reference& result)
+		static std::pair<std::string, std::string> Compare(const ASTNode::Reference expected,
+		                                                   const ASTNode::Reference& result)
 		{
 			auto compare_result = CompareVisitor(expected, result);
 			if (compare_result != std::partial_ordering::equivalent) {
@@ -75,21 +76,21 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(SemanticAnalyzerVisitorTest, VariableDeclaration_InGlobalStope)
 	{
-		auto result_module = build(parse("let my_variable : i32 = 123"), true);
+		auto result_module = Build(Parse("let my_variable : i32 = 123"), true);
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(
 			ErrorNode::Create("variable 'my_variable' cannot be declared in the global scope."));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, VariableDeclaration_AttemptedWriteToNonMutable)
 	{
-		auto result_module = build(parse("fn test_function :: void { let a: i32 = 123; a = 456; } "), true);
+		auto result_module = Build(Parse("fn test_function :: void { let a: i32 = 123; a = 456; } "), true);
 		ASSERT_TRUE(result_module);
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
@@ -109,43 +110,43 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, LiteralNode_UndeclaredIndentifier)
 	{
-		auto result_module = build(parse("a + b"), true);
+		auto result_module = Build(Parse("a + b"), true);
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(BinaryNode::Create(ErrorNode::Create("use of undeclared identifier 'a'"),
 		                                                  ErrorNode::Create("use of undeclared identifier 'b'"),
 		                                                  ASTNode::Operator::ADD));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, LoopControlNode_OutsideOfLoop)
 	{
-		auto result_module = build(parse("break"), true);
+		auto result_module = Build(Parse("break"), true);
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(ErrorNode::Create("keyword 'break' must be used in a loop context."));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, LoopControlNode_InsideLoopsBody)
 	{
-		auto result_module = build(parse("for (;;) { continue; }"), true);
+		auto result_module = Build(Parse("for (;;) { continue; }"), true);
 		ASSERT_TRUE(result_module);
 
 		auto for_loop_statements = ASTNode::Dependencies{};
@@ -155,16 +156,16 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(for_loop));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, LoopControlNode_InNestedLoop)
 	{
 		auto result_module
-			= build(parse("for (;;) { for (;;) { # This shouldn't throw off the analyzer\n } break; }"), true);
+			= Build(Parse("for (;;) { for (;;) { # This shouldn't throw off the analyzer\n } break; }"), true);
 		ASSERT_TRUE(result_module);
 
 		auto inner_for_loop_statements = ASTNode::Dependencies{};
@@ -179,21 +180,21 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(outer_for_loop));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 
 	TEST_F(SemanticAnalyzerVisitorTest, FunctionDeclaration_ImplicitVoidReturn)
 	{
-		auto result_module = build(parse(""), true);
+		auto result_module = Build(Parse(""), true);
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
-		auto expected_module   = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
+		auto expected_module   = Build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
-		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
+		auto [expected_string, result_string] = Compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
 	}
 }  // namespace Soul::AST::Visitors::UT

@@ -20,7 +20,7 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_module_name = "desugar_module";
 
 		protected:
-		ASTNode::Dependency build(ASTNode::Dependency&& root)
+		static ASTNode::Dependency Build(ASTNode::Dependency&& root)
 		{
 			TypeDiscovererVisitor type_discoverer_visitor{};
 			type_discoverer_visitor.Accept(root.get());
@@ -59,7 +59,7 @@ namespace Soul::AST::Visitors::UT
 		}
 
 		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-		void verify(const ASTNode::Reference expected, const ASTNode::Reference result)
+		static void Verify(const ASTNode::Reference expected, const ASTNode::Reference result)
 		{
 			if (CompareVisitor{ expected, result }) [[likely]] {
 				return;
@@ -95,7 +95,7 @@ namespace Soul::AST::Visitors::UT
 			                       op));
 		}
 		// ...desugar them...
-		auto result_module = build(ModuleNode::Create(k_module_name, std::move(input_module_statements)));
+		auto result_module = Build(ModuleNode::Create(k_module_name, std::move(input_module_statements)));
 		ASSERT_TRUE(result_module);
 
 		// ...and verify the results.
@@ -115,10 +115,10 @@ namespace Soul::AST::Visitors::UT
 			                       op),
 				ASTNode::Operator::ASSIGN));
 		}
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(expected_module_statements)));
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(expected_module_statements)));
 		ASSERT_TRUE(expected_module);
 
-		verify(expected_module.get(), result_module.get());
+		Verify(expected_module.get(), result_module.get());
 	}
 
 	TEST_F(DesugarVisitorTest, ForLoop)
@@ -151,7 +151,7 @@ namespace Soul::AST::Visitors::UT
 		input_module_statements.push_back(std::move(for_loop));
 
 		// ...desugar it...
-		auto result_module = build(ModuleNode::Create(k_module_name, std::move(input_module_statements)));
+		auto result_module = Build(ModuleNode::Create(k_module_name, std::move(input_module_statements)));
 		ASSERT_TRUE(result_module);
 
 		// ...and verify the results.
@@ -183,9 +183,9 @@ namespace Soul::AST::Visitors::UT
 
 		auto expected_module_statements = ASTNode::Dependencies{};
 		expected_module_statements.push_back(BlockNode::Create(std::move(outer_statements)));
-		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(expected_module_statements)));
+		auto expected_module = Build(ModuleNode::Create(k_module_name, std::move(expected_module_statements)));
 		ASSERT_TRUE(expected_module);
 
-		verify(expected_module.get(), result_module.get());
+		Verify(expected_module.get(), result_module.get());
 	}
 }  // namespace Soul::AST::Visitors::UT

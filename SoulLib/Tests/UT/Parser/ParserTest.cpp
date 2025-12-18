@@ -24,7 +24,7 @@ namespace Soul::Parser::UT
 	class ParserTest : public ::testing::TestWithParam<Case>
 	{
 		protected:
-		std::optional<std::string> read_file(const std::filesystem::path& path)
+		static std::optional<std::string> ReadFile(const std::filesystem::path& path)
 		try {
 			static constexpr auto k_read_size = std::size_t{ 4096 };
 
@@ -44,12 +44,12 @@ namespace Soul::Parser::UT
 			stream.close();
 
 			return data;
-		} catch (std::exception& e) {
+		} catch (...) {
 			return std::nullopt;
 		}
 
 		public:
-		static std::vector<Case> generate_cases()
+		static std::vector<Case> GenerateCases()
 		{
 			static const auto k_base_directory
 				= std::filesystem::path{ std::source_location::current().file_name() }.parent_path() / "Cases";
@@ -77,7 +77,7 @@ namespace Soul::Parser::UT
 
 	INSTANTIATE_TEST_SUITE_P(ParserTest,
 	                         ParserTest,
-	                         ::testing::ValuesIn(ParserTest::generate_cases()),
+	                         ::testing::ValuesIn(ParserTest::GenerateCases()),
 	                         [](const ::testing::TestParamInfo<Case>& info) {
 								 const auto& param = info.param;
 								 return param.name;
@@ -87,7 +87,7 @@ namespace Soul::Parser::UT
 	{
 		const auto& param = GetParam();
 
-		const auto input = read_file(param.script_path);
+		const auto input = ReadFile(param.script_path);
 		ASSERT_TRUE(input.has_value()) << "failed to read: " << param.script_path;
 
 		const auto tokens      = Lexer::Lexer::Tokenize(*input);  // NOLINT(bugprone-unchecked-optional-access)
@@ -107,7 +107,7 @@ namespace Soul::Parser::UT
 				GTEST_FAIL() << "Failed to regenerate cases, because: " << e.what();
 			}
 
-		const auto expected_output = read_file(param.expected_output_path);
+		const auto expected_output = ReadFile(param.expected_output_path);
 		ASSERT_TRUE(expected_output.has_value()) << "failed to read: " << param.expected_output_path;
 		ASSERT_EQ(expected_output.value(), stringify.string());  // NOLINT(bugprone-unchecked-optional-access)
 	}

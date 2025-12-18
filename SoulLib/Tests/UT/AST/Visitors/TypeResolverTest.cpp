@@ -19,7 +19,7 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_module_name = "resolve_module";
 
 		protected:
-		ASTNode::Dependency resolve(ASTNode::Reference root)
+		static ASTNode::Dependency Resolve(ASTNode::Reference root)
 		{
 			TypeDiscovererVisitor type_discoverer_visitor{};
 			type_discoverer_visitor.Accept(root);
@@ -60,7 +60,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -102,7 +102,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -142,7 +142,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -176,7 +176,7 @@ namespace Soul::AST::Visitors::UT
 		                       ASTNode::Operator::LOGICAL_AND));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -213,7 +213,7 @@ namespace Soul::AST::Visitors::UT
 		                                    false));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -277,7 +277,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -303,7 +303,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(cast_node));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -340,7 +340,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(for_loop));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -414,7 +414,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(for_loop));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -448,7 +448,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(function_call));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -467,7 +467,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(function_call));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -501,7 +501,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(function_call));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -551,7 +551,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(function_declaration));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -627,7 +627,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(function_declaration));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -665,7 +665,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(second_function_declaration));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -713,7 +713,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(second_function_declaration));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -794,7 +794,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -832,7 +832,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.emplace_back(LiteralNode::Create(Identifier::create(k_variable_name)));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -852,7 +852,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.emplace_back(LoopControlNode::Create(LoopControlNode::Type::CONTINUE));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -878,7 +878,7 @@ namespace Soul::AST::Visitors::UT
 			ReturnNode::Create(LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string"))));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -920,7 +920,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(struct_declaration));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -977,7 +977,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1004,7 +1004,7 @@ namespace Soul::AST::Visitors::UT
 			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)), ASTNode::Operator::LOGICAL_NOT));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1030,7 +1030,7 @@ namespace Soul::AST::Visitors::UT
 		                      ASTNode::Operator::LOGICAL_NOT));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1058,7 +1058,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(second_variable));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1095,7 +1095,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(inner_scope));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1137,7 +1137,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(outer_variable));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1179,7 +1179,7 @@ namespace Soul::AST::Visitors::UT
 		module_statements.push_back(std::move(while_loop));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
@@ -1211,7 +1211,7 @@ namespace Soul::AST::Visitors::UT
 			"my_variable", TypeSpecifier(PointerTypeSpecifier(k_base_specifier_i32)), LiteralNode::Create({}), false));
 		auto expected_module = ModuleNode::Create(k_module_name, std::move(module_statements));
 
-		auto result_module = resolve(expected_module.get());
+		auto result_module = Resolve(expected_module.get());
 		EXPECT_NE(expected_module.get(), result_module.get());
 		ASSERT_TRUE(result_module->Is<ModuleNode>());
 

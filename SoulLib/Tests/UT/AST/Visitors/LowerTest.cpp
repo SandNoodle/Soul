@@ -26,19 +26,18 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_function_name = "codegen_function";
 
 		protected:
-		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-		std::pair<std::string, std::string> compare(const Module& expected, const Module& result)
+		static std::pair<std::string, std::string> Compare(const Module& expected, const Module& result)
 		{
-			IR::Visitors::PrintVisitor print_result{};
+			PrintVisitor print_result{};
 			print_result.Accept(result);
 
-			IR::Visitors::PrintVisitor print_expected{};
+			PrintVisitor print_expected{};
 			print_expected.Accept(expected);
 
 			return std::make_pair(std::move(print_expected.String()), std::move(print_result.String()));
 		}
 
-		std::unique_ptr<Module> build(ASTNode::Dependency&& root)
+		static std::unique_ptr<Module> Build(ASTNode::Dependency&& root)
 		{
 			const auto verify = [](ASTNode::Dependency&& root) -> ASTNode::Dependency {
 				ErrorCollectorVisitor error_collector{};
@@ -79,7 +78,7 @@ namespace Soul::AST::Visitors::UT
 		}
 
 		template <PrimitiveType::Kind T>
-		IR::Instruction* emit_const(IR::IRBuilder& builder, Detail::PrimitiveKindToValueType<T> value)
+		static Instruction* EmitConst(IRBuilder& builder, Detail::PrimitiveKindToValueType<T> value)
 		{
 			return builder.Emit<Const>(T, Scalar::Create<T>(std::move(value)));
 		}
@@ -105,7 +104,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -114,12 +113,12 @@ namespace Soul::AST::Visitors::UT
 		auto* inner_block = expected_ir_builder.CreateBasicBlock();
 		expected_ir_builder.Emit<Jump>(inner_block);
 		expected_ir_builder.SwitchTo(inner_block);
-		emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
-		emit_const<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
-		emit_const<PrimitiveType::Kind::INT64>(expected_ir_builder, 123);
+		EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		EmitConst<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
+		EmitConst<PrimitiveType::Kind::INT64>(expected_ir_builder, 123);
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -137,17 +136,17 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.SetModuleName(k_module_name);
 		expected_ir_builder.CreateFunction(k_function_name, PrimitiveType::Kind::INT32, {});
-		auto* instr = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 123);
+		auto* instr = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 123);
 		expected_ir_builder.Emit<Cast>(PrimitiveType::Kind::STRING, instr);
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -193,7 +192,7 @@ namespace Soul::AST::Visitors::UT
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(first_function_declaration));
 		module_statements.push_back(std::move(second_function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -208,21 +207,21 @@ namespace Soul::AST::Visitors::UT
 			expected_ir_builder.Emit<StackStore>(first_slot, first_arg);
 			auto* second_arg = expected_ir_builder.Emit<GetArgument>(PrimitiveType::Kind::BOOLEAN, 1);
 			expected_ir_builder.Emit<StackStore>(second_slot, second_arg);
-			auto* return_value = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
+			auto* return_value = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
 			expected_ir_builder.Emit<Return>(return_value);
 		}
 
 		expected_ir_builder.CreateFunction(k_function_name, PrimitiveType::Kind::VOID, {});
 		auto* slot  = expected_ir_builder.ReserveSlot("variable", PrimitiveType::Kind::INT32);
-		auto* v1    = emit_const<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
-		auto* v2    = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* v1    = EmitConst<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
+		auto* v2    = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
 		auto* value = expected_ir_builder.Emit<Call>(
 			PrimitiveType::Kind::INT32, k_function_to_call, std::vector<Instruction*>{ v1, v2 });
 		expected_ir_builder.Emit<StackStore>(slot, value);
 
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -250,7 +249,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -259,23 +258,23 @@ namespace Soul::AST::Visitors::UT
 
 		auto* input_block = expected_ir_builder.CurrentBasicBlock();
 		expected_ir_builder.SwitchTo(input_block);
-		auto* condition = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* condition = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
 
 		auto* then_block = expected_ir_builder.CreateBasicBlock();
 		auto* else_block = expected_ir_builder.CreateBasicBlock();
 		expected_ir_builder.Emit<JumpIf>(condition, then_block, else_block);
 
 		expected_ir_builder.SwitchTo(then_block);
-		emit_const<PrimitiveType::Kind::STRING>(expected_ir_builder, "then_branch_string");
+		EmitConst<PrimitiveType::Kind::STRING>(expected_ir_builder, "then_branch_string");
 		auto* output_block = expected_ir_builder.CreateBasicBlock();
 		expected_ir_builder.Emit<Jump>(output_block);
 
 		expected_ir_builder.SwitchTo(else_block);
-		emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, false);
+		EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, false);
 		expected_ir_builder.Emit<Jump>(output_block);
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -294,7 +293,7 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(k_input_values.size());
-		for (const auto& [_, value] : k_input_values) {
+		for (const auto& value : k_input_values | std::views::values) {
 			function_declaration_statements.emplace_back(LiteralNode::Create(value));
 		}
 		auto function_declaration
@@ -305,7 +304,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -316,7 +315,7 @@ namespace Soul::AST::Visitors::UT
 		}
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -357,7 +356,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -371,7 +370,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.SwitchTo(input_block);
 		{
 			auto* slot          = expected_ir_builder.ReserveSlot(k_variable_name, PrimitiveType::Kind::INT32);
-			auto* initial_value = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 0);
+			auto* initial_value = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 0);
 			expected_ir_builder.Emit<StackStore>(slot, initial_value);
 			expected_ir_builder.Emit<Jump>(condition_block);
 		}
@@ -379,7 +378,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.SwitchTo(condition_block);
 		{
 			auto* lhs       = expected_ir_builder.Emit<StackLoad>(expected_ir_builder.GetSlot(k_variable_name));
-			auto* rhs       = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 10);
+			auto* rhs       = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 10);
 			auto* condition = expected_ir_builder.Emit<Less>(lhs, rhs);
 			expected_ir_builder.Emit<JumpIf>(condition, body_block, output_block);
 		}
@@ -388,14 +387,14 @@ namespace Soul::AST::Visitors::UT
 		{
 			auto* slot       = expected_ir_builder.GetSlot(k_variable_name);
 			auto* lhs        = expected_ir_builder.Emit<StackLoad>(slot);
-			auto* rhs        = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
+			auto* rhs        = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
 			auto* expression = expected_ir_builder.Emit<Add>(PrimitiveType::Kind::INT32, lhs, rhs);
 			expected_ir_builder.Emit<StackStore>(slot, expression);
 			expected_ir_builder.Emit<Jump>(condition_block);
 		}
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -420,7 +419,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -435,7 +434,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.Emit<Jump>(condition_block);
 
 		expected_ir_builder.SwitchTo(condition_block);
-		auto* condition = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* condition = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
 		expected_ir_builder.Emit<JumpIf>(condition, body_block, output_block);
 
 		expected_ir_builder.SwitchTo(body_block);
@@ -445,7 +444,7 @@ namespace Soul::AST::Visitors::UT
 
 		const auto& expected_ir = expected_ir_builder.Build();
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -473,7 +472,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -486,7 +485,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.Emit<Jump>(outer_while_condition_block);
 
 		expected_ir_builder.SwitchTo(outer_while_condition_block);
-		auto* outer_while_condition_value = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, false);
+		auto* outer_while_condition_value = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, false);
 		auto* outer_while_body_block      = expected_ir_builder.CreateBasicBlock();
 		auto* outer_while_output_block    = expected_ir_builder.CreateBasicBlock();
 		expected_ir_builder.Emit<JumpIf>(outer_while_condition_value, outer_while_body_block, outer_while_output_block);
@@ -496,7 +495,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.Emit<Jump>(inner_while_condition_block);
 
 		expected_ir_builder.SwitchTo(inner_while_condition_block);
-		auto* inner_while_condition_value = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* inner_while_condition_value = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
 		auto* inner_while_body_block      = expected_ir_builder.CreateBasicBlock();
 		auto* inner_while_output_block    = expected_ir_builder.CreateBasicBlock();
 		expected_ir_builder.Emit<JumpIf>(inner_while_condition_value, inner_while_body_block, inner_while_output_block);
@@ -510,7 +509,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.SwitchTo(outer_while_output_block);
 
 		const auto& expected_ir               = expected_ir_builder.Build();
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -518,11 +517,11 @@ namespace Soul::AST::Visitors::UT
 	{
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.SetModuleName(k_module_name);
-		const auto& result_ir = build(ModuleNode::Create(k_module_name, ASTNode::Dependencies{}));
+		const auto& result_ir = Build(ModuleNode::Create(k_module_name, ASTNode::Dependencies{}));
 		ASSERT_TRUE(result_ir);
 
 		const auto& expected_ir               = expected_ir_builder.Build();
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -541,18 +540,18 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = this->build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
+		auto result_ir = this->Build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.SetModuleName(this->k_module_name);
 		expected_ir_builder.CreateFunction(this->k_function_name, PrimitiveType::Kind::VOID, {});
-		auto* expression = emit_const<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* expression = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
 		expected_ir_builder.Emit<Not>(expression);
 		const auto& expected_ir = expected_ir_builder.Build();
 		ASSERT_TRUE(expected_ir);
 
-		auto [expected_string, result_string] = this->compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = this->Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -591,7 +590,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -600,19 +599,17 @@ namespace Soul::AST::Visitors::UT
 		auto* first_slot  = expected_ir_builder.ReserveSlot(k_first_variable_name, PrimitiveType::Kind::INT32);
 		auto* second_slot = expected_ir_builder.ReserveSlot(k_second_variable_name, PrimitiveType::Kind::INT32);
 
-		expected_ir_builder.Emit<StackStore>(first_slot,
-		                                     emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 1));
-		expected_ir_builder.Emit<StackStore>(first_slot,
-		                                     emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 3));
+		expected_ir_builder.Emit<StackStore>(first_slot, EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 1));
+		expected_ir_builder.Emit<StackStore>(first_slot, EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 3));
 		expected_ir_builder.Emit<StackStore>(second_slot,
-		                                     emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 5));
+		                                     EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 5));
 		auto* first_slot_value = expected_ir_builder.Emit<StackLoad>(first_slot);
 		expected_ir_builder.Emit<StackStore>(second_slot, first_slot_value);
 
 		auto expected_ir = expected_ir_builder.Build();
 		ASSERT_TRUE(expected_ir);
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -645,7 +642,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
+		auto result_ir = Build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -653,7 +650,7 @@ namespace Soul::AST::Visitors::UT
 		expected_ir_builder.CreateFunction(k_function_name, PrimitiveType::Kind::VOID, {});
 		auto* first_slot  = expected_ir_builder.ReserveSlot(k_first_variable_name, PrimitiveType::Kind::INT32);
 		auto* second_slot = expected_ir_builder.ReserveSlot(k_second_variable_name, PrimitiveType::Kind::INT32);
-		auto* value       = emit_const<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
+		auto* value       = EmitConst<PrimitiveType::Kind::INT32>(expected_ir_builder, 1);
 		expected_ir_builder.Emit<StackStore>(first_slot, value);
 		auto* lhs    = expected_ir_builder.Emit<StackLoad>(first_slot);
 		auto* rhs    = expected_ir_builder.Emit<StackLoad>(first_slot);
@@ -662,7 +659,7 @@ namespace Soul::AST::Visitors::UT
 		auto expected_ir = expected_ir_builder.Build();
 		ASSERT_TRUE(expected_ir);
 
-		auto [expected_string, result_string] = compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 
@@ -680,19 +677,19 @@ namespace Soul::AST::Visitors::UT
 
 	template <ASTNode::Operator Op>
 	using BinaryInstruction = VTDictionary<Op,
-	                                       VTTranslation<ASTNode::Operator::ADD, IR::Add>,
-	                                       VTTranslation<ASTNode::Operator::SUB, IR::Sub>,
-	                                       VTTranslation<ASTNode::Operator::MUL, IR::Mul>,
-	                                       VTTranslation<ASTNode::Operator::DIV, IR::Div>,
-	                                       VTTranslation<ASTNode::Operator::MOD, IR::Mod>,
-	                                       VTTranslation<ASTNode::Operator::EQUAL, IR::Equal>,
-	                                       VTTranslation<ASTNode::Operator::NOT_EQUAL, IR::NotEqual>,
-	                                       VTTranslation<ASTNode::Operator::GREATER, IR::Greater>,
-	                                       VTTranslation<ASTNode::Operator::GREATER_EQUAL, IR::GreaterEqual>,
-	                                       VTTranslation<ASTNode::Operator::LESS, IR::Less>,
-	                                       VTTranslation<ASTNode::Operator::LESS_EQUAL, IR::LessEqual>,
-	                                       VTTranslation<ASTNode::Operator::LOGICAL_AND, IR::And>,
-	                                       VTTranslation<ASTNode::Operator::LOGICAL_OR, IR::Or>>::Type;
+	                                       VTTranslation<ASTNode::Operator::ADD, Add>,
+	                                       VTTranslation<ASTNode::Operator::SUB, Sub>,
+	                                       VTTranslation<ASTNode::Operator::MUL, Mul>,
+	                                       VTTranslation<ASTNode::Operator::DIV, Div>,
+	                                       VTTranslation<ASTNode::Operator::MOD, Mod>,
+	                                       VTTranslation<ASTNode::Operator::EQUAL, Equal>,
+	                                       VTTranslation<ASTNode::Operator::NOT_EQUAL, NotEqual>,
+	                                       VTTranslation<ASTNode::Operator::GREATER, Greater>,
+	                                       VTTranslation<ASTNode::Operator::GREATER_EQUAL, GreaterEqual>,
+	                                       VTTranslation<ASTNode::Operator::LESS, Less>,
+	                                       VTTranslation<ASTNode::Operator::LESS_EQUAL, LessEqual>,
+	                                       VTTranslation<ASTNode::Operator::LOGICAL_AND, And>,
+	                                       VTTranslation<ASTNode::Operator::LOGICAL_OR, Or>>::Type;
 
 	using BinaryTypes = ::testing::Types<BinaryCase<ASTNode::Operator::ADD, PrimitiveType::Kind::INT32>,
 	                                     BinaryCase<ASTNode::Operator::SUB, PrimitiveType::Kind::INT32>,
@@ -727,7 +724,7 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = this->build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
+		auto result_ir = this->Build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -745,7 +742,7 @@ namespace Soul::AST::Visitors::UT
 		auto expected_ir = expected_ir_builder.Build();
 		ASSERT_TRUE(expected_ir);
 
-		auto [expected_string, result_string] = this->compare(*expected_ir, *result_ir);
+		auto [expected_string, result_string] = this->Compare(*expected_ir, *result_ir);
 		ASSERT_EQ(expected_string, result_string);
 	}
 }  // namespace Soul::AST::Visitors::UT

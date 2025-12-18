@@ -170,8 +170,8 @@ namespace Soul::Lexer::UT
 
 	TEST_F(LexerTest, Literals_Strings_UnterminatedString)
 	{
-		const std::string_view string = "\"this is an unterminated string, how sad :c";
-		const auto result_tokens      = Lexer::Tokenize(string);
+		static constexpr auto k_input_string = "\"this is an unterminated string, how sad :c";
+		const auto result_tokens             = Lexer::Tokenize(k_input_string);
 
 		ASSERT_EQ(result_tokens.size(), 1);
 		EXPECT_EQ(

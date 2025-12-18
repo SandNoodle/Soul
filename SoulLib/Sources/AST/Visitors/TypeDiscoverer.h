@@ -6,7 +6,6 @@
 #include "Parser/TypeSpecifier.h"
 #include "Types/TypeFwd.h"
 
-#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -21,7 +20,7 @@ namespace Soul::AST::Visitors
 		using TypeDeclarations = std::vector<std::pair<Parser::TypeSpecifier, Types::Type>>;
 
 		private:
-		TypeDeclarations _registered_types = basic_types();
+		TypeDeclarations _registered_types = GetBasicTypes();
 
 		public:
 		TypeDiscovererVisitor()                                 = default;
@@ -33,14 +32,14 @@ namespace Soul::AST::Visitors
 		TypeDiscovererVisitor& operator=(TypeDiscovererVisitor&&) noexcept = default;
 
 		/** @brief Returns name-to-type map of all discovered (and basic) types for a given AST. */
-		TypeDeclarations discovered_types() noexcept;
+		TypeDeclarations GetDiscoveredTypes() noexcept;
 
-		static TypeDeclarations basic_types() noexcept;
+		static TypeDeclarations GetBasicTypes() noexcept;
 
-		using CopyVisitor::accept;
+		using CopyVisitor::Accept;
 
 		protected:
-		using CopyVisitor::visit;
-		void visit(const StructDeclarationNode&) override;
+		using CopyVisitor::Visit;
+		void Visit(const StructDeclarationNode&) override;
 	};
 }  // namespace Soul::AST::Visitors

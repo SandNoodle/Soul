@@ -4,12 +4,12 @@
 
 namespace Soul::AST::Visitors
 {
-	Types::Type TypeResolverVisitor::get_type_for_operator(
+	Types::Type TypeResolverVisitor::GetTypeForOperator(
 		ASTNode::Operator op,
 		const std::ranges::forward_range auto& input_types) const noexcept
 	{
 		{
-			if (op == ASTNode::Operator::Unknown) [[unlikely]] {
+			if (op == ASTNode::Operator::UNKNOWN) [[unlikely]] {
 				return Types::Type{};
 			}
 
@@ -35,7 +35,7 @@ namespace Soul::AST::Visitors
 		}
 	}
 
-	std::optional<TypeResolverVisitor::FunctionDeclaration> TypeResolverVisitor::get_function_declaration(
+	std::optional<TypeResolverVisitor::FunctionDeclaration> TypeResolverVisitor::GetFunctionDeclaration(
 		std::string_view name,
 		const std::ranges::forward_range auto& want_types) const noexcept
 	{

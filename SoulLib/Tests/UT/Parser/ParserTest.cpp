@@ -94,7 +94,7 @@ namespace Soul::Parser::UT
 		const auto result_tree = Parser::Parse("test_module", tokens);
 
 		StringifyVisitor stringify;
-		stringify.accept(result_tree.get());
+		stringify.Accept(result_tree.get());
 
 		static constexpr bool k_regenerate_cases = false;
 		if constexpr (k_regenerate_cases) try {

@@ -31,15 +31,15 @@ namespace Soul::AST::Visitors::UT
 		ASTNode::Dependency build(ASTNode::Dependency&& root, bool do_analyze)
 		{
 			TypeDiscovererVisitor type_discoverer_visitor{};
-			type_discoverer_visitor.accept(root.get());
-			auto type_discoverer_root = type_discoverer_visitor.cloned();
+			type_discoverer_visitor.Accept(root.get());
+			auto type_discoverer_root = type_discoverer_visitor.Cloned();
 			if (!type_discoverer_root) {
 				return nullptr;
 			}
 
-			TypeResolverVisitor type_resolver_visitor{ type_discoverer_visitor.discovered_types() };
-			type_resolver_visitor.accept(type_discoverer_root.get());
-			auto type_resolver_root = type_resolver_visitor.cloned();
+			TypeResolverVisitor type_resolver_visitor{ type_discoverer_visitor.GetDiscoveredTypes() };
+			type_resolver_visitor.Accept(type_discoverer_root.get());
+			auto type_resolver_root = type_resolver_visitor.Cloned();
 			if (!type_resolver_root) {
 				return nullptr;
 			}
@@ -49,8 +49,8 @@ namespace Soul::AST::Visitors::UT
 			}
 
 			SemanticAnalyzerVisitor semantic_analyzer_visitor{};
-			semantic_analyzer_visitor.accept(type_resolver_root.get());
-			auto semantic_analyzer_root = semantic_analyzer_visitor.cloned();
+			semantic_analyzer_visitor.Accept(type_resolver_root.get());
+			auto semantic_analyzer_root = semantic_analyzer_visitor.Cloned();
 			if (!semantic_analyzer_root) {
 				return nullptr;
 			}
@@ -62,10 +62,10 @@ namespace Soul::AST::Visitors::UT
 			auto compare_result = CompareVisitor(expected, result);
 			if (compare_result != std::partial_ordering::equivalent) {
 				StringifyVisitor print_result{};
-				print_result.accept(result);
+				print_result.Accept(result);
 
 				StringifyVisitor print_expected{};
-				print_expected.accept(expected);
+				print_expected.Accept(expected);
 
 				return std::make_pair(std::move(print_expected.string()), std::move(print_result.string()));
 			}
@@ -80,8 +80,8 @@ namespace Soul::AST::Visitors::UT
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.emplace_back(
-			ErrorNode::create("variable 'my_variable' cannot be declared in the global scope."));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+			ErrorNode::Create("variable 'my_variable' cannot be declared in the global scope."));
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -95,21 +95,21 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.emplace_back(
-			VariableDeclarationNode::create("a",
+			VariableDeclarationNode::Create("a",
 		                                    Parser::k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(123)),
+		                                    LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(123)),
 		                                    false));
 		function_declaration_statements.emplace_back(
-			ErrorNode::create("cannot assign to variable 'a', because it is not mutable."));
+			ErrorNode::Create("cannot assign to variable 'a', because it is not mutable."));
 		auto function_declaration
-			= FunctionDeclarationNode::create("test_function",
+			= FunctionDeclarationNode::Create("test_function",
 		                                      Parser::k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -121,10 +121,10 @@ namespace Soul::AST::Visitors::UT
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.emplace_back(BinaryNode::create(ErrorNode::create("use of undeclared identifier 'a'"),
-		                                                  ErrorNode::create("use of undeclared identifier 'b'"),
-		                                                  ASTNode::Operator::Add));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		module_statements.emplace_back(BinaryNode::Create(ErrorNode::Create("use of undeclared identifier 'a'"),
+		                                                  ErrorNode::Create("use of undeclared identifier 'b'"),
+		                                                  ASTNode::Operator::ADD));
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -136,8 +136,8 @@ namespace Soul::AST::Visitors::UT
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
-		module_statements.emplace_back(ErrorNode::create("keyword 'break' must be used in a loop context."));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		module_statements.emplace_back(ErrorNode::Create("keyword 'break' must be used in a loop context."));
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -149,13 +149,13 @@ namespace Soul::AST::Visitors::UT
 		ASSERT_TRUE(result_module);
 
 		auto for_loop_statements = ASTNode::Dependencies{};
-		for_loop_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Continue));
+		for_loop_statements.emplace_back(LoopControlNode::Create(LoopControlNode::Type::CONTINUE));
 		auto for_loop
-			= ForLoopNode::create(nullptr, nullptr, nullptr, BlockNode::create(std::move(for_loop_statements)));
+			= ForLoopNode::Create(nullptr, nullptr, nullptr, BlockNode::Create(std::move(for_loop_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(for_loop));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -169,17 +169,17 @@ namespace Soul::AST::Visitors::UT
 
 		auto inner_for_loop_statements = ASTNode::Dependencies{};
 		auto inner_for_loop
-			= ForLoopNode::create(nullptr, nullptr, nullptr, BlockNode::create(std::move(inner_for_loop_statements)));
+			= ForLoopNode::Create(nullptr, nullptr, nullptr, BlockNode::Create(std::move(inner_for_loop_statements)));
 
 		auto outer_for_loop_statements = ASTNode::Dependencies{};
 		outer_for_loop_statements.push_back(std::move(inner_for_loop));
-		outer_for_loop_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
+		outer_for_loop_statements.emplace_back(LoopControlNode::Create(LoopControlNode::Type::BREAK));
 		auto outer_for_loop
-			= ForLoopNode::create(nullptr, nullptr, nullptr, BlockNode::create(std::move(outer_for_loop_statements)));
+			= ForLoopNode::Create(nullptr, nullptr, nullptr, BlockNode::Create(std::move(outer_for_loop_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(outer_for_loop));
-		auto expected_module = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		auto expected_module = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);
@@ -191,7 +191,7 @@ namespace Soul::AST::Visitors::UT
 		ASSERT_TRUE(result_module);
 
 		auto module_statements = ASTNode::Dependencies{};
-		auto expected_module   = build(ModuleNode::create(k_module_name, std::move(module_statements)), false);
+		auto expected_module   = build(ModuleNode::Create(k_module_name, std::move(module_statements)), false);
 
 		auto [expected_string, result_string] = compare(expected_module.get(), result_module.get());
 		ASSERT_EQ(expected_string, result_string);

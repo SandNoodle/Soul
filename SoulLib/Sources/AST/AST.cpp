@@ -7,102 +7,102 @@ namespace Soul::AST
 	using namespace Soul::Lexer;
 	using namespace Soul::Parser;
 
-	std::string_view ASTNode::name(const ASTNode::Operator op) noexcept
+	std::string_view ASTNode::Name(const ASTNode::Operator op) noexcept
 	{
 		using namespace std::string_view_literals;
 		static const std::unordered_map<ASTNode::Operator, std::string_view> k_operators = {
-			{ Operator::Unknown,      "__unknown__"sv },
-			{ Operator::Assign,       "="sv           },
-			{ Operator::AddAssign,    "+="sv          },
-			{ Operator::SubAssign,    "-="sv          },
-			{ Operator::MulAssign,    "*="sv          },
-			{ Operator::DivAssign,    "/="sv          },
-			{ Operator::ModAssign,    "%="sv          },
-			{ Operator::Add,          "+"sv           },
-			{ Operator::Sub,          "-"sv           },
-			{ Operator::Mul,          "*"sv           },
-			{ Operator::Div,          "/"sv           },
-			{ Operator::Mod,          "%"sv           },
-			{ Operator::Increment,    "++"sv          },
-			{ Operator::Decrement,    "--"sv          },
-			{ Operator::Equal,        "="sv           },
-			{ Operator::NotEqual,     "!="sv          },
-			{ Operator::Greater,      ">"sv           },
-			{ Operator::GreaterEqual, ">="sv          },
-			{ Operator::Less,         "<"sv           },
-			{ Operator::LessEqual,    "<="sv          },
-			{ Operator::LogicalNot,   "!"sv           },
-			{ Operator::LogicalAnd,   "&&"sv          },
-			{ Operator::LogicalOr,    "||"sv          },
+			{ Operator::UNKNOWN,       "__unknown__"sv },
+			{ Operator::ASSIGN,        "="sv           },
+			{ Operator::ASSIGN_ADD,    "+="sv          },
+			{ Operator::ASSIGN_SUB,    "-="sv          },
+			{ Operator::ASSIGN_MUL,    "*="sv          },
+			{ Operator::ASSIGN_DIV,    "/="sv          },
+			{ Operator::ASSIGN_MOD,    "%="sv          },
+			{ Operator::ADD,           "+"sv           },
+			{ Operator::SUB,           "-"sv           },
+			{ Operator::MUL,           "*"sv           },
+			{ Operator::DIV,           "/"sv           },
+			{ Operator::MOD,           "%"sv           },
+			{ Operator::INCREMENT,     "++"sv          },
+			{ Operator::DECREMENT,     "--"sv          },
+			{ Operator::EQUAL,         "="sv           },
+			{ Operator::NOT_EQUAL,     "!="sv          },
+			{ Operator::GREATER,       ">"sv           },
+			{ Operator::GREATER_EQUAL, ">="sv          },
+			{ Operator::LESS,          "<"sv           },
+			{ Operator::LESS_EQUAL,    "<="sv          },
+			{ Operator::LOGICAL_NOT,   "!"sv           },
+			{ Operator::LOGICAL_AND,   "&&"sv          },
+			{ Operator::LOGICAL_OR,    "||"sv          },
 		};
 		if (!k_operators.contains(op)) [[unlikely]] {
-			return k_operators.at(Operator::Unknown);
+			return k_operators.at(Operator::UNKNOWN);
 		}
 		return k_operators.at(op);
 	}
 
-	std::string_view ASTNode::internal_name(const Operator op) noexcept
+	std::string_view ASTNode::NameInternal(const Operator op) noexcept
 	{
 		using namespace std::string_view_literals;
 		static const std::unordered_map<ASTNode::Operator, std::string_view> k_operators = {
-			{ Operator::Unknown,      "__unknown__"sv            },
-			{ Operator::Assign,       "operator_assign"sv        },
-			{ Operator::AddAssign,    "operator_add_assign"sv    },
-			{ Operator::SubAssign,    "operator_sub_assign"sv    },
-			{ Operator::MulAssign,    "operator_mul_assign"sv    },
-			{ Operator::DivAssign,    "operator_div_assign"sv    },
-			{ Operator::ModAssign,    "operator_mod_assign"sv    },
-			{ Operator::Add,          "operator_add"sv           },
-			{ Operator::Sub,          "operator_sub"sv           },
-			{ Operator::Mul,          "operator_mul"sv           },
-			{ Operator::Div,          "operator_div"sv           },
-			{ Operator::Mod,          "operator_mod"sv           },
-			{ Operator::Increment,    "operator_increment"sv     },
-			{ Operator::Decrement,    "operator_decrement"sv     },
-			{ Operator::Equal,        "operator_equal"sv         },
-			{ Operator::NotEqual,     "operator_not_equal"sv     },
-			{ Operator::Greater,      "operator_greater"sv       },
-			{ Operator::GreaterEqual, "operator_greater_equal"sv },
-			{ Operator::Less,         "operator_less"sv          },
-			{ Operator::LessEqual,    "operator_less_equal"sv    },
-			{ Operator::LogicalNot,   "operator_logical_not"sv   },
-			{ Operator::LogicalAnd,   "operator_logical_and"sv   },
-			{ Operator::LogicalOr,    "operator_logical_or"sv    },
+			{ Operator::UNKNOWN,       "__unknown__"sv            },
+			{ Operator::ASSIGN,        "operator_assign"sv        },
+			{ Operator::ASSIGN_ADD,    "operator_add_assign"sv    },
+			{ Operator::ASSIGN_SUB,    "operator_sub_assign"sv    },
+			{ Operator::ASSIGN_MUL,    "operator_mul_assign"sv    },
+			{ Operator::ASSIGN_DIV,    "operator_div_assign"sv    },
+			{ Operator::ASSIGN_MOD,    "operator_mod_assign"sv    },
+			{ Operator::ADD,           "operator_add"sv           },
+			{ Operator::SUB,           "operator_sub"sv           },
+			{ Operator::MUL,           "operator_mul"sv           },
+			{ Operator::DIV,           "operator_div"sv           },
+			{ Operator::MOD,           "operator_mod"sv           },
+			{ Operator::INCREMENT,     "operator_increment"sv     },
+			{ Operator::DECREMENT,     "operator_decrement"sv     },
+			{ Operator::EQUAL,         "operator_equal"sv         },
+			{ Operator::NOT_EQUAL,     "operator_not_equal"sv     },
+			{ Operator::GREATER,       "operator_greater"sv       },
+			{ Operator::GREATER_EQUAL, "operator_greater_equal"sv },
+			{ Operator::LESS,          "operator_less"sv          },
+			{ Operator::LESS_EQUAL,    "operator_less_equal"sv    },
+			{ Operator::LOGICAL_NOT,   "operator_logical_not"sv   },
+			{ Operator::LOGICAL_AND,   "operator_logical_and"sv   },
+			{ Operator::LOGICAL_OR,    "operator_logical_or"sv    },
 		};
 		if (!k_operators.contains(op)) [[unlikely]] {
-			return k_operators.at(Operator::Unknown);
+			return k_operators.at(Operator::UNKNOWN);
 		}
 		return k_operators.at(op);
 	}
 
-	ASTNode::Operator ASTNode::as_operator(Token::Type type) noexcept
+	ASTNode::Operator ASTNode::AsOperator(Token::Type type) noexcept
 	{
 		static const std::unordered_map<Token::Type, Operator> k_operators = {
-			{ Token::Type::SYMBOL_EQUAL,               Operator::Assign       },
-			{ Token::Type::SYMBOL_PLUS_EQUAL,          Operator::AddAssign    },
-			{ Token::Type::SYMBOL_MINUS_EQUAL,         Operator::SubAssign    },
-			{ Token::Type::SYMBOL_STAR_EQUAL,          Operator::MulAssign    },
-			{ Token::Type::SYMBOL_SLASH_EQUAL,         Operator::DivAssign    },
-			{ Token::Type::SYMBOL_PERCENT_EQUAL,       Operator::ModAssign    },
-			{ Token::Type::SYMBOL_PLUS,                Operator::Add          },
-			{ Token::Type::SYMBOL_MINUS,               Operator::Sub          },
-			{ Token::Type::SYMBOL_STAR,                Operator::Mul          },
-			{ Token::Type::SYMBOL_SLASH,               Operator::Div          },
-			{ Token::Type::SYMBOL_PERCENT,             Operator::Mod          },
-			{ Token::Type::SYMBOL_PLUS_PLUS,           Operator::Increment    },
-			{ Token::Type::SYMBOL_MINUS_MINUS,         Operator::Decrement    },
-			{ Token::Type::SYMBOL_EQUAL,               Operator::Equal        },
-			{ Token::Type::SYMBOL_BANG_EQUAL,          Operator::NotEqual     },
-			{ Token::Type::SYMBOL_GREATER,             Operator::Greater      },
-			{ Token::Type::SYMBOL_GREATER_EQUAL,       Operator::GreaterEqual },
-			{ Token::Type::SYMBOL_LESS,                Operator::Less         },
-			{ Token::Type::SYMBOL_LESS_EQUAL,          Operator::LessEqual    },
-			{ Token::Type::SYMBOL_BANG,                Operator::LogicalNot   },
-			{ Token::Type::SYMBOL_AMPERSAND_AMPERSAND, Operator::LogicalAnd   },
-			{ Token::Type::SYMBOL_PIPE_PIPE,           Operator::LogicalOr    },
+			{ Token::Type::SYMBOL_EQUAL,               Operator::ASSIGN        },
+			{ Token::Type::SYMBOL_PLUS_EQUAL,          Operator::ASSIGN_ADD    },
+			{ Token::Type::SYMBOL_MINUS_EQUAL,         Operator::ASSIGN_SUB    },
+			{ Token::Type::SYMBOL_STAR_EQUAL,          Operator::ASSIGN_MUL    },
+			{ Token::Type::SYMBOL_SLASH_EQUAL,         Operator::ASSIGN_DIV    },
+			{ Token::Type::SYMBOL_PERCENT_EQUAL,       Operator::ASSIGN_MOD    },
+			{ Token::Type::SYMBOL_PLUS,                Operator::ADD           },
+			{ Token::Type::SYMBOL_MINUS,               Operator::SUB           },
+			{ Token::Type::SYMBOL_STAR,                Operator::MUL           },
+			{ Token::Type::SYMBOL_SLASH,               Operator::DIV           },
+			{ Token::Type::SYMBOL_PERCENT,             Operator::MOD           },
+			{ Token::Type::SYMBOL_PLUS_PLUS,           Operator::INCREMENT     },
+			{ Token::Type::SYMBOL_MINUS_MINUS,         Operator::DECREMENT     },
+			{ Token::Type::SYMBOL_EQUAL,               Operator::EQUAL         },
+			{ Token::Type::SYMBOL_BANG_EQUAL,          Operator::NOT_EQUAL     },
+			{ Token::Type::SYMBOL_GREATER,             Operator::GREATER       },
+			{ Token::Type::SYMBOL_GREATER_EQUAL,       Operator::GREATER_EQUAL },
+			{ Token::Type::SYMBOL_LESS,                Operator::LESS          },
+			{ Token::Type::SYMBOL_LESS_EQUAL,          Operator::LESS_EQUAL    },
+			{ Token::Type::SYMBOL_BANG,                Operator::LOGICAL_NOT   },
+			{ Token::Type::SYMBOL_AMPERSAND_AMPERSAND, Operator::LOGICAL_AND   },
+			{ Token::Type::SYMBOL_PIPE_PIPE,           Operator::LOGICAL_OR    },
 		};
 		if (!k_operators.contains(type)) {
-			return Operator::Unknown;
+			return Operator::UNKNOWN;
 		}
 		return k_operators.at(type);
 	}
@@ -112,14 +112,14 @@ namespace Soul::AST
 	{
 	}
 
-	BinaryNode::Dependency BinaryNode::create(Dependency lhs, Dependency rhs, Operator op)
+	BinaryNode::Dependency BinaryNode::Create(Dependency lhs, Dependency rhs, Operator op)
 	{
 		return std::make_unique<BinaryNode>(std::move(lhs), std::move(rhs), op);
 	}
 
 	BlockNode::BlockNode(Dependencies dependencies) : statements(std::move(dependencies)) {}
 
-	BlockNode::Dependency BlockNode::create(BlockNode::Dependencies statements)
+	BlockNode::Dependency BlockNode::Create(BlockNode::Dependencies statements)
 	{
 		return std::make_unique<BlockNode>(std::move(statements));
 	}
@@ -129,14 +129,14 @@ namespace Soul::AST
 	{
 	}
 
-	CastNode::Dependency CastNode::create(Dependency expression, TypeSpecifier type_specifier)
+	CastNode::Dependency CastNode::Create(Dependency expression, TypeSpecifier type_specifier)
 	{
 		return std::make_unique<CastNode>(std::move(expression), std::move(type_specifier));
 	}
 
 	ErrorNode::ErrorNode(ErrorNode::Message message) : message(std::move(message)) {}
 
-	ASTNode::Dependency ErrorNode::create(ErrorNode::Message message)
+	ASTNode::Dependency ErrorNode::Create(ErrorNode::Message message)
 	{
 		return std::make_unique<ErrorNode>(std::move(message));
 	}
@@ -152,7 +152,7 @@ namespace Soul::AST
 	{
 	}
 
-	ForLoopNode::Dependency ForLoopNode::create(Dependency initialization,
+	ForLoopNode::Dependency ForLoopNode::Create(Dependency initialization,
 	                                            Dependency condition,
 	                                            Dependency update,
 	                                            ScopeBlock statements)
@@ -166,7 +166,7 @@ namespace Soul::AST
 	{
 	}
 
-	ForeachLoopNode::Dependency ForeachLoopNode::create(Dependency variable,
+	ForeachLoopNode::Dependency ForeachLoopNode::Create(Dependency variable,
 	                                                    Dependency in_expression,
 	                                                    ScopeBlock statements)
 	{
@@ -178,7 +178,7 @@ namespace Soul::AST
 	{
 	}
 
-	FunctionCallNode::Dependency FunctionCallNode::create(Identifier name, Dependencies parameters)
+	FunctionCallNode::Dependency FunctionCallNode::Create(Identifier name, Dependencies parameters)
 	{
 		return std::make_unique<FunctionCallNode>(std::move(name), std::move(parameters));
 	}
@@ -194,7 +194,7 @@ namespace Soul::AST
 	{
 	}
 
-	FunctionDeclarationNode::Dependency FunctionDeclarationNode::create(Identifier name,
+	FunctionDeclarationNode::Dependency FunctionDeclarationNode::Create(Identifier name,
 	                                                                    TypeSpecifier return_type,
 	                                                                    Dependencies parameters,
 	                                                                    ScopeBlock statements)
@@ -210,20 +210,20 @@ namespace Soul::AST
 	{
 	}
 
-	IfNode::Dependency IfNode::create(Dependency condition, ScopeBlock then_statements, ScopeBlock else_statements)
+	IfNode::Dependency IfNode::Create(Dependency condition, ScopeBlock then_statements, ScopeBlock else_statements)
 	{
 		return std::make_unique<IfNode>(std::move(condition), std::move(then_statements), std::move(else_statements));
 	}
 
 	LiteralNode::LiteralNode(Value value) : value(std::move(value)) {}
 
-	LiteralNode::Dependency LiteralNode::create(Value value) { return std::make_unique<LiteralNode>(std::move(value)); }
+	LiteralNode::Dependency LiteralNode::Create(Value value) { return std::make_unique<LiteralNode>(std::move(value)); }
 
 	LiteralNode::operator std::string() const noexcept { return std::string(value); }
 
 	LoopControlNode::LoopControlNode(Type control_type) noexcept : control_type(control_type) {}
 
-	LoopControlNode::Dependency LoopControlNode::create(Type control_type)
+	LoopControlNode::Dependency LoopControlNode::Create(Type control_type)
 	{
 		return std::make_unique<LoopControlNode>(control_type);
 	}
@@ -233,14 +233,14 @@ namespace Soul::AST
 	{
 	}
 
-	ASTNode::Dependency ModuleNode::create(Identifier module_name, Dependencies statements)
+	ASTNode::Dependency ModuleNode::Create(Identifier module_name, Dependencies statements)
 	{
 		return std::make_unique<ModuleNode>(std::move(module_name), std::move(statements));
 	}
 
 	ReturnNode::ReturnNode(Dependency expression) : expression(std::move(expression)) {}
 
-	ReturnNode::Dependency ReturnNode::create(Dependency expression)
+	ReturnNode::Dependency ReturnNode::Create(Dependency expression)
 	{
 		return std::make_unique<ReturnNode>(std::move(expression));
 	}
@@ -250,14 +250,14 @@ namespace Soul::AST
 	{
 	}
 
-	StructDeclarationNode::Dependency StructDeclarationNode::create(Identifier name, Dependencies parameters)
+	StructDeclarationNode::Dependency StructDeclarationNode::Create(Identifier name, Dependencies parameters)
 	{
 		return std::make_unique<StructDeclarationNode>(std::move(name), std::move(parameters));
 	}
 
 	UnaryNode::UnaryNode(Dependency expr, Operator op) : op(op), expression(std::move(expr)) {}
 
-	UnaryNode::Dependency UnaryNode::create(Dependency expr, Operator op)
+	UnaryNode::Dependency UnaryNode::Create(Dependency expr, Operator op)
 	{
 		return std::make_unique<UnaryNode>(std::move(expr), op);
 	}
@@ -273,7 +273,7 @@ namespace Soul::AST
 	{
 	}
 
-	VariableDeclarationNode::Dependency VariableDeclarationNode::create(Identifier name,
+	VariableDeclarationNode::Dependency VariableDeclarationNode::Create(Identifier name,
 	                                                                    TypeSpecifier type_specifier,
 	                                                                    Dependency expr,
 	                                                                    bool is_mutable)
@@ -287,7 +287,7 @@ namespace Soul::AST
 	{
 	}
 
-	ASTNode::Dependency WhileNode::create(ASTNode::Dependency condition, ASTNode::ScopeBlock statements)
+	ASTNode::Dependency WhileNode::Create(ASTNode::Dependency condition, ASTNode::ScopeBlock statements)
 	{
 		return std::make_unique<WhileNode>(std::move(condition), std::move(statements));
 	}

@@ -17,25 +17,25 @@ namespace Soul::AST::Visitors
 		public:
 		virtual ~DefaultTraverseVisitor() = default;
 
-		virtual void accept(ASTNode::Reference node);
+		virtual void Accept(ASTNode::Reference node);
 
 		protected:
-		virtual void visit(const BinaryNode&) override;
-		virtual void visit(const BlockNode&) override;
-		virtual void visit(const CastNode&) override;
-		virtual void visit(const ErrorNode&) override;
-		virtual void visit(const ForLoopNode&) override;
-		virtual void visit(const ForeachLoopNode&) override;
-		virtual void visit(const FunctionCallNode&) override;
-		virtual void visit(const FunctionDeclarationNode&) override;
-		virtual void visit(const IfNode&) override;
-		virtual void visit(const LiteralNode&) override;
-		virtual void visit(const LoopControlNode&) override;
-		virtual void visit(const ModuleNode&) override;
-		virtual void visit(const ReturnNode&) override;
-		virtual void visit(const StructDeclarationNode&) override;
-		virtual void visit(const UnaryNode&) override;
-		virtual void visit(const VariableDeclarationNode&) override;
-		virtual void visit(const WhileNode&) override;
+		virtual void Visit(const BinaryNode&) override;
+		virtual void Visit(const BlockNode&) override;
+		virtual void Visit(const CastNode&) override;
+		virtual void Visit(const ErrorNode&) override;
+		virtual void Visit(const ForLoopNode&) override;
+		virtual void Visit(const ForeachLoopNode&) override;
+		virtual void Visit(const FunctionCallNode&) override;
+		virtual void Visit(const FunctionDeclarationNode&) override;
+		virtual void Visit(const IfNode&) override;
+		virtual void Visit(const LiteralNode&) override;
+		virtual void Visit(const LoopControlNode&) override;
+		virtual void Visit(const ModuleNode&) override;
+		virtual void Visit(const ReturnNode&) override;
+		virtual void Visit(const StructDeclarationNode&) override;
+		virtual void Visit(const UnaryNode&) override;
+		virtual void Visit(const VariableDeclarationNode&) override;
+		virtual void Visit(const WhileNode&) override;
 	};
 }  // namespace Soul::AST::Visitors

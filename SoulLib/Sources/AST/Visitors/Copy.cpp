@@ -2,195 +2,195 @@
 
 namespace Soul::AST::Visitors
 {
-	ASTNode::Dependency CopyVisitor::cloned() noexcept { return std::move(_current_clone); }
+	ASTNode::Dependency CopyVisitor::Cloned() noexcept { return std::move(_current_clone); }
 
-	void CopyVisitor::visit(const BinaryNode& node)
+	void CopyVisitor::Visit(const BinaryNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const BlockNode& node)
+	void CopyVisitor::Visit(const BlockNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const CastNode& node)
+	void CopyVisitor::Visit(const CastNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const ErrorNode& node)
+	void CopyVisitor::Visit(const ErrorNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const ForLoopNode& node)
+	void CopyVisitor::Visit(const ForLoopNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const ForeachLoopNode& node)
+	void CopyVisitor::Visit(const ForeachLoopNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const FunctionCallNode& node)
+	void CopyVisitor::Visit(const FunctionCallNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const FunctionDeclarationNode& node)
+	void CopyVisitor::Visit(const FunctionDeclarationNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const IfNode& node)
+	void CopyVisitor::Visit(const IfNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const LiteralNode& node)
+	void CopyVisitor::Visit(const LiteralNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const LoopControlNode& node)
+	void CopyVisitor::Visit(const LoopControlNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const ModuleNode& node)
+	void CopyVisitor::Visit(const ModuleNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const ReturnNode& node)
+	void CopyVisitor::Visit(const ReturnNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const StructDeclarationNode& node)
+	void CopyVisitor::Visit(const StructDeclarationNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const UnaryNode& node)
+	void CopyVisitor::Visit(const UnaryNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const VariableDeclarationNode& node)
+	void CopyVisitor::Visit(const VariableDeclarationNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
-	void CopyVisitor::visit(const WhileNode& node)
+	void CopyVisitor::Visit(const WhileNode& node)
 	{
-		_current_clone       = clone(node);
+		_current_clone       = Clone(node);
 		_current_clone->type = node.type;
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const ASTNode::Reference node)
+	ASTNode::Dependency CopyVisitor::Clone(const ASTNode::Reference node)
 	{
 		if (!node) {
 			return nullptr;
 		}
-		node->accept(*this);
+		node->Accept(*this);
 		return std::move(_current_clone);
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const BinaryNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const BinaryNode& node)
 	{
-		auto lhs{ clone(node.lhs.get()) };
-		auto rhs{ clone(node.rhs.get()) };
-		return BinaryNode::create(std::move(lhs), std::move(rhs), node.op);
+		auto lhs{ Clone(node.lhs.get()) };
+		auto rhs{ Clone(node.rhs.get()) };
+		return BinaryNode::Create(std::move(lhs), std::move(rhs), node.op);
 	}
 
-	ASTNode::ScopeBlock CopyVisitor::clone(const BlockNode& node) { return BlockNode::create(clone(node.statements)); }
+	ASTNode::ScopeBlock CopyVisitor::Clone(const BlockNode& node) { return BlockNode::Create(Clone(node.statements)); }
 
-	ASTNode::Dependency CopyVisitor::clone(const CastNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const CastNode& node)
 	{
-		return CastNode::create(clone(node.expression.get()), node.type_specifier);
+		return CastNode::Create(Clone(node.expression.get()), node.type_specifier);
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const ErrorNode& node) { return ErrorNode::create(node.message); }
+	ASTNode::Dependency CopyVisitor::Clone(const ErrorNode& node) { return ErrorNode::Create(node.message); }
 
-	ASTNode::Dependency CopyVisitor::clone(const ForLoopNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const ForLoopNode& node)
 	{
-		auto initialization{ clone(node.initialization.get()) };
-		auto condition{ clone(node.condition.get()) };
-		auto update{ clone(node.update.get()) };
-		auto statements{ clone(node.statements.get()) };
-		return ForLoopNode::create(
+		auto initialization{ Clone(node.initialization.get()) };
+		auto condition{ Clone(node.condition.get()) };
+		auto update{ Clone(node.update.get()) };
+		auto statements{ Clone(node.statements.get()) };
+		return ForLoopNode::Create(
 			std::move(initialization), std::move(condition), std::move(update), std::move(statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const ForeachLoopNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const ForeachLoopNode& node)
 	{
-		auto variable{ clone(node.variable.get()) };
-		auto in_expression{ clone(node.in_expression.get()) };
-		auto statements{ clone(node.statements.get()) };
-		return ForeachLoopNode::create(std::move(variable), std::move(in_expression), std::move(statements));
+		auto variable{ Clone(node.variable.get()) };
+		auto in_expression{ Clone(node.in_expression.get()) };
+		auto statements{ Clone(node.statements.get()) };
+		return ForeachLoopNode::Create(std::move(variable), std::move(in_expression), std::move(statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const FunctionCallNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const FunctionCallNode& node)
 	{
-		return FunctionCallNode::create(node.name, clone(node.parameters));
+		return FunctionCallNode::Create(node.name, Clone(node.parameters));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const FunctionDeclarationNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const FunctionDeclarationNode& node)
 	{
-		auto cloned_parameters{ clone(node.parameters) };
-		auto statements{ clone(node.statements.get()) };
-		return FunctionDeclarationNode::create(
+		auto cloned_parameters{ Clone(node.parameters) };
+		auto statements{ Clone(node.statements.get()) };
+		return FunctionDeclarationNode::Create(
 			node.name, node.type_specifier, std::move(cloned_parameters), std::move(statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const IfNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const IfNode& node)
 	{
-		auto condition{ clone(node.condition.get()) };
-		auto then_statements{ clone(node.then_statements.get()) };
-		auto else_statements{ clone(node.else_statements.get()) };
-		return IfNode::create(std::move(condition), std::move(then_statements), std::move(else_statements));
+		auto condition{ Clone(node.condition.get()) };
+		auto then_statements{ Clone(node.then_statements.get()) };
+		auto else_statements{ Clone(node.else_statements.get()) };
+		return IfNode::Create(std::move(condition), std::move(then_statements), std::move(else_statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const LiteralNode& node) { return LiteralNode::create(node.value); }
+	ASTNode::Dependency CopyVisitor::Clone(const LiteralNode& node) { return LiteralNode::Create(node.value); }
 
-	ASTNode::Dependency CopyVisitor::clone(const LoopControlNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const LoopControlNode& node)
 	{
-		return LoopControlNode::create(node.control_type);
+		return LoopControlNode::Create(node.control_type);
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const ModuleNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const ModuleNode& node)
 	{
-		return ModuleNode::create(node.name, clone(node.statements));
+		return ModuleNode::Create(node.name, Clone(node.statements));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const ReturnNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const ReturnNode& node)
 	{
-		return ReturnNode::create(clone(node.expression.get()));
+		return ReturnNode::Create(Clone(node.expression.get()));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const StructDeclarationNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const StructDeclarationNode& node)
 	{
-		return StructDeclarationNode::create(node.name, clone(node.parameters));
+		return StructDeclarationNode::Create(node.name, Clone(node.parameters));
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const UnaryNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const UnaryNode& node)
 	{
-		return UnaryNode::create(clone(node.expression.get()), node.op);
+		return UnaryNode::Create(Clone(node.expression.get()), node.op);
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const VariableDeclarationNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const VariableDeclarationNode& node)
 	{
-		return VariableDeclarationNode::create(
-			node.name, node.type_specifier, clone(node.expression.get()), node.is_mutable);
+		return VariableDeclarationNode::Create(
+			node.name, node.type_specifier, Clone(node.expression.get()), node.is_mutable);
 	}
 
-	ASTNode::Dependency CopyVisitor::clone(const WhileNode& node)
+	ASTNode::Dependency CopyVisitor::Clone(const WhileNode& node)
 	{
-		auto condition{ clone(node.condition.get()) };
-		auto statements{ clone(node.statements.get()) };
-		return WhileNode::create(std::move(condition), std::move(statements));
+		auto condition{ Clone(node.condition.get()) };
+		auto statements{ Clone(node.statements.get()) };
+		return WhileNode::Create(std::move(condition), std::move(statements));
 	}
 }  // namespace Soul::AST::Visitors

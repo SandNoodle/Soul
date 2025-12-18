@@ -17,56 +17,56 @@ namespace Soul::AST::Visitors
 		ASTNode::Dependency _current_clone{};
 
 		public:
-		ASTNode::Dependency cloned() noexcept;
+		ASTNode::Dependency Cloned() noexcept;
 
-		using DefaultTraverseVisitor::accept;
+		using DefaultTraverseVisitor::Accept;
 
-		[[nodiscard]] constexpr bool affects() const noexcept override { return true; }
+		[[nodiscard]] constexpr bool Affects() const noexcept override { return true; }
 
 		protected:
-		using DefaultTraverseVisitor::visit;
-		void visit(const BinaryNode&) override;
-		void visit(const BlockNode&) override;
-		void visit(const CastNode&) override;
-		void visit(const ErrorNode&) override;
-		void visit(const ForLoopNode&) override;
-		void visit(const ForeachLoopNode&) override;
-		void visit(const FunctionCallNode&) override;
-		void visit(const FunctionDeclarationNode&) override;
-		void visit(const IfNode&) override;
-		void visit(const LiteralNode&) override;
-		void visit(const LoopControlNode&) override;
-		void visit(const ModuleNode&) override;
-		void visit(const ReturnNode&) override;
-		void visit(const StructDeclarationNode&) override;
-		void visit(const UnaryNode&) override;
-		void visit(const VariableDeclarationNode&) override;
-		void visit(const WhileNode&) override;
+		using DefaultTraverseVisitor::Visit;
+		void Visit(const BinaryNode&) override;
+		void Visit(const BlockNode&) override;
+		void Visit(const CastNode&) override;
+		void Visit(const ErrorNode&) override;
+		void Visit(const ForLoopNode&) override;
+		void Visit(const ForeachLoopNode&) override;
+		void Visit(const FunctionCallNode&) override;
+		void Visit(const FunctionDeclarationNode&) override;
+		void Visit(const IfNode&) override;
+		void Visit(const LiteralNode&) override;
+		void Visit(const LoopControlNode&) override;
+		void Visit(const ModuleNode&) override;
+		void Visit(const ReturnNode&) override;
+		void Visit(const StructDeclarationNode&) override;
+		void Visit(const UnaryNode&) override;
+		void Visit(const VariableDeclarationNode&) override;
+		void Visit(const WhileNode&) override;
 
-		ASTNode::Dependency clone(const ASTNode::Reference node);
-		ASTNode::Dependency clone(const BinaryNode&);
-		ASTNode::ScopeBlock clone(const BlockNode&);
-		ASTNode::Dependency clone(const CastNode&);
-		ASTNode::Dependency clone(const ErrorNode&);
-		ASTNode::Dependency clone(const ForLoopNode&);
-		ASTNode::Dependency clone(const ForeachLoopNode&);
-		ASTNode::Dependency clone(const FunctionCallNode&);
-		ASTNode::Dependency clone(const FunctionDeclarationNode&);
-		ASTNode::Dependency clone(const IfNode&);
-		ASTNode::Dependency clone(const LiteralNode&);
-		ASTNode::Dependency clone(const LoopControlNode&);
-		ASTNode::Dependency clone(const ModuleNode&);
-		ASTNode::Dependency clone(const ReturnNode&);
-		ASTNode::Dependency clone(const StructDeclarationNode&);
-		ASTNode::Dependency clone(const UnaryNode&);
-		ASTNode::Dependency clone(const VariableDeclarationNode&);
-		ASTNode::Dependency clone(const WhileNode&);
-		ASTNode::Dependencies clone(const std::ranges::forward_range auto& elements)
+		ASTNode::Dependency Clone(const ASTNode::Reference node);
+		ASTNode::Dependency Clone(const BinaryNode&);
+		ASTNode::ScopeBlock Clone(const BlockNode&);
+		ASTNode::Dependency Clone(const CastNode&);
+		ASTNode::Dependency Clone(const ErrorNode&);
+		ASTNode::Dependency Clone(const ForLoopNode&);
+		ASTNode::Dependency Clone(const ForeachLoopNode&);
+		ASTNode::Dependency Clone(const FunctionCallNode&);
+		ASTNode::Dependency Clone(const FunctionDeclarationNode&);
+		ASTNode::Dependency Clone(const IfNode&);
+		ASTNode::Dependency Clone(const LiteralNode&);
+		ASTNode::Dependency Clone(const LoopControlNode&);
+		ASTNode::Dependency Clone(const ModuleNode&);
+		ASTNode::Dependency Clone(const ReturnNode&);
+		ASTNode::Dependency Clone(const StructDeclarationNode&);
+		ASTNode::Dependency Clone(const UnaryNode&);
+		ASTNode::Dependency Clone(const VariableDeclarationNode&);
+		ASTNode::Dependency Clone(const WhileNode&);
+		ASTNode::Dependencies Clone(const std::ranges::forward_range auto& elements)
 		{
 			ASTNode::Dependencies cloned{};
 			cloned.reserve(elements.size());
 			for (const auto& element : elements) {
-				cloned.emplace_back(clone(element.get()));
+				cloned.emplace_back(Clone(element.get()));
 			}
 			return cloned;
 		}

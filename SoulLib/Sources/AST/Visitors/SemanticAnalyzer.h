@@ -20,21 +20,21 @@ namespace Soul::AST::Visitors
 		VariableContext _variables_in_scope{};
 
 		public:
-		using CopyVisitor::accept;
+		using CopyVisitor::Accept;
 
 		protected:
-		using CopyVisitor::visit;
-		void visit(const BinaryNode&) override;
-		void visit(const BlockNode&) override;
-		void visit(const ForLoopNode&) override;
-		void visit(const ForeachLoopNode&) override;
-		void visit(const FunctionDeclarationNode&) override;
-		void visit(const LiteralNode&) override;
-		void visit(const LoopControlNode&) override;
-		void visit(const VariableDeclarationNode&) override;
-		void visit(const WhileNode&) override;
+		using CopyVisitor::Visit;
+		void Visit(const BinaryNode&) override;
+		void Visit(const BlockNode&) override;
+		void Visit(const ForLoopNode&) override;
+		void Visit(const ForeachLoopNode&) override;
+		void Visit(const FunctionDeclarationNode&) override;
+		void Visit(const LiteralNode&) override;
+		void Visit(const LoopControlNode&) override;
+		void Visit(const VariableDeclarationNode&) override;
+		void Visit(const WhileNode&) override;
 
 		private:
-		VariableDeclarationNode* get_variable(std::string_view identifier);
+		VariableDeclarationNode* GetVariable(std::string_view identifier);
 	};
 }  // namespace Soul::AST::Visitors

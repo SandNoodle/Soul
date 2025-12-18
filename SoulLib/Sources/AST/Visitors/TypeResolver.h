@@ -10,7 +10,7 @@
 #include <ranges>
 #include <string>
 #include <string_view>
-#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace Soul::AST::Visitors
@@ -47,33 +47,33 @@ namespace Soul::AST::Visitors
 		TypeResolverVisitor& operator=(const TypeResolverVisitor&)     = delete;
 		TypeResolverVisitor& operator=(TypeResolverVisitor&&) noexcept = default;
 
-		using CopyVisitor::accept;
+		using CopyVisitor::Accept;
 
 		protected:
-		using CopyVisitor::visit;
-		void visit(const BinaryNode&) override;
-		void visit(const BlockNode&) override;
-		void visit(const CastNode&) override;
-		void visit(const ForLoopNode&) override;
-		void visit(const ForeachLoopNode&) override;
-		void visit(const FunctionCallNode&) override;
-		void visit(const FunctionDeclarationNode&) override;
-		void visit(const IfNode&) override;
-		void visit(const LiteralNode&) override;
-		void visit(const LoopControlNode&) override;
-		void visit(const ModuleNode&) override;
-		void visit(const ReturnNode&) override;
-		void visit(const StructDeclarationNode&) override;
-		void visit(const UnaryNode&) override;
-		void visit(const VariableDeclarationNode&) override;
-		void visit(const WhileNode&) override;
+		using CopyVisitor::Visit;
+		void Visit(const BinaryNode&) override;
+		void Visit(const BlockNode&) override;
+		void Visit(const CastNode&) override;
+		void Visit(const ForLoopNode&) override;
+		void Visit(const ForeachLoopNode&) override;
+		void Visit(const FunctionCallNode&) override;
+		void Visit(const FunctionDeclarationNode&) override;
+		void Visit(const IfNode&) override;
+		void Visit(const LiteralNode&) override;
+		void Visit(const LoopControlNode&) override;
+		void Visit(const ModuleNode&) override;
+		void Visit(const ReturnNode&) override;
+		void Visit(const StructDeclarationNode&) override;
+		void Visit(const UnaryNode&) override;
+		void Visit(const VariableDeclarationNode&) override;
+		void Visit(const WhileNode&) override;
 
 		private:
-		Types::Type get_type_or_default(const Parser::TypeSpecifier& type_specifier) const noexcept;
-		std::optional<Types::Type> get_variable_type(std::string_view name) const noexcept;
-		Types::Type get_type_for_operator(ASTNode::Operator op,
-		                                  const std::ranges::forward_range auto& input_types) const noexcept;
-		std::optional<FunctionDeclaration> get_function_declaration(
+		Types::Type GetTypeOrDefault(const Parser::TypeSpecifier& type_specifier) const noexcept;
+		std::optional<Types::Type> GetVariableType(std::string_view name) const noexcept;
+		Types::Type GetTypeForOperator(ASTNode::Operator op,
+		                               const std::ranges::forward_range auto& input_types) const noexcept;
+		std::optional<FunctionDeclaration> GetFunctionDeclaration(
 			std::string_view name,
 			const std::ranges::forward_range auto& want_types) const noexcept;
 	};

@@ -2,95 +2,95 @@
 
 namespace Soul::AST::Visitors
 {
-	void DefaultTraverseVisitor::accept(ASTNode::Reference node)
+	void DefaultTraverseVisitor::Accept(ASTNode::Reference node)
 	{
 		if (!node) {
 			return;
 		}
-		node->accept(*this);
+		node->Accept(*this);
 	}
 
-	void DefaultTraverseVisitor::visit(const BinaryNode& node)
+	void DefaultTraverseVisitor::Visit(const BinaryNode& node)
 	{
-		accept(node.lhs.get());
-		accept(node.rhs.get());
+		Accept(node.lhs.get());
+		Accept(node.rhs.get());
 	}
 
-	void DefaultTraverseVisitor::visit(const BlockNode& node)
-	{
-		for (const auto& statement : node.statements) {
-			accept(statement.get());
-		}
-	}
-
-	void DefaultTraverseVisitor::visit(const CastNode& node) { accept(node.expression.get()); }
-
-	void DefaultTraverseVisitor::visit([[maybe_unused]] const ErrorNode& node) { /* Can't traverse further. */ }
-
-	void DefaultTraverseVisitor::visit(const ForLoopNode& node)
-	{
-		accept(node.initialization.get());
-		accept(node.condition.get());
-		accept(node.update.get());
-		accept(node.statements.get());
-	}
-
-	void DefaultTraverseVisitor::visit(const ForeachLoopNode& node)
-	{
-		accept(node.variable.get());
-		accept(node.in_expression.get());
-		accept(node.statements.get());
-	}
-
-	void DefaultTraverseVisitor::visit(const FunctionCallNode& node)
-	{
-		for (auto& param : node.parameters) {
-			accept(param.get());
-		}
-	}
-
-	void DefaultTraverseVisitor::visit(const FunctionDeclarationNode& node)
-	{
-		for (auto& param : node.parameters) {
-			accept(param.get());
-		}
-		accept(node.statements.get());
-	}
-
-	void DefaultTraverseVisitor::visit(const IfNode& node)
-	{
-		accept(node.condition.get());
-		accept(node.then_statements.get());
-		accept(node.else_statements.get());
-	}
-
-	void DefaultTraverseVisitor::visit([[maybe_unused]] const LiteralNode& node) { /* Can't traverse further. */ }
-
-	void DefaultTraverseVisitor::visit([[maybe_unused]] const LoopControlNode& node) { /* Can't traverse further. */ }
-
-	void DefaultTraverseVisitor::visit(const ModuleNode& node)
+	void DefaultTraverseVisitor::Visit(const BlockNode& node)
 	{
 		for (const auto& statement : node.statements) {
-			accept(statement.get());
+			Accept(statement.get());
 		}
 	}
 
-	void DefaultTraverseVisitor::visit(const ReturnNode& node) { accept(node.expression.get()); }
+	void DefaultTraverseVisitor::Visit(const CastNode& node) { Accept(node.expression.get()); }
 
-	void DefaultTraverseVisitor::visit(const StructDeclarationNode& node)
+	void DefaultTraverseVisitor::Visit([[maybe_unused]] const ErrorNode& node) { /* Can't traverse further. */ }
+
+	void DefaultTraverseVisitor::Visit(const ForLoopNode& node)
+	{
+		Accept(node.initialization.get());
+		Accept(node.condition.get());
+		Accept(node.update.get());
+		Accept(node.statements.get());
+	}
+
+	void DefaultTraverseVisitor::Visit(const ForeachLoopNode& node)
+	{
+		Accept(node.variable.get());
+		Accept(node.in_expression.get());
+		Accept(node.statements.get());
+	}
+
+	void DefaultTraverseVisitor::Visit(const FunctionCallNode& node)
 	{
 		for (auto& param : node.parameters) {
-			accept(param.get());
+			Accept(param.get());
 		}
 	}
 
-	void DefaultTraverseVisitor::visit(const UnaryNode& node) { accept(node.expression.get()); }
-
-	void DefaultTraverseVisitor::visit(const VariableDeclarationNode& node) { accept(node.expression.get()); }
-
-	void DefaultTraverseVisitor::visit(const WhileNode& node)
+	void DefaultTraverseVisitor::Visit(const FunctionDeclarationNode& node)
 	{
-		accept(node.condition.get());
-		accept(node.statements.get());
+		for (auto& param : node.parameters) {
+			Accept(param.get());
+		}
+		Accept(node.statements.get());
+	}
+
+	void DefaultTraverseVisitor::Visit(const IfNode& node)
+	{
+		Accept(node.condition.get());
+		Accept(node.then_statements.get());
+		Accept(node.else_statements.get());
+	}
+
+	void DefaultTraverseVisitor::Visit([[maybe_unused]] const LiteralNode& node) { /* Can't traverse further. */ }
+
+	void DefaultTraverseVisitor::Visit([[maybe_unused]] const LoopControlNode& node) { /* Can't traverse further. */ }
+
+	void DefaultTraverseVisitor::Visit(const ModuleNode& node)
+	{
+		for (const auto& statement : node.statements) {
+			Accept(statement.get());
+		}
+	}
+
+	void DefaultTraverseVisitor::Visit(const ReturnNode& node) { Accept(node.expression.get()); }
+
+	void DefaultTraverseVisitor::Visit(const StructDeclarationNode& node)
+	{
+		for (auto& param : node.parameters) {
+			Accept(param.get());
+		}
+	}
+
+	void DefaultTraverseVisitor::Visit(const UnaryNode& node) { Accept(node.expression.get()); }
+
+	void DefaultTraverseVisitor::Visit(const VariableDeclarationNode& node) { Accept(node.expression.get()); }
+
+	void DefaultTraverseVisitor::Visit(const WhileNode& node)
+	{
+		Accept(node.condition.get());
+		Accept(node.statements.get());
 	}
 }  // namespace Soul::AST::Visitors

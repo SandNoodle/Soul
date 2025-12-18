@@ -42,9 +42,9 @@ namespace Soul::AST::Visitors::UT
 		{
 			const auto verify = [](ASTNode::Dependency&& root) -> ASTNode::Dependency {
 				ErrorCollectorVisitor error_collector{};
-				error_collector.accept(root.get());
-				if (!error_collector.is_valid()) {
-					for (const auto& [depth, error] : error_collector.errors()) {
+				error_collector.Accept(root.get());
+				if (!error_collector.IsValid()) {
+					for (const auto& [depth, error] : error_collector.GetErrors()) {
 						std::cerr << std::format("[{}]: {}\n", depth, error->message);
 					}
 					return nullptr;
@@ -53,29 +53,29 @@ namespace Soul::AST::Visitors::UT
 			};
 
 			TypeDiscovererVisitor type_discoverer_visitor{};
-			type_discoverer_visitor.accept(root.get());
-			auto type_discoverer_root = verify(type_discoverer_visitor.cloned());
+			type_discoverer_visitor.Accept(root.get());
+			auto type_discoverer_root = verify(type_discoverer_visitor.Cloned());
 			if (!type_discoverer_root) {
 				return nullptr;
 			}
 
-			TypeResolverVisitor type_resolver_visitor{ type_discoverer_visitor.discovered_types() };
-			type_resolver_visitor.accept(type_discoverer_root.get());
-			auto type_resolver_root = verify(type_resolver_visitor.cloned());
+			TypeResolverVisitor type_resolver_visitor{ type_discoverer_visitor.GetDiscoveredTypes() };
+			type_resolver_visitor.Accept(type_discoverer_root.get());
+			auto type_resolver_root = verify(type_resolver_visitor.Cloned());
 			if (!type_resolver_root) {
 				return nullptr;
 			}
 
 			DesugarVisitor desugar_visitor{};
-			desugar_visitor.accept(type_resolver_root.get());
-			auto desugar_visitor_root = verify(desugar_visitor.cloned());
+			desugar_visitor.Accept(type_resolver_root.get());
+			auto desugar_visitor_root = verify(desugar_visitor.Cloned());
 			if (!desugar_visitor_root) {
 				return nullptr;
 			}
 
 			LowerVisitor lower_visitor{};
-			lower_visitor.accept(desugar_visitor_root.get());
-			return lower_visitor.get();
+			lower_visitor.Accept(desugar_visitor_root.get());
+			return lower_visitor.Get();
 		}
 
 		template <PrimitiveType::Kind T>
@@ -89,23 +89,23 @@ namespace Soul::AST::Visitors::UT
 	{
 		auto inner_scope_statements = ASTNode::Dependencies{};
 		inner_scope_statements.reserve(3);
-		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
+		inner_scope_statements.emplace_back(LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
 		inner_scope_statements.emplace_back(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
-		inner_scope_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT64>(123)));
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
+		inner_scope_statements.emplace_back(LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT64>(123)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(BlockNode::create(std::move(inner_scope_statements)));
+		function_declaration_statements.emplace_back(BlockNode::Create(std::move(inner_scope_statements)));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -127,17 +127,17 @@ namespace Soul::AST::Visitors::UT
 	{
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(CastNode::create(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(123)), k_base_specifier_str));
+		function_declaration_statements.emplace_back(CastNode::Create(
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(123)), k_base_specifier_str));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -158,42 +158,42 @@ namespace Soul::AST::Visitors::UT
 		auto first_function_declaration_parameters = ASTNode::Dependencies{};
 		first_function_declaration_parameters.reserve(2);
 		first_function_declaration_parameters.emplace_back(
-			VariableDeclarationNode::create("a", k_base_specifier_str, nullptr, true));
+			VariableDeclarationNode::Create("a", k_base_specifier_str, nullptr, true));
 		first_function_declaration_parameters.emplace_back(
-			VariableDeclarationNode::create("b", k_base_specifier_bool, nullptr, true));
+			VariableDeclarationNode::Create("b", k_base_specifier_bool, nullptr, true));
 		auto first_function_declaration_statements = ASTNode::Dependencies{};
 		first_function_declaration_statements.emplace_back(
-			ReturnNode::create(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1))));
+			ReturnNode::Create(LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(1))));
 		auto first_function_declaration
-			= FunctionDeclarationNode::create(k_function_to_call,
+			= FunctionDeclarationNode::Create(k_function_to_call,
 		                                      k_base_specifier_i32,
 		                                      std::move(first_function_declaration_parameters),
-		                                      BlockNode::create(std::move(first_function_declaration_statements)));
+		                                      BlockNode::Create(std::move(first_function_declaration_statements)));
 
 		auto second_function_declaration_parameters = ASTNode::Dependencies{};
 		auto second_function_declaration_statements = ASTNode::Dependencies{};
 		auto first_function_call_parameters         = ASTNode::Dependencies{};
 		first_function_call_parameters.reserve(2);
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::STRING>("my_string")));
 		first_function_call_parameters.emplace_back(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
-		second_function_declaration_statements.emplace_back(VariableDeclarationNode::create(
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)));
+		second_function_declaration_statements.emplace_back(VariableDeclarationNode::Create(
 			"variable",
 			k_base_specifier_i32,
-			FunctionCallNode::create(k_function_to_call, std::move(first_function_call_parameters)),
+			FunctionCallNode::Create(k_function_to_call, std::move(first_function_call_parameters)),
 			false));
 
 		auto second_function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(second_function_declaration_parameters),
-		                                      BlockNode::create(std::move(second_function_declaration_statements)));
+		                                      BlockNode::Create(std::move(second_function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(first_function_declaration));
 		module_statements.push_back(std::move(second_function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -228,29 +228,29 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, If)
 	{
-		auto if_node_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto if_node_condition  = LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto if_then_statements = ASTNode::Dependencies{};
 		if_then_statements.emplace_back(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>("then_branch_string")));
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::STRING>("then_branch_string")));
 		auto if_else_statements = ASTNode::Dependencies{};
-		if_else_statements.emplace_back(LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false)));
+		if_else_statements.emplace_back(LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false)));
 
-		auto if_node = IfNode::create(std::move(if_node_condition),
-		                              BlockNode::create(std::move(if_then_statements)),
-		                              BlockNode::create(std::move(if_else_statements)));
+		auto if_node = IfNode::Create(std::move(if_node_condition),
+		                              BlockNode::Create(std::move(if_then_statements)),
+		                              BlockNode::Create(std::move(if_else_statements)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.push_back(std::move(if_node));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -295,17 +295,17 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(k_input_values.size());
 		for (const auto& [_, value] : k_input_values) {
-			function_declaration_statements.emplace_back(LiteralNode::create(value));
+			function_declaration_statements.emplace_back(LiteralNode::Create(value));
 		}
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -325,39 +325,39 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_variable_name = "index";
 
 		auto index_node
-			= VariableDeclarationNode::create(k_variable_name,
+			= VariableDeclarationNode::Create(k_variable_name,
 		                                      k_base_specifier_i32,
-		                                      LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(0)),
+		                                      LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(0)),
 		                                      true);
 
 		auto while_node_condition
-			= BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
-		                         LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(10)),
-		                         ASTNode::Operator::Less);
+			= BinaryNode::Create(LiteralNode::Create(Value{ Identifier::create(k_variable_name) }),
+		                         LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(10)),
+		                         ASTNode::Operator::LESS);
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.emplace_back(
-			BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
-		                       BinaryNode::create(LiteralNode::create(Value{ Identifier::create(k_variable_name) }),
-		                                          LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
-		                                          ASTNode::Operator::Add),
-		                       ASTNode::Operator::Assign));
+			BinaryNode::Create(LiteralNode::Create(Value{ Identifier::create(k_variable_name) }),
+		                       BinaryNode::Create(LiteralNode::Create(Value{ Identifier::create(k_variable_name) }),
+		                                          LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
+		                                          ASTNode::Operator::ADD),
+		                       ASTNode::Operator::ASSIGN));
 
 		auto while_node
-			= WhileNode::create(std::move(while_node_condition), BlockNode::create(std::move(while_node_statements)));
+			= WhileNode::Create(std::move(while_node_condition), BlockNode::Create(std::move(while_node_statements)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.push_back(std::move(index_node));
 		function_declaration_statements.push_back(std::move(while_node));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_i32,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -401,26 +401,26 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, While_BreakAndContinue)
 	{
-		auto while_node_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto while_node_condition  = LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto while_node_statements = ASTNode::Dependencies{};
 		while_node_statements.reserve(2);
-		while_node_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Break));
-		while_node_statements.emplace_back(LoopControlNode::create(LoopControlNode::Type::Continue));
+		while_node_statements.emplace_back(LoopControlNode::Create(LoopControlNode::Type::BREAK));
+		while_node_statements.emplace_back(LoopControlNode::Create(LoopControlNode::Type::CONTINUE));
 		auto while_node
-			= WhileNode::create(std::move(while_node_condition), BlockNode::create(std::move(while_node_statements)));
+			= WhileNode::Create(std::move(while_node_condition), BlockNode::Create(std::move(while_node_statements)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.push_back(std::move(while_node));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -451,29 +451,29 @@ namespace Soul::AST::Visitors::UT
 
 	TEST_F(LowerVisitorTest, While_NestedLoops)
 	{
-		auto inner_while_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
+		auto inner_while_condition  = LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		auto inner_while_statements = ASTNode::Dependencies{};
 		auto inner_while_node
-			= WhileNode::create(std::move(inner_while_condition), BlockNode::create(std::move(inner_while_statements)));
+			= WhileNode::Create(std::move(inner_while_condition), BlockNode::Create(std::move(inner_while_statements)));
 
-		auto outer_while_condition  = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
+		auto outer_while_condition  = LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
 		auto outer_while_statements = ASTNode::Dependencies{};
 		outer_while_statements.push_back(std::move(inner_while_node));
 		auto outer_while_node
-			= WhileNode::create(std::move(outer_while_condition), BlockNode::create(std::move(outer_while_statements)));
+			= WhileNode::Create(std::move(outer_while_condition), BlockNode::Create(std::move(outer_while_statements)));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.push_back(std::move(outer_while_node));
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -518,7 +518,7 @@ namespace Soul::AST::Visitors::UT
 	{
 		IRBuilder expected_ir_builder{};
 		expected_ir_builder.SetModuleName(k_module_name);
-		const auto& result_ir = build(ModuleNode::create(k_module_name, ASTNode::Dependencies{}));
+		const auto& result_ir = build(ModuleNode::Create(k_module_name, ASTNode::Dependencies{}));
 		ASSERT_TRUE(result_ir);
 
 		const auto& expected_ir               = expected_ir_builder.Build();
@@ -530,18 +530,18 @@ namespace Soul::AST::Visitors::UT
 	{
 		// NOTE: It doesn't matter that the actual value has invalid type.
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(UnaryNode::create(
-			LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)), ASTNode::Operator::LogicalNot));
+		function_declaration_statements.emplace_back(UnaryNode::Create(
+			LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true)), ASTNode::Operator::LOGICAL_NOT));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
-			= FunctionDeclarationNode::create(this->k_function_name,
+			= FunctionDeclarationNode::Create(this->k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = this->build(ModuleNode::create(this->k_module_name, std::move(module_statements)));
+		auto result_ir = this->build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -564,34 +564,34 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(4);
 		function_declaration_statements.emplace_back(
-			VariableDeclarationNode::create(k_first_variable_name,
+			VariableDeclarationNode::Create(k_first_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
+		                                    LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
 		                                    true));
 		function_declaration_statements.emplace_back(
-			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
-		                       LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(3)),
-		                       ASTNode::Operator::Assign));
+			BinaryNode::Create(LiteralNode::Create(Identifier::create(k_first_variable_name)),
+		                       LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(3)),
+		                       ASTNode::Operator::ASSIGN));
 		function_declaration_statements.emplace_back(
-			VariableDeclarationNode::create(k_second_variable_name,
+			VariableDeclarationNode::Create(k_second_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(5)),
+		                                    LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(5)),
 		                                    false));
 		function_declaration_statements.emplace_back(
-			BinaryNode::create(LiteralNode::create(Identifier::create(k_second_variable_name)),
-		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
-		                       ASTNode::Operator::Assign));
+			BinaryNode::Create(LiteralNode::Create(Identifier::create(k_second_variable_name)),
+		                       LiteralNode::Create(Identifier::create(k_first_variable_name)),
+		                       ASTNode::Operator::ASSIGN));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -624,28 +624,28 @@ namespace Soul::AST::Visitors::UT
 		auto function_declaration_statements = ASTNode::Dependencies{};
 		function_declaration_statements.reserve(2);
 		function_declaration_statements.emplace_back(
-			VariableDeclarationNode::create(k_first_variable_name,
+			VariableDeclarationNode::Create(k_first_variable_name,
 		                                    k_base_specifier_i32,
-		                                    LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
+		                                    LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(1)),
 		                                    false));
-		function_declaration_statements.emplace_back(VariableDeclarationNode::create(
+		function_declaration_statements.emplace_back(VariableDeclarationNode::Create(
 			k_second_variable_name,
 			k_base_specifier_i32,
-			BinaryNode::create(LiteralNode::create(Identifier::create(k_first_variable_name)),
-		                       LiteralNode::create(Identifier::create(k_first_variable_name)),
-		                       ASTNode::Operator::Mul),
+			BinaryNode::Create(LiteralNode::Create(Identifier::create(k_first_variable_name)),
+		                       LiteralNode::Create(Identifier::create(k_first_variable_name)),
+		                       ASTNode::Operator::MUL),
 			false));
 
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
-			= FunctionDeclarationNode::create(k_function_name,
+			= FunctionDeclarationNode::Create(k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = build(ModuleNode::create(k_module_name, std::move(module_statements)));
+		auto result_ir = build(ModuleNode::Create(k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};
@@ -680,33 +680,33 @@ namespace Soul::AST::Visitors::UT
 
 	template <ASTNode::Operator Op>
 	using BinaryInstruction = VTDictionary<Op,
-	                                       VTTranslation<ASTNode::Operator::Add, IR::Add>,
-	                                       VTTranslation<ASTNode::Operator::Sub, IR::Sub>,
-	                                       VTTranslation<ASTNode::Operator::Mul, IR::Mul>,
-	                                       VTTranslation<ASTNode::Operator::Div, IR::Div>,
-	                                       VTTranslation<ASTNode::Operator::Mod, IR::Mod>,
-	                                       VTTranslation<ASTNode::Operator::Equal, IR::Equal>,
-	                                       VTTranslation<ASTNode::Operator::NotEqual, IR::NotEqual>,
-	                                       VTTranslation<ASTNode::Operator::Greater, IR::Greater>,
-	                                       VTTranslation<ASTNode::Operator::GreaterEqual, IR::GreaterEqual>,
-	                                       VTTranslation<ASTNode::Operator::Less, IR::Less>,
-	                                       VTTranslation<ASTNode::Operator::LessEqual, IR::LessEqual>,
-	                                       VTTranslation<ASTNode::Operator::LogicalAnd, IR::And>,
-	                                       VTTranslation<ASTNode::Operator::LogicalOr, IR::Or>>::Type;
+	                                       VTTranslation<ASTNode::Operator::ADD, IR::Add>,
+	                                       VTTranslation<ASTNode::Operator::SUB, IR::Sub>,
+	                                       VTTranslation<ASTNode::Operator::MUL, IR::Mul>,
+	                                       VTTranslation<ASTNode::Operator::DIV, IR::Div>,
+	                                       VTTranslation<ASTNode::Operator::MOD, IR::Mod>,
+	                                       VTTranslation<ASTNode::Operator::EQUAL, IR::Equal>,
+	                                       VTTranslation<ASTNode::Operator::NOT_EQUAL, IR::NotEqual>,
+	                                       VTTranslation<ASTNode::Operator::GREATER, IR::Greater>,
+	                                       VTTranslation<ASTNode::Operator::GREATER_EQUAL, IR::GreaterEqual>,
+	                                       VTTranslation<ASTNode::Operator::LESS, IR::Less>,
+	                                       VTTranslation<ASTNode::Operator::LESS_EQUAL, IR::LessEqual>,
+	                                       VTTranslation<ASTNode::Operator::LOGICAL_AND, IR::And>,
+	                                       VTTranslation<ASTNode::Operator::LOGICAL_OR, IR::Or>>::Type;
 
-	using BinaryTypes = ::testing::Types<BinaryCase<ASTNode::Operator::Add, PrimitiveType::Kind::INT32>,
-	                                     BinaryCase<ASTNode::Operator::Sub, PrimitiveType::Kind::INT32>,
-	                                     BinaryCase<ASTNode::Operator::Mul, PrimitiveType::Kind::INT32>,
-	                                     BinaryCase<ASTNode::Operator::Div, PrimitiveType::Kind::INT32>,
-	                                     BinaryCase<ASTNode::Operator::Mod, PrimitiveType::Kind::INT32>,
-	                                     BinaryCase<ASTNode::Operator::Equal, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::NotEqual, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::Greater, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::GreaterEqual, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::Less, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::LessEqual, PrimitiveType::Kind::FLOAT32>,
-	                                     BinaryCase<ASTNode::Operator::LogicalAnd, PrimitiveType::Kind::BOOLEAN>,
-	                                     BinaryCase<ASTNode::Operator::LogicalOr, PrimitiveType::Kind::BOOLEAN>>;
+	using BinaryTypes = ::testing::Types<BinaryCase<ASTNode::Operator::ADD, PrimitiveType::Kind::INT32>,
+	                                     BinaryCase<ASTNode::Operator::SUB, PrimitiveType::Kind::INT32>,
+	                                     BinaryCase<ASTNode::Operator::MUL, PrimitiveType::Kind::INT32>,
+	                                     BinaryCase<ASTNode::Operator::DIV, PrimitiveType::Kind::INT32>,
+	                                     BinaryCase<ASTNode::Operator::MOD, PrimitiveType::Kind::INT32>,
+	                                     BinaryCase<ASTNode::Operator::EQUAL, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::NOT_EQUAL, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::GREATER, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::GREATER_EQUAL, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::LESS, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::LESS_EQUAL, PrimitiveType::Kind::FLOAT32>,
+	                                     BinaryCase<ASTNode::Operator::LOGICAL_AND, PrimitiveType::Kind::BOOLEAN>,
+	                                     BinaryCase<ASTNode::Operator::LOGICAL_OR, PrimitiveType::Kind::BOOLEAN>>;
 	TYPED_TEST_SUITE(LowerVisitorBinaryTypedTest, BinaryTypes);
 
 	TYPED_TEST(LowerVisitorBinaryTypedTest, Binary)
@@ -715,19 +715,19 @@ namespace Soul::AST::Visitors::UT
 		static constexpr auto k_type = TypeParam::k_type;
 
 		auto function_declaration_statements = ASTNode::Dependencies{};
-		function_declaration_statements.emplace_back(BinaryNode::create(LiteralNode::create(Scalar::Create<k_type>(1)),
-		                                                                LiteralNode::create(Scalar::Create<k_type>(2)),
+		function_declaration_statements.emplace_back(BinaryNode::Create(LiteralNode::Create(Scalar::Create<k_type>(1)),
+		                                                                LiteralNode::Create(Scalar::Create<k_type>(2)),
 		                                                                TypeParam::k_operator));
 		auto function_declaration_parameters = ASTNode::Dependencies{};
 		auto function_declaration
-			= FunctionDeclarationNode::create(this->k_function_name,
+			= FunctionDeclarationNode::Create(this->k_function_name,
 		                                      k_base_specifier_void,
 		                                      std::move(function_declaration_parameters),
-		                                      BlockNode::create(std::move(function_declaration_statements)));
+		                                      BlockNode::Create(std::move(function_declaration_statements)));
 
 		auto module_statements = ASTNode::Dependencies{};
 		module_statements.push_back(std::move(function_declaration));
-		auto result_ir = this->build(ModuleNode::create(this->k_module_name, std::move(module_statements)));
+		auto result_ir = this->build(ModuleNode::Create(this->k_module_name, std::move(module_statements)));
 		ASSERT_TRUE(result_ir);
 
 		IRBuilder expected_ir_builder{};

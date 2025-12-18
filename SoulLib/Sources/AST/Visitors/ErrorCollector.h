@@ -29,21 +29,21 @@ namespace Soul::AST::Visitors
 		public:
 		ErrorCollectorVisitor(std::size_t max_depth = k_depth_max);
 
-		void accept(ASTNode::Reference node) override;
+		void Accept(ASTNode::Reference node) override;
 
 		/**
 		 * @brief Returns true if the AST does not contain any error nodes, i.e. is well formed and semantically
 		 * correct.
 		 */
-		bool is_valid() const noexcept;
+		bool IsValid() const noexcept;
 
 		/**
 		 * @brief Returns all errors gathered (up to maximum depth) during AST traversal.
 		 */
-		const Errors& errors() const noexcept;
+		const Errors& GetErrors() const noexcept;
 
 		private:
-		using DefaultTraverseVisitor::visit;
-		void visit(const ErrorNode&) override;
+		using DefaultTraverseVisitor::Visit;
+		void Visit(const ErrorNode&) override;
 	};
 }  // namespace Soul::AST::Visitors

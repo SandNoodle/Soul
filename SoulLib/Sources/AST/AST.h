@@ -23,8 +23,8 @@ namespace Soul::AST
 		public:
 		virtual ~IVisitable() = default;
 
-		virtual void accept(Visitors::IVisitor& visitor)       = 0;
-		virtual void accept(Visitors::IVisitor& visitor) const = 0;
+		virtual void Accept(Visitors::IVisitor& visitor)       = 0;
+		virtual void Accept(Visitors::IVisitor& visitor) const = 0;
 
 		friend Visitors::IVisitor;
 	};
@@ -50,24 +50,24 @@ namespace Soul::AST
 
 		/** @brief Verifies if node is of a given type. */
 		template <NodeKind Node>
-		constexpr bool is() const noexcept
+		constexpr bool Is() const noexcept
 		{
 			return dynamic_cast<const Node*>(this) != nullptr;
 		}
 
 		/**
 		 * @brief Returns the underlying node.
-		 * @important Does not perform any validation - assumes that ASTNode::is<T> was used first.
+		 * @important Does not perform any validation - assumes that ASTNode::Is<T> was used first.
 		 */
 		template <NodeKind Node>
-		constexpr Node& as() noexcept
+		constexpr Node& As() noexcept
 		{
 			return dynamic_cast<Node&>(*this);
 		}
 
-		static std::string_view name(const Operator op) noexcept;
-		static std::string_view internal_name(const Operator op) noexcept;
-		static Operator as_operator(Lexer::Token::Type) noexcept;
+		static std::string_view Name(const Operator op) noexcept;
+		static std::string_view NameInternal(const Operator op) noexcept;
+		static Operator AsOperator(Lexer::Token::Type) noexcept;
 	};
 
 	/**
@@ -80,8 +80,8 @@ namespace Soul::AST
 	{
 		private:
 		VisitorAcceptor() = default;
-		void accept(Visitors::IVisitor& visitor) override { visitor.visit(static_cast<Node&>(*this)); }
-		void accept(Visitors::IVisitor& visitor) const override { visitor.visit(static_cast<const Node&>(*this)); }
+		void Accept(Visitors::IVisitor& visitor) override { visitor.Visit(static_cast<Node&>(*this)); }
+		void Accept(Visitors::IVisitor& visitor) const override { visitor.Visit(static_cast<const Node&>(*this)); }
 
 		friend Node;
 	};
@@ -91,37 +91,37 @@ namespace Soul::AST
 	 */
 	enum class ASTNode::Operator : UInt8
 	{
-		Unknown,
+		UNKNOWN,
 
 		// Assignment
-		Assign,
-		AddAssign,
-		SubAssign,
-		MulAssign,
-		DivAssign,
-		ModAssign,
+		ASSIGN,
+		ASSIGN_ADD,
+		ASSIGN_SUB,
+		ASSIGN_MUL,
+		ASSIGN_DIV,
+		ASSIGN_MOD,
 
 		// Arithmetic
-		Add,
-		Sub,
-		Mul,
-		Div,
-		Mod,
-		Increment,
-		Decrement,
+		ADD,
+		SUB,
+		MUL,
+		DIV,
+		MOD,
+		INCREMENT,
+		DECREMENT,
 
 		// Comparison
-		Equal,
-		NotEqual,
-		Greater,
-		GreaterEqual,
-		Less,
-		LessEqual,
+		EQUAL,
+		NOT_EQUAL,
+		GREATER,
+		GREATER_EQUAL,
+		LESS,
+		LESS_EQUAL,
 
 		// Logical
-		LogicalNot,
-		LogicalAnd,
-		LogicalOr,
+		LOGICAL_NOT,
+		LOGICAL_AND,
+		LOGICAL_OR,
 	};
 
 	/**
@@ -131,7 +131,7 @@ namespace Soul::AST
 	class BinaryNode final : public VisitorAcceptor<BinaryNode>
 	{
 		public:
-		Operator op    = Operator::Unknown;
+		Operator op    = Operator::UNKNOWN;
 		Dependency lhs = nullptr;
 		Dependency rhs = nullptr;
 
@@ -146,7 +146,7 @@ namespace Soul::AST
 		 * @param op Operator binding the two sides together.
 		 * @return New 'Binary' expression node.
 		 */
-		static Dependency create(Dependency lhs, Dependency rhs, Operator op);
+		static Dependency Create(Dependency lhs, Dependency rhs, Operator op);
 	};
 
 	/**
@@ -166,7 +166,7 @@ namespace Soul::AST
 		 * @param statements
 		 * @return New 'Block' expression node.
 		 */
-		static Dependency create(Dependencies statements);
+		static Dependency Create(Dependencies statements);
 	};
 
 	/**
@@ -196,7 +196,7 @@ namespace Soul::AST
 		 * @param type_specifier Type to cast to.
 		 * @return New 'Cast' expression node.
 		 */
-		static Dependency create(Dependency expression, Parser::TypeSpecifier type_specifier);
+		static Dependency Create(Dependency expression, Parser::TypeSpecifier type_specifier);
 	};
 
 	/**
@@ -218,7 +218,7 @@ namespace Soul::AST
 		 * @brief Constructs new Error node.
 		 * @param message Error message associated with this node.
 		 */
-		static Dependency create(Message message);
+		static Dependency Create(Message message);
 	};
 
 	/**
@@ -248,7 +248,7 @@ namespace Soul::AST
 		 * @param statements List of statements to execute each loop.
 		 * @return New 'ForLoop' expression statement node.
 		 */
-		static Dependency create(Dependency initialization,
+		static Dependency Create(Dependency initialization,
 		                         Dependency condition,
 		                         Dependency update,
 		                         ScopeBlock statements);
@@ -276,7 +276,7 @@ namespace Soul::AST
 		 * @param statements List of statements to execute each loop.
 		 * @return New 'ForeachLoop' expression statement node.
 		 */
-		static Dependency create(Dependency variable, Dependency in_expression, ScopeBlock statements);
+		static Dependency Create(Dependency variable, Dependency in_expression, ScopeBlock statements);
 	};
 
 	/**
@@ -299,7 +299,7 @@ namespace Soul::AST
 		 * @param parameters Parameters this function takes.
 		 * @return New 'FunctionCallNode' node.
 		 */
-		static Dependency create(Identifier name, Dependencies parameters);
+		static Dependency Create(Identifier name, Dependencies parameters);
 	};
 
 	/**
@@ -329,7 +329,7 @@ namespace Soul::AST
 		 * @param statements [Optional] Statements this function executes.
 		 * @return New 'Function Declaration' statement node.
 		 */
-		static Dependency create(Identifier name,
+		static Dependency Create(Identifier name,
 		                         Parser::TypeSpecifier return_type_specifier,
 		                         Dependencies parameters,
 		                         ScopeBlock statements);
@@ -357,7 +357,7 @@ namespace Soul::AST
 		 * @param else_statements [Optional] Statements executed if the condition evaluates to false.
 		 * @return New 'IfNode' node.
 		 */
-		static Dependency create(Dependency condition, ScopeBlock then_statements, ScopeBlock else_statements = {});
+		static Dependency Create(Dependency condition, ScopeBlock then_statements, ScopeBlock else_statements = {});
 	};
 
 	/**
@@ -375,11 +375,10 @@ namespace Soul::AST
 
 		/**
 		 * @brief Constructs new Literal node.
-		 * @param type Type of stored Value, i.e. identifier, string, int32, etc.
 		 * @param value Value associated with the literal.
 		 * @return New 'LiteralNode' node.
 		 */
-		static Dependency create(Value value);
+		static Dependency Create(Value value);
 	};
 
 	/**
@@ -390,8 +389,8 @@ namespace Soul::AST
 		public:
 		enum class Type : bool
 		{
-			Break,
-			Continue,
+			BREAK,
+			CONTINUE,
 		};
 
 		public:
@@ -406,7 +405,7 @@ namespace Soul::AST
 		 * @param control_type Type of the control statement, either `break` or `continue.
 		 * @return New 'LoopControlNode' node.
 		 */
-		static Dependency create(Type control_type);
+		static Dependency Create(Type control_type);
 	};
 
 	/**
@@ -429,7 +428,7 @@ namespace Soul::AST
 		 * @param statements All the statements making up the module.
 		 * @return new 'Module' node.
 		 */
-		static Dependency create(Identifier module_name, Dependencies statements);
+		static Dependency Create(Identifier module_name, Dependencies statements);
 	};
 
 	/**
@@ -449,7 +448,7 @@ namespace Soul::AST
 		 * @param expression [Optional] Expression to be returned.
 		 * @return New 'ReturnNode node.
 		 */
-		static Dependency create(Dependency expression = {});
+		static Dependency Create(Dependency expression = {});
 	};
 
 	/**
@@ -472,11 +471,11 @@ namespace Soul::AST
 		 * @param statements Variable declarations making this struct.
 		 * @return New 'Struct Declaration' statement node.
 		 */
-		static Dependency create(Identifier name, Dependencies statements);
+		static Dependency Create(Identifier name, Dependencies statements);
 	};
 
 	/**
-	 * @brief Represents an 'Unary' expression in the Abstract Syntax Tree (AST).
+	 * @brief Represents 'Unary' expression in the Abstract Syntax Tree (AST).
 	 * Contains an operand bound by an operator.
 	 */
 	class UnaryNode final : public VisitorAcceptor<UnaryNode>
@@ -495,7 +494,7 @@ namespace Soul::AST
 		 * @param op Operator binding the expression.
 		 * @return New 'Unary' expression node.
 		 */
-		static Dependency create(Dependency expr, Operator op);
+		static Dependency Create(Dependency expr, Operator op);
 	};
 
 	/**
@@ -525,7 +524,7 @@ namespace Soul::AST
 		 * @param is_mutable Can the value of the expression be reassigned, i.e. is const?
 		 * @return New 'Variable Declaration' statement node.
 		 */
-		static Dependency create(Identifier name,
+		static Dependency Create(Identifier name,
 		                         Parser::TypeSpecifier type_specifier,
 		                         Dependency expr,
 		                         bool is_mutable);
@@ -550,6 +549,6 @@ namespace Soul::AST
 		 * @param statements List of statements to execute each loop.
 		 * @return New 'WhileLoop' expression statement node.
 		 */
-		static Dependency create(Dependency condition, ScopeBlock statements);
+		static Dependency Create(Dependency condition, ScopeBlock statements);
 	};
 }  // namespace Soul::AST

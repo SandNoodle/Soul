@@ -4,23 +4,23 @@
 
 namespace Soul::AST::Visitors
 {
-	void SemanticAnalyzerVisitor::visit(const BinaryNode& node)
+	void SemanticAnalyzerVisitor::Visit(const BinaryNode& node)
 	{
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 
-		const auto& binary_node = _current_clone->as<BinaryNode>();
-		if (binary_node.op == ASTNode::Operator::Assign && binary_node.lhs->is<LiteralNode>()) {
-			const auto& literal = binary_node.lhs->as<LiteralNode>();
+		const auto& binary_node = _current_clone->As<BinaryNode>();
+		if (binary_node.op == ASTNode::Operator::ASSIGN && binary_node.lhs->Is<LiteralNode>()) {
+			const auto& literal = binary_node.lhs->As<LiteralNode>();
 			if (literal.value.Is<Identifier>()) {
 				const auto& identifier            = std::string(literal.value.As<Identifier>());
-				VariableDeclarationNode* variable = get_variable(identifier);
+				VariableDeclarationNode* variable = GetVariable(identifier);
 				if (!variable) {
-					_current_clone = ErrorNode::create(
+					_current_clone = ErrorNode::Create(
 						std::format("[INTERNAL] identifier '{}' should've been checked at this point.", identifier));
 					return;
 				}
 				if (!variable->is_mutable) {
-					_current_clone = ErrorNode::create(
+					_current_clone = ErrorNode::Create(
 						std::format("cannot assign to variable '{}', because it is not mutable.", identifier));
 					return;
 				}
@@ -28,13 +28,13 @@ namespace Soul::AST::Visitors
 		}
 	}
 
-	void SemanticAnalyzerVisitor::visit(const BlockNode& node)
+	void SemanticAnalyzerVisitor::Visit(const BlockNode& node)
 	{
 		// ENTER SCOPE: Mark a restorepoint for variables declared in the current scope.
 		_current_depth++;
 		const std::size_t variables_until_this_point = _variables_in_scope.size();
 
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 		// EXIT SCOPE: Remove variables defined in that scope.
 		const std::size_t variables_declared_in_scope = _variables_in_scope.size() - variables_until_this_point;
 		_variables_in_scope.erase(_variables_in_scope.end() - static_cast<std::ptrdiff_t>(variables_declared_in_scope),
@@ -42,74 +42,74 @@ namespace Soul::AST::Visitors
 		_current_depth--;
 	}
 
-	void SemanticAnalyzerVisitor::visit(const ForLoopNode& node)
+	void SemanticAnalyzerVisitor::Visit(const ForLoopNode& node)
 	{
 		const bool was_in_loop = _is_in_loop;
 		_is_in_loop            = true;
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 		_is_in_loop = was_in_loop;
 	}
 
-	void SemanticAnalyzerVisitor::visit(const ForeachLoopNode& node)
+	void SemanticAnalyzerVisitor::Visit(const ForeachLoopNode& node)
 	{
 		const bool was_in_loop = _is_in_loop;
 		_is_in_loop            = true;
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 		_is_in_loop = was_in_loop;
 	}
 
-	void SemanticAnalyzerVisitor::visit(const FunctionDeclarationNode& node)
+	void SemanticAnalyzerVisitor::Visit(const FunctionDeclarationNode& node)
 	{
 		_variables_in_scope.clear();
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 	}
 
-	void SemanticAnalyzerVisitor::visit(const LiteralNode& node)
+	void SemanticAnalyzerVisitor::Visit(const LiteralNode& node)
 	{
 		if (node.value.Is<Identifier>()) {
 			const auto& identifier            = node.value.As<Identifier>();
-			VariableDeclarationNode* variable = get_variable(identifier);
+			VariableDeclarationNode* variable = GetVariable(identifier);
 			if (!variable) {
 				_current_clone
-					= ErrorNode::create(std::format("use of an undeclared identifier '{}'", std::string(identifier)));
+					= ErrorNode::Create(std::format("use of an undeclared identifier '{}'", std::string(identifier)));
 
 				return;
 			}
 		}
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 	}
 
-	void SemanticAnalyzerVisitor::visit(const LoopControlNode& node)
+	void SemanticAnalyzerVisitor::Visit(const LoopControlNode& node)
 	{
 		if (!_is_in_loop) {
-			_current_clone = ErrorNode::create(
+			_current_clone = ErrorNode::Create(
 				std::format("keyword '{}' must be used in a loop context.",
-			                node.control_type == LoopControlNode::Type::Break ? "break" : "continue"));
+			                node.control_type == LoopControlNode::Type::BREAK ? "break" : "continue"));
 			return;
 		}
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 	}
 
-	void SemanticAnalyzerVisitor::visit(const VariableDeclarationNode& node)
+	void SemanticAnalyzerVisitor::Visit(const VariableDeclarationNode& node)
 	{
 		if (_current_depth == 0) {
 			_current_clone
-				= ErrorNode::create(std::format("variable '{}' cannot be declared in the global scope.", node.name));
+				= ErrorNode::Create(std::format("variable '{}' cannot be declared in the global scope.", node.name));
 			return;
 		}
-		CopyVisitor::visit(node);
-		_variables_in_scope.emplace_back(&_current_clone->as<VariableDeclarationNode>());
+		CopyVisitor::Visit(node);
+		_variables_in_scope.emplace_back(&_current_clone->As<VariableDeclarationNode>());
 	}
 
-	void SemanticAnalyzerVisitor::visit(const WhileNode& node)
+	void SemanticAnalyzerVisitor::Visit(const WhileNode& node)
 	{
 		const bool was_in_loop = _is_in_loop;
 		_is_in_loop            = true;
-		CopyVisitor::visit(node);
+		CopyVisitor::Visit(node);
 		_is_in_loop = was_in_loop;
 	}
 
-	VariableDeclarationNode* SemanticAnalyzerVisitor::get_variable(std::string_view identifier)
+	VariableDeclarationNode* SemanticAnalyzerVisitor::GetVariable(std::string_view identifier)
 	{
 		for (auto* variable : _variables_in_scope) {
 			if (variable->name == identifier) {

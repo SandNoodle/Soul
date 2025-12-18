@@ -7,7 +7,7 @@ namespace Soul::AST::Visitors
 	{
 	}
 
-	void ErrorCollectorVisitor::accept(ASTNode::Reference node)
+	void ErrorCollectorVisitor::Accept(ASTNode::Reference node)
 	{
 		if (!node) {
 			return;
@@ -16,15 +16,15 @@ namespace Soul::AST::Visitors
 		if (++_depth_current > _depth_max) {
 			return;
 		}
-		node->accept(*this);
+		node->Accept(*this);
 		_depth_current--;
 	}
 
-	bool ErrorCollectorVisitor::is_valid() const noexcept { return _errors.empty(); }
+	bool ErrorCollectorVisitor::IsValid() const noexcept { return _errors.empty(); }
 
-	const ErrorCollectorVisitor::Errors& ErrorCollectorVisitor::errors() const noexcept { return _errors; }
+	const ErrorCollectorVisitor::Errors& ErrorCollectorVisitor::GetErrors() const noexcept { return _errors; }
 
-	void ErrorCollectorVisitor::visit(const ErrorNode& node)
+	void ErrorCollectorVisitor::Visit(const ErrorNode& node)
 	{
 		if (_depth_current > _depth_max) {
 			return;

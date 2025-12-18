@@ -66,23 +66,23 @@ namespace Soul::Parser
 	AST::ASTNode::Dependency Parser::Parse()
 	{
 		if (_tokens.empty()) {
-			return ModuleNode::create(std::string(_module_name), {});
+			return ModuleNode::Create(std::string(_module_name), {});
 		}
 
 		ASTNode::Dependencies statements{};
 		for (const auto& token : _tokens) {
 			if (token.type == Token::Type::SPECIAL_ERROR) {
-				statements.emplace_back(ErrorNode::create(ErrorNode::Message{ token.data }));
+				statements.emplace_back(ErrorNode::Create(ErrorNode::Message{ token.data }));
 			}
 		}
 		if (!statements.empty()) {
-			return ModuleNode::create(std::string(_module_name), std::move(statements));
+			return ModuleNode::Create(std::string(_module_name), std::move(statements));
 		}
 
 		while (_current_token != std::end(_tokens)) {
 			statements.emplace_back(ParseStatement());
 		}
-		return ModuleNode::create(std::string(_module_name), std::move(statements));
+		return ModuleNode::Create(std::string(_module_name), std::move(statements));
 	}
 
 	ASTNode::Dependency Parser::ParseStatement()
@@ -107,7 +107,7 @@ namespace Soul::Parser
 			case Token::Type::KEYWORD_WHILE:
 				return ParseWhileLoop();
 			case Token::Type::SYMBOL_BRACE_LEFT:
-				return BlockNode::create(ParseBlockStatement());
+				return BlockNode::Create(ParseBlockStatement());
 			default:
 				break;
 		}
@@ -186,7 +186,7 @@ namespace Soul::Parser
 		auto precedence = GetPrecedenceRule(binary_operator->type).precedence;
 		auto rhs        = ParseExpression(precedence);
 
-		return BinaryNode::create(std::move(lhs), std::move(rhs), ASTNode::as_operator(binary_operator->type));
+		return BinaryNode::Create(std::move(lhs), std::move(rhs), ASTNode::AsOperator(binary_operator->type));
 	}
 
 	ASTNode::Dependency Parser::ParseCast()
@@ -237,7 +237,7 @@ namespace Soul::Parser
 			                               std::string(CurrentTokenOrDefault().data)));
 		}
 
-		return CastNode::create(std::move(expression), std::move(*type_specifier));
+		return CastNode::Create(std::move(expression), std::move(*type_specifier));
 	}
 
 	ASTNode::Dependency Parser::ParseForLoop()
@@ -301,10 +301,10 @@ namespace Soul::Parser
 		// <block_statement>
 		auto statements = ParseBlockStatement();
 
-		return ForLoopNode::create(std::move(initialization),
+		return ForLoopNode::Create(std::move(initialization),
 		                           std::move(condition),
 		                           std::move(update),
-		                           BlockNode::create(std::move(statements)));
+		                           BlockNode::Create(std::move(statements)));
 	}
 
 	ASTNode::Dependency Parser::ParseFunctionCall(ASTNode::Dependency dependency)
@@ -312,7 +312,7 @@ namespace Soul::Parser
 		// <function_call> ::= <identifier> [ '(' <parameter_declaration>, ... ')' ]
 
 		// <identifier>
-		if (!dependency->is<LiteralNode>()) {
+		if (!dependency->Is<LiteralNode>()) {
 			const auto previous_token = Peek(-1);
 			return CreateError(std::format("expected function name identifier, but got: '{}'",
 			                               std::string(previous_token ? previous_token->data : "__ERROR__")));
@@ -340,7 +340,7 @@ namespace Soul::Parser
 			                               std::string(CurrentTokenOrDefault().data)));
 		}
 
-		return FunctionCallNode::create(std::string(dependency->as<LiteralNode>().value.As<Identifier>()),
+		return FunctionCallNode::Create(std::string(dependency->As<LiteralNode>().value.As<Identifier>()),
 		                                std::move(parameters));
 	}
 
@@ -395,10 +395,10 @@ namespace Soul::Parser
 
 		auto statements = ParseBlockStatement();
 
-		return FunctionDeclarationNode::create(std::string(name_identifier->data),
+		return FunctionDeclarationNode::Create(std::string(name_identifier->data),
 		                                       std::move(*type_specifier),
 		                                       std::move(parameters),
-		                                       BlockNode::create(std::move(statements)));
+		                                       BlockNode::Create(std::move(statements)));
 	}
 
 	AST::ASTNode::Dependency Parser::ParseGrouping()
@@ -462,9 +462,9 @@ namespace Soul::Parser
 			false_statements = ParseBlockStatement();
 		}
 
-		return IfNode::create(std::move(condition),
-		                      BlockNode::create(std::move(true_statements)),
-		                      BlockNode::create(std::move(false_statements)));
+		return IfNode::Create(std::move(condition),
+		                      BlockNode::Create(std::move(true_statements)),
+		                      BlockNode::Create(std::move(false_statements)));
 	}
 
 	ASTNode::Dependency Parser::ParseLiteral()
@@ -489,9 +489,9 @@ namespace Soul::Parser
 				return CreateError(std::format("failed to parse float expression, because: '{}'", result.error()));
 			}
 			if (*result <= std::numeric_limits<Float32>::lowest() || *result >= std::numeric_limits<Float32>::max()) {
-				return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::FLOAT64>(*result));
+				return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::FLOAT64>(*result));
 			}
-			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::FLOAT32>(*result));
+			return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::FLOAT32>(*result));
 		}
 
 		if (token->type == Token::Type::LITERAL_INTEGER) {
@@ -500,32 +500,32 @@ namespace Soul::Parser
 				return CreateError(std::format("failed to parse integer expression, because: '{}'", result.error()));
 			}
 			if (*result <= std::numeric_limits<Int32>::lowest() || *result >= std::numeric_limits<Int32>::max()) {
-				return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT64>(*result));
+				return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT64>(*result));
 			}
-			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::INT32>(*result));
+			return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::INT32>(*result));
 		}
 
 		if (token->type == Token::Type::LITERAL_STRING) {
-			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::STRING>(token->data));
+			return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::STRING>(token->data));
 		}
 
 		if (token->type == Token::Type::LITERAL_IDENTIFIER) {
-			return LiteralNode::create(Identifier::create(token->data));
+			return LiteralNode::Create(Identifier::create(token->data));
 		}
 
 		if (token->type == Token::Type::KEYWORD_TRUE) {
-			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
+			return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		}
 
 		if (token->type == Token::Type::KEYWORD_FALSE) {
-			return LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
+			return LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(false));
 		}
 
 		if (token->type == Token::Type::KEYWORD_NULL) {
-			return LiteralNode::create({});
+			return LiteralNode::Create({});
 		}
 
-		return ErrorNode::create("[INTERNAL] unknown literal");
+		return ErrorNode::Create("[INTERNAL] unknown literal");
 	}
 
 	AST::ASTNode::Dependency Parser::ParseLoopControl()
@@ -540,10 +540,10 @@ namespace Soul::Parser
 		}
 
 		// <keyword_break> | <keyword_continue>
-		const auto control_type = token->type == Token::Type::KEYWORD_BREAK ? LoopControlNode::Type::Break
-		                                                                    : LoopControlNode::Type::Continue;
+		const auto control_type = token->type == Token::Type::KEYWORD_BREAK ? LoopControlNode::Type::BREAK
+		                                                                    : LoopControlNode::Type::CONTINUE;
 
-		return LoopControlNode::create(control_type);
+		return LoopControlNode::Create(control_type);
 	}
 
 	AST::ASTNode::Dependency Parser::ParseReturn()
@@ -563,7 +563,7 @@ namespace Soul::Parser
 			expression = ParseExpression();
 		}
 
-		return ReturnNode::create(std::move(expression));
+		return ReturnNode::Create(std::move(expression));
 	}
 
 	ASTNode::Dependency Parser::ParseStructDeclaration()
@@ -627,7 +627,7 @@ namespace Soul::Parser
 			}
 		};
 
-		return StructDeclarationNode::create(std::string(name_identifier->data), std::move(parameters));
+		return StructDeclarationNode::Create(std::string(name_identifier->data), std::move(parameters));
 	}
 
 	ASTNode::Dependency Parser::ParseUnary()
@@ -650,7 +650,7 @@ namespace Soul::Parser
 		// <expression>
 		auto expression = ParseExpression(Precedence::Prefix);
 
-		return UnaryNode::create(std::move(expression), ASTNode::as_operator(unary_operator->type));
+		return UnaryNode::Create(std::move(expression), ASTNode::AsOperator(unary_operator->type));
 	}
 
 	ASTNode::Dependency Parser::ParseVariableDeclaration()
@@ -697,7 +697,7 @@ namespace Soul::Parser
 		// <expression>
 		auto expression = ParseExpression();
 
-		return VariableDeclarationNode::create(
+		return VariableDeclarationNode::Create(
 			std::string(name_identifier->data), std::move(*type_specifier), std::move(expression), is_mutable);
 	}
 
@@ -725,13 +725,13 @@ namespace Soul::Parser
 				                               std::string(CurrentTokenOrDefault().data)));
 			}
 		} else {
-			condition = LiteralNode::create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
+			condition = LiteralNode::Create(Scalar::Create<PrimitiveType::Kind::BOOLEAN>(true));
 		}
 
 		// <block_statement>
 		auto statements = ParseBlockStatement();
 
-		return WhileNode::create(std::move(condition), BlockNode::create(std::move(statements)));
+		return WhileNode::Create(std::move(condition), BlockNode::Create(std::move(statements)));
 	}
 
 	ASTNode::Dependencies Parser::ParseBlockStatement()
@@ -768,12 +768,12 @@ namespace Soul::Parser
 				}
 
 				// NOTE: [Explicit] ErrorNodes are synchronized separately, thus we should not interfere.
-				if (node->is<ErrorNode>()) {
+				if (node->Is<ErrorNode>()) {
 					return false;
 				}
 
-				const bool has_body_block = node->is<BlockNode>() || node->is<ForLoopNode>()
-				                         || node->is<ForeachLoopNode>() || node->is<WhileNode>() || node->is<IfNode>();
+				const bool has_body_block = node->Is<BlockNode>() || node->Is<ForLoopNode>()
+				                         || node->Is<ForeachLoopNode>() || node->Is<WhileNode>() || node->Is<IfNode>();
 				if (!has_body_block) {
 					return true;
 				}
@@ -834,7 +834,7 @@ namespace Soul::Parser
 			}
 		}
 
-		return BlockNode::create(std::move(expressions));
+		return BlockNode::Create(std::move(expressions));
 	}
 
 	ASTNode::Dependency Parser::ParseParameterDeclaration()
@@ -867,7 +867,7 @@ namespace Soul::Parser
 			expression = ParseExpression();
 		}
 
-		return VariableDeclarationNode::create(
+		return VariableDeclarationNode::Create(
 			std::string(name_identifier->data), std::move(*type_specifier), std::move(expression), false);
 	}
 
@@ -951,7 +951,7 @@ namespace Soul::Parser
 			_current_token++;
 		}
 
-		return ErrorNode::create(std::move(error_message));
+		return ErrorNode::Create(std::move(error_message));
 	}
 
 	std::optional<Token> Parser::Require(Token::Type type)

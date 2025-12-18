@@ -16,7 +16,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<BinaryNode>(const BinaryNode& lhs, const BinaryNode& rhs)
+	void CompareVisitor::Compare<BinaryNode>(const BinaryNode& lhs, const BinaryNode& rhs)
 	{
 		_ordering = lhs.op <=> rhs.op;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -40,7 +40,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<BlockNode>(const BlockNode& lhs, const BlockNode& rhs)
+	void CompareVisitor::Compare<BlockNode>(const BlockNode& lhs, const BlockNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -60,7 +60,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<CastNode>(const CastNode& lhs, const CastNode& rhs)
+	void CompareVisitor::Compare<CastNode>(const CastNode& lhs, const CastNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -84,7 +84,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<ErrorNode>(const ErrorNode& lhs, const ErrorNode& rhs)
+	void CompareVisitor::Compare<ErrorNode>(const ErrorNode& lhs, const ErrorNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -98,7 +98,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<ForLoopNode>(const ForLoopNode& lhs, const ForLoopNode& rhs)
+	void CompareVisitor::Compare<ForLoopNode>(const ForLoopNode& lhs, const ForLoopNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -127,7 +127,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<ForeachLoopNode>(const ForeachLoopNode& lhs, const ForeachLoopNode& rhs)
+	void CompareVisitor::Compare<ForeachLoopNode>(const ForeachLoopNode& lhs, const ForeachLoopNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -151,7 +151,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<FunctionCallNode>(const FunctionCallNode& lhs, const FunctionCallNode& rhs)
+	void CompareVisitor::Compare<FunctionCallNode>(const FunctionCallNode& lhs, const FunctionCallNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -176,7 +176,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<FunctionDeclarationNode>(const FunctionDeclarationNode& lhs,
+	void CompareVisitor::Compare<FunctionDeclarationNode>(const FunctionDeclarationNode& lhs,
 	                                                      const FunctionDeclarationNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
@@ -212,7 +212,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<IfNode>(const IfNode& lhs, const IfNode& rhs)
+	void CompareVisitor::Compare<IfNode>(const IfNode& lhs, const IfNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -236,7 +236,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<LiteralNode>(const LiteralNode& lhs, const LiteralNode& rhs)
+	void CompareVisitor::Compare<LiteralNode>(const LiteralNode& lhs, const LiteralNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -250,7 +250,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<LoopControlNode>(const LoopControlNode& lhs, const LoopControlNode& rhs)
+	void CompareVisitor::Compare<LoopControlNode>(const LoopControlNode& lhs, const LoopControlNode& rhs)
 	{
 		_ordering = lhs.control_type <=> rhs.control_type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -264,7 +264,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<ModuleNode>(const ModuleNode& lhs, const ModuleNode& rhs)
+	void CompareVisitor::Compare<ModuleNode>(const ModuleNode& lhs, const ModuleNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -289,7 +289,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<ReturnNode>(const ReturnNode& lhs, const ReturnNode& rhs)
+	void CompareVisitor::Compare<ReturnNode>(const ReturnNode& lhs, const ReturnNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -303,7 +303,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<StructDeclarationNode>(const StructDeclarationNode& lhs,
+	void CompareVisitor::Compare<StructDeclarationNode>(const StructDeclarationNode& lhs,
 	                                                    const StructDeclarationNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
@@ -329,7 +329,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<UnaryNode>(const UnaryNode& lhs, const UnaryNode& rhs)
+	void CompareVisitor::Compare<UnaryNode>(const UnaryNode& lhs, const UnaryNode& rhs)
 	{
 		_ordering = lhs.op <=> rhs.op;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -348,7 +348,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<VariableDeclarationNode>(const VariableDeclarationNode& lhs,
+	void CompareVisitor::Compare<VariableDeclarationNode>(const VariableDeclarationNode& lhs,
 	                                                      const VariableDeclarationNode& rhs)
 	{
 		_ordering = lhs.is_mutable <=> rhs.is_mutable;
@@ -378,7 +378,7 @@ namespace Soul::AST::Visitors
 	}
 
 	template <>
-	void CompareVisitor::compare<WhileNode>(const WhileNode& lhs, const WhileNode& rhs)
+	void CompareVisitor::Compare<WhileNode>(const WhileNode& lhs, const WhileNode& rhs)
 	{
 		_ordering = lhs.type <=> rhs.type;
 		if (_ordering != std::partial_ordering::equivalent) {
@@ -419,8 +419,8 @@ namespace Soul::AST::Visitors
 		}
 
 #define SOUL_AST_NODE(name)                              \
-	if (lhs->is<name>() && rhs->is<name>()) {            \
-		compare<name>(lhs->as<name>(), rhs->as<name>()); \
+	if (lhs->Is<name>() && rhs->Is<name>()) {            \
+		Compare<name>(lhs->As<name>(), rhs->As<name>()); \
 	}
 		SOUL_AST_NODES
 #undef SOUL_AST_NODE

@@ -12,11 +12,11 @@ namespace Soul::AST::Visitors
 	class DesugarVisitor : public CopyVisitor
 	{
 		public:
-		using CopyVisitor::accept;
+		using CopyVisitor::Accept;
 
 		protected:
-		using CopyVisitor::visit;
-		void visit(const BinaryNode&) override;
-		void visit(const ForLoopNode&) override;
+		using CopyVisitor::Visit;
+		void Visit(const BinaryNode&) override;
+		void Visit(const ForLoopNode&) override;
 	};
 }  // namespace Soul::AST::Visitors

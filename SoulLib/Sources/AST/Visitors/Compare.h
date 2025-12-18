@@ -24,6 +24,6 @@ namespace Soul::AST::Visitors
 
 		private:
 		template <NodeKind Node>
-		void compare(const Node& lhs, const Node& rhs);
+		void Compare(const Node& lhs, const Node& rhs);
 	};
 }  // namespace Soul::AST::Visitors

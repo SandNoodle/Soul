@@ -43,10 +43,10 @@ namespace Soul::Parser
 		AST::ASTNode::Dependency ParseExpression();
 		AST::ASTNode::Dependency ParseExpression(Precedence precedence);
 
-		AST::ASTNode::Dependency ParseBinary(AST::ASTNode::Dependency lhs);
+		AST::ASTNode::Dependency ParseBinary(AST::ASTNode::Dependency&& lhs);
 		AST::ASTNode::Dependency ParseCast();
 		AST::ASTNode::Dependency ParseForLoop();
-		AST::ASTNode::Dependency ParseFunctionCall(AST::ASTNode::Dependency dependency);
+		AST::ASTNode::Dependency ParseFunctionCall(AST::ASTNode::Dependency&& dependency);
 		AST::ASTNode::Dependency ParseFunctionDeclaration();
 		AST::ASTNode::Dependency ParseGrouping();
 		AST::ASTNode::Dependency ParseIf();
@@ -73,7 +73,7 @@ namespace Soul::Parser
 		std::optional<Lexer::Token> Peek(std::ptrdiff_t n);
 		bool Match(Lexer::Token::Type type);
 
-		PrecedenceRule GetPrecedenceRule(Lexer::Token::Type type) const noexcept;
+		static PrecedenceRule GetPrecedenceRule(Lexer::Token::Type type) noexcept;
 
 		/** @brief Returns current token or an explicit EOF one. */
 		Lexer::Token CurrentTokenOrDefault() const noexcept;

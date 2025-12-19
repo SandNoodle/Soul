@@ -29,26 +29,26 @@ namespace Soul::Parser
 	/** @brief Operator precedence (LOWEST to HIGHEST) */
 	enum class Parser::Precedence : UInt8
 	{
-		None,
-		Assign,          // =
-		Or,              // ||
-		And,             // &&
-		Equal,           // == !=
-		Compare,         // < > <= >=
-		Additive,        // + -
-		Multiplicative,  // * /
-		Prefix,          // ! -
-		Postfix,         // ()
+		NONE,
+		ASSIGN,          // =
+		OR,              // ||
+		AND,             // &&
+		EQUAL,           // == !=
+		COMPARE,         // < > <= >=
+		ADDITIVE,        // + -
+		MULTIPLICATIVE,  // * /
+		PREFIX,          // ! -
+		POSTFIX,         // ()
 	};
 
 	struct Parser::PrecedenceRule
 	{
 		public:
 		typedef ASTNode::Dependency (Parser::*PrefixFn)();
-		typedef ASTNode::Dependency (Parser::*InfixFn)(ASTNode::Dependency);
+		typedef ASTNode::Dependency (Parser::*InfixFn)(ASTNode::Dependency&&);
 
 		public:
-		Precedence precedence = Precedence::None;
+		Precedence precedence = Precedence::NONE;
 		PrefixFn prefix       = nullptr;
 		InfixFn infix         = nullptr;
 	};
@@ -58,12 +58,12 @@ namespace Soul::Parser
 	{
 	}
 
-	AST::ASTNode::Dependency Parser::Parse(std::string_view module_name, std::span<const Token> tokens)
+	ASTNode::Dependency Parser::Parse(std::string_view module_name, std::span<const Token> tokens)
 	{
 		return Parser{ module_name, tokens }.Parse();
 	}
 
-	AST::ASTNode::Dependency Parser::Parse()
+	ASTNode::Dependency Parser::Parse()
 	{
 		if (_tokens.empty()) {
 			return ModuleNode::Create(std::string(_module_name), {});
@@ -118,7 +118,7 @@ namespace Soul::Parser
 	ASTNode::Dependency Parser::ParseExpression()
 	{
 		// NOTE: Starting precedence has to be at least one higher than no precedence.
-		return ParseExpression(static_cast<Parser::Precedence>(std::to_underlying(Parser::Precedence::None) + 1));
+		return ParseExpression(static_cast<Parser::Precedence>(std::to_underlying(Parser::Precedence::NONE) + 1));
 	}
 
 	ASTNode::Dependency Parser::ParseExpression(Parser::Precedence precedence)
@@ -143,7 +143,7 @@ namespace Soul::Parser
 		return prefix_expression;
 	}
 
-	ASTNode::Dependency Parser::ParseBinary(ASTNode::Dependency lhs)
+	ASTNode::Dependency Parser::ParseBinary(ASTNode::Dependency&& lhs)
 	{
 		// <binary_expression> ::= <expression> <binary_operator> <expression>
 
@@ -307,7 +307,7 @@ namespace Soul::Parser
 		                           BlockNode::Create(std::move(statements)));
 	}
 
-	ASTNode::Dependency Parser::ParseFunctionCall(ASTNode::Dependency dependency)
+	ASTNode::Dependency Parser::ParseFunctionCall(ASTNode::Dependency&& dependency)
 	{
 		// <function_call> ::= <identifier> [ '(' <parameter_declaration>, ... ')' ]
 
@@ -401,7 +401,7 @@ namespace Soul::Parser
 		                                       BlockNode::Create(std::move(statements)));
 	}
 
-	AST::ASTNode::Dependency Parser::ParseGrouping()
+	ASTNode::Dependency Parser::ParseGrouping()
 	{
 		// <grouping_expression> ::= '(' <expression> ')'
 
@@ -528,7 +528,7 @@ namespace Soul::Parser
 		return ErrorNode::Create("[INTERNAL] unknown literal");
 	}
 
-	AST::ASTNode::Dependency Parser::ParseLoopControl()
+	ASTNode::Dependency Parser::ParseLoopControl()
 	{  // <loop_control> ::= <keyword_break> | <keyword_continue>
 
 		auto token = Require(std::array{ Token::Type::KEYWORD_BREAK, Token::Type::KEYWORD_CONTINUE });
@@ -546,7 +546,7 @@ namespace Soul::Parser
 		return LoopControlNode::Create(control_type);
 	}
 
-	AST::ASTNode::Dependency Parser::ParseReturn()
+	ASTNode::Dependency Parser::ParseReturn()
 	{
 		// <return_statement> ::= <keyword_return> [ <expression> ]
 
@@ -648,7 +648,7 @@ namespace Soul::Parser
 		}
 
 		// <expression>
-		auto expression = ParseExpression(Precedence::Prefix);
+		auto expression = ParseExpression(Precedence::PREFIX);
 
 		return UnaryNode::Create(std::move(expression), ASTNode::AsOperator(unary_operator->type));
 	}
@@ -945,10 +945,10 @@ namespace Soul::Parser
 		};
 		while (_current_token != std::end(_tokens)) {
 			if (std::ranges::contains(k_synchronization_tokens, _current_token->type)) {
-				_current_token++;
+				++_current_token;
 				break;  // Synchronized.
 			}
-			_current_token++;
+			++_current_token;
 		}
 
 		return ErrorNode::Create(std::move(error_message));
@@ -989,11 +989,11 @@ namespace Soul::Parser
 		if (_current_token == std::end(_tokens) || _current_token->type != type) {
 			return false;
 		}
-		_current_token++;
+		++_current_token;
 		return true;
 	}
 
-	Parser::PrecedenceRule Parser::GetPrecedenceRule(Token::Type type) const noexcept
+	Parser::PrecedenceRule Parser::GetPrecedenceRule(Token::Type type) noexcept
 	{
 		switch (type) {
 			// Assignment
@@ -1003,18 +1003,18 @@ namespace Soul::Parser
 			case Token::Type::SYMBOL_STAR_EQUAL:
 			case Token::Type::SYMBOL_SLASH_EQUAL:
 			case Token::Type::SYMBOL_PERCENT_EQUAL:
-				return { Parser::Precedence::Assign, nullptr, &Parser::ParseBinary };
+				return { Precedence::ASSIGN, nullptr, &Parser::ParseBinary };
 
 			// Comparison
 			case Token::Type::SYMBOL_LESS:
 			case Token::Type::SYMBOL_LESS_EQUAL:
 			case Token::Type::SYMBOL_GREATER:
 			case Token::Type::SYMBOL_GREATER_EQUAL:
-				return { Precedence::Compare, nullptr, &Parser::ParseBinary };
+				return { Precedence::COMPARE, nullptr, &Parser::ParseBinary };
 
 			// Logical
 			case Token::Type::SYMBOL_BANG:
-				return { Parser::Precedence::Prefix, &Parser::ParseUnary, nullptr };
+				return { Precedence::PREFIX, &Parser::ParseUnary, nullptr };
 
 			// Literals
 			case Token::Type::LITERAL_FLOAT:
@@ -1024,33 +1024,33 @@ namespace Soul::Parser
 			case Token::Type::KEYWORD_TRUE:
 			case Token::Type::KEYWORD_FALSE:
 			case Token::Type::KEYWORD_NULL:
-				return { Precedence::None, &Parser::ParseLiteral, nullptr };
+				return { Precedence::NONE, &Parser::ParseLiteral, nullptr };
 
 			// Arithmetic
 			case Token::Type::SYMBOL_MINUS:
-				return { Parser::Precedence::Additive, &Parser::ParseUnary, &Parser::ParseBinary };
+				return { Precedence::ADDITIVE, &Parser::ParseUnary, &Parser::ParseBinary };
 			case Token::Type::SYMBOL_PLUS:
-				return { Parser::Precedence::Additive, nullptr, &Parser::ParseBinary };
+				return { Precedence::ADDITIVE, nullptr, &Parser::ParseBinary };
 			case Token::Type::SYMBOL_PERCENT:
 			case Token::Type::SYMBOL_SLASH:
 			case Token::Type::SYMBOL_STAR:
-				return { Parser::Precedence::Multiplicative, nullptr, &Parser::ParseBinary };
+				return { Precedence::MULTIPLICATIVE, nullptr, &Parser::ParseBinary };
 			case Token::Type::SYMBOL_PLUS_PLUS:
 			case Token::Type::SYMBOL_MINUS_MINUS:
-				return { Parser::Precedence::Prefix, &Parser::ParseUnary, nullptr };
+				return { Precedence::PREFIX, &Parser::ParseUnary, nullptr };
 
 			// Other
 			case Token::Type::KEYWORD_CAST:
-				return { Precedence::None, &Parser::ParseCast, nullptr };
+				return { Precedence::NONE, &Parser::ParseCast, nullptr };
 			case Token::Type::SYMBOL_PAREN_LEFT:
-				return { Precedence::Postfix, &Parser::ParseGrouping, &Parser::ParseFunctionCall };
+				return { Precedence::POSTFIX, &Parser::ParseGrouping, &Parser::ParseFunctionCall };
 			case Token::Type::SYMBOL_BRACE_LEFT:
-				return { Precedence::None, &Parser::ParseInitializerList, nullptr };
+				return { Precedence::NONE, &Parser::ParseInitializerList, nullptr };
 			default:
 				break;
 		}
 
-		return { Precedence::None, nullptr, nullptr };  // No precedence.
+		return { Precedence::NONE, nullptr, nullptr };  // No precedence.
 	}
 
 	Token Parser::CurrentTokenOrDefault() const noexcept

@@ -10,7 +10,7 @@ namespace Soul::AST::Visitors
 	CompareVisitor::operator std::partial_ordering() const noexcept { return _ordering; }
 
 	template <NodeKind Node>
-	void compare([[maybe_unused]] const Node& lhs, [[maybe_unused]] const Node& rhs)
+	void CompareVisitor::Compare([[maybe_unused]] const Node& lhs, [[maybe_unused]] const Node& rhs)
 	{
 		static_assert(false, std::format("not implemented for type: {}", typeid(Node).name()));
 	}

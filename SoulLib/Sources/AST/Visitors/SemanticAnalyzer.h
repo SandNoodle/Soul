@@ -35,6 +35,6 @@ namespace Soul::AST::Visitors
 		void Visit(const WhileNode&) override;
 
 		private:
-		VariableDeclarationNode* GetVariable(std::string_view identifier);
+		VariableDeclarationNode* GetVariable(std::string_view identifier) const;
 	};
 }  // namespace Soul::AST::Visitors

@@ -371,7 +371,7 @@ namespace Soul::AST
 		public:
 		LiteralNode(Value value);
 		~LiteralNode() override = default;
-		operator std::string() const noexcept;
+		explicit operator std::string() const noexcept;
 
 		/**
 		 * @brief Constructs new Literal node.

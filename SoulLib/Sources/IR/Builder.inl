@@ -31,14 +31,14 @@ namespace Soul::IR
 
 				std::sort(basic_block->successors.begin(),
 				          basic_block->successors.end(),
-				          [](BasicBlock* lhs, BasicBlock* rhs) -> bool { return lhs->label < rhs->label; });
+				          [](const BasicBlock* lhs, const BasicBlock* rhs) -> bool { return lhs->label < rhs->label; });
 			}
 		}
 
 		return std::move(_module);
 	}
 
-	constexpr auto IRBuilder::SetModuleName(std::string_view name) -> void { _module->name = std::string(name); }
+	constexpr auto IRBuilder::SetModuleName(std::string_view name) const -> void { _module->name = std::string(name); }
 
 	constexpr auto IRBuilder::CreateFunction(std::string_view identifier,
 	                                         Types::Type return_type,
@@ -56,7 +56,7 @@ namespace Soul::IR
 		_slots_mapping[identifier] = slot;
 		return slot;
 	}
-	constexpr auto IRBuilder::GetSlot(std::string_view identifier) -> StackSlot*
+	constexpr auto IRBuilder::GetSlot(std::string_view identifier) const -> StackSlot*
 	{
 		if (!_slots_mapping.contains(identifier)) [[unlikely]] {
 			return nullptr;

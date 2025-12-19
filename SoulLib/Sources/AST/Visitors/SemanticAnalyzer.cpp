@@ -109,7 +109,7 @@ namespace Soul::AST::Visitors
 		_is_in_loop = was_in_loop;
 	}
 
-	VariableDeclarationNode* SemanticAnalyzerVisitor::GetVariable(std::string_view identifier)
+	VariableDeclarationNode* SemanticAnalyzerVisitor::GetVariable(std::string_view identifier) const
 	{
 		for (auto* variable : _variables_in_scope) {
 			if (variable->name == identifier) {

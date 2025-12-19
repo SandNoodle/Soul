@@ -37,7 +37,7 @@ namespace Soul::IR
 
 		constexpr std::unique_ptr<Module> Build() noexcept;
 
-		constexpr void SetModuleName(std::string_view name);
+		constexpr void SetModuleName(std::string_view name) const;
 
 		/**
 		 * @brief Creates a new function in the module (with a single basic block initialized).
@@ -47,7 +47,7 @@ namespace Soul::IR
 		                              Types::Type return_type,
 		                              std::vector<Types::Type> parameters);
 		constexpr StackSlot* ReserveSlot(std::string_view identifier, Types::Type type);
-		constexpr StackSlot* GetSlot(std::string_view identifier);
+		constexpr StackSlot* GetSlot(std::string_view identifier) const;
 
 		constexpr void SwitchTo(BasicBlock* block);
 		constexpr BasicBlock* CreateBasicBlock();

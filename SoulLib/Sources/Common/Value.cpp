@@ -9,8 +9,8 @@ namespace Soul
 	Scalar::operator std::string() const
 	{
 		return std::visit(
-			[](const auto& v) -> std::string {
-				if constexpr (std::is_constructible_v<std::decay_t<decltype(v)>, std::string>) {
+			[]<typename T>(const T& v) -> std::string {
+				if constexpr (std::is_constructible_v<std::decay_t<T>, std::string>) {
 					return std::string(v);
 				} else {
 					std::stringstream ss;

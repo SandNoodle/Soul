@@ -214,11 +214,10 @@ namespace Soul::Lexer
 
 	Codepoint::ValueType Lexer::Advance()
 	{
+		++_current_location.column;
 		if (Codepoint::IsNewline(_script[_offset_current++])) {
 			++_current_location.row;
 			_current_location.column = 0;
-		} else {
-			++_current_location.column;
 		}
 		return Peek(0);
 	}

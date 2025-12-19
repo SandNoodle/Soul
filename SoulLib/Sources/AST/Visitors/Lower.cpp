@@ -12,7 +12,7 @@ namespace Soul::AST::Visitors
 		class ReserveStackSlotVisitor : public DefaultTraverseVisitor
 		{
 			public:
-			std::vector<std::pair<std::string, Types::Type>> required_slots;
+			std::vector<std::pair<std::string, Type>> required_slots;
 
 			public:
 			using DefaultTraverseVisitor::Accept;
@@ -306,7 +306,6 @@ namespace Soul::AST::Visitors
 		}
 
 		const auto& [continuation_block, termination_block] = _loop_jump_targets.back();
-		auto* current_block                                 = _builder.CurrentBasicBlock();
 		if (node.control_type == LoopControlNode::Type::BREAK) {
 			return _builder.Emit<Jump>(termination_block);
 		}

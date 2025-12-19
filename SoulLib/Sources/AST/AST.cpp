@@ -7,10 +7,10 @@ namespace Soul::AST
 	using namespace Soul::Lexer;
 	using namespace Soul::Parser;
 
-	std::string_view ASTNode::Name(const ASTNode::Operator op) noexcept
+	std::string_view ASTNode::Name(const Operator op) noexcept
 	{
 		using namespace std::string_view_literals;
-		static const std::unordered_map<ASTNode::Operator, std::string_view> k_operators = {
+		static const std::unordered_map<Operator, std::string_view> k_operators = {
 			{ Operator::UNKNOWN,       "__unknown__"sv },
 			{ Operator::ASSIGN,        "="sv           },
 			{ Operator::ASSIGN_ADD,    "+="sv          },
@@ -44,7 +44,7 @@ namespace Soul::AST
 	std::string_view ASTNode::NameInternal(const Operator op) noexcept
 	{
 		using namespace std::string_view_literals;
-		static const std::unordered_map<ASTNode::Operator, std::string_view> k_operators = {
+		static const std::unordered_map<Operator, std::string_view> k_operators = {
 			{ Operator::UNKNOWN,       "__unknown__"sv            },
 			{ Operator::ASSIGN,        "operator_assign"sv        },
 			{ Operator::ASSIGN_ADD,    "operator_add_assign"sv    },

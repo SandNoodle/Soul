@@ -7,7 +7,6 @@
 #include <concepts>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <variant>
 
 namespace Soul
@@ -22,7 +21,7 @@ namespace Soul
 		using PrimitiveKindToValueType
 			= VTDictionary<V,
 		                   VTTranslation<Types::PrimitiveType::Kind::BOOLEAN, bool>,
-		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, UInt8>,
 		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT32, Float32>,
 		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT64, Float64>,
 		                   VTTranslation<Types::PrimitiveType::Kind::INT32, Int32>,
@@ -33,7 +32,7 @@ namespace Soul
 		using PrimitiveKindToViewType
 			= VTDictionary<V,
 		                   VTTranslation<Types::PrimitiveType::Kind::BOOLEAN, bool>,
-		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, char>,
+		                   VTTranslation<Types::PrimitiveType::Kind::CHAR, UInt8>,
 		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT32, Float32>,
 		                   VTTranslation<Types::PrimitiveType::Kind::FLOAT64, Float64>,
 		                   VTTranslation<Types::PrimitiveType::Kind::INT32, Int32>,

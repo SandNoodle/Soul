@@ -1,10 +1,10 @@
 #include "AST/Visitors/TypeResolver.h"
 
-#include "Core/Types.h"
 #include "Types/Type.h"
 
 #include <array>
 #include <format>
+#include <unordered_map>
 
 namespace Soul::AST::Visitors
 {
@@ -68,7 +68,7 @@ namespace Soul::AST::Visitors
 		const auto& cast_node = _current_clone->As<CastNode>();
 		const auto from_type  = cast_node.expression->type;
 		const auto to_type    = GetTypeOrDefault(cast_node.type_specifier);
-		if (GetCastType(from_type, to_type) == CastNode::Type::Impossible) {
+		if (GetCastType(from_type, to_type) == CastNode::Type::IMPOSSIBLE) {
 			_current_clone = ErrorNode::Create(
 				std::format("cannot cast from type '{}' to '{}'", std::string(from_type), std::string(to_type)));
 			return;
@@ -84,7 +84,7 @@ namespace Soul::AST::Visitors
 
 		if (for_loop.condition) {
 			const bool is_condition_bool_coercible
-				= GetCastType(for_loop.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::Impossible;
+				= GetCastType(for_loop.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::IMPOSSIBLE;
 			if (!is_condition_bool_coercible) {
 				_current_clone = ErrorNode::Create(
 					std::format("condition in for loop statement must be convertible to a '{}' type",
@@ -121,7 +121,7 @@ namespace Soul::AST::Visitors
 
 		const auto relation_type
 			= GetCastType(foreach_node.in_expression->type.As<ArrayType>().DataType(), foreach_node.variable->type);
-		if (relation_type == CastNode::Type::Impossible) {
+		if (relation_type == CastNode::Type::IMPOSSIBLE) {
 			_current_clone = ErrorNode::Create(std::format(
 				"type missmatch in for each loop statement between variable ('{}') and iterated expression ('{}')",
 				std::string(foreach_node.variable->type),
@@ -192,7 +192,7 @@ namespace Soul::AST::Visitors
 
 		const auto& if_node = _current_clone->As<IfNode>();
 		const bool is_condition_bool_coercible
-			= GetCastType(if_node.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::Impossible;
+			= GetCastType(if_node.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::IMPOSSIBLE;
 		if (!is_condition_bool_coercible) {
 			_current_clone = ErrorNode::Create(
 				std::format("condition in if statement statement must be convertible to a '{}' type",
@@ -289,7 +289,7 @@ namespace Soul::AST::Visitors
 
 		if (while_loop.condition) {
 			const bool is_condition_bool_coercible
-				= GetCastType(while_loop.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::Impossible;
+				= GetCastType(while_loop.condition->type, PrimitiveType::Kind::BOOLEAN) != CastNode::Type::IMPOSSIBLE;
 			if (!is_condition_bool_coercible) {
 				_current_clone = ErrorNode::Create(
 					std::format("condition in while loop statement must be convertible to a '{}' type",
@@ -307,76 +307,76 @@ namespace Soul::AST::Visitors
 				{
                  PrimitiveType::Kind::BOOLEAN,
                  {
-						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Explicit },
+						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::EXPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::CHAR,
                  {
-						{ PrimitiveType::Kind::CHAR, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Implicit },
+						{ PrimitiveType::Kind::CHAR, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::IMPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::FLOAT32,
                  {
-						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Explicit },
+						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::EXPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::FLOAT64,
                  {
-						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Explicit },
+						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::EXPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::INT32,
                  {
-						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Explicit },
+						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::EXPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::INT64,
                  {
-						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Implicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Explicit },
+						{ PrimitiveType::Kind::BOOLEAN, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::IMPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::EXPLICIT },
 					}  //
 				},
 				{
                  PrimitiveType::Kind::STRING,
                  {
-						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT32, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::INT64, CastNode::Type::Explicit },
-						{ PrimitiveType::Kind::STRING, CastNode::Type::Implicit },
+						{ PrimitiveType::Kind::FLOAT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::FLOAT64, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT32, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::INT64, CastNode::Type::EXPLICIT },
+						{ PrimitiveType::Kind::STRING, CastNode::Type::IMPLICIT },
 					}  //
 				},
         };
 
 		// NOTE: If the types are equivalent, no casts should take place.
 		if (from_type == to_type) {
-			return CastNode::Type::Implicit;
+			return CastNode::Type::IMPLICIT;
 		}
 
 		if (from_type.Is<PrimitiveType>() && to_type.Is<PrimitiveType>()) {
@@ -384,7 +384,7 @@ namespace Soul::AST::Visitors
 			const auto to   = to_type.As<PrimitiveType>().type;
 			// NOTE: We cant cast the types we haven't resolved yet.
 			if (from == PrimitiveType::Kind::UNKNOWN || to == PrimitiveType::Kind::UNKNOWN) {
-				return CastNode::Type::Impossible;
+				return CastNode::Type::IMPOSSIBLE;
 			}
 
 			if (k_cast_type.contains(from) && k_cast_type.at(from).contains(to)) {
@@ -392,7 +392,7 @@ namespace Soul::AST::Visitors
 			}
 
 			// NOTE: Assume that undefined casts are impossible.
-			return CastNode::Type::Impossible;
+			return CastNode::Type::IMPOSSIBLE;
 		}
 
 		if (from_type.Is<ArrayType>() && to_type.Is<ArrayType>()) {
@@ -406,11 +406,11 @@ namespace Soul::AST::Visitors
 		}
 
 		if (from_type.Is<StructType>() || to_type.Is<StructType>()) {
-			return CastNode::Type::Impossible;
+			return CastNode::Type::IMPOSSIBLE;
 		}
 
 		// NOTE: There was a missmatch between the types.
-		return CastNode::Type::Impossible;
+		return CastNode::Type::IMPOSSIBLE;
 	}
 
 	Type TypeResolverVisitor::GetTypeOrDefault(const TypeSpecifier& type_specifier) const noexcept

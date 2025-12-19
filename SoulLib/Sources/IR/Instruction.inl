@@ -98,4 +98,4 @@ namespace Soul::IR
 		: Instruction(Types::Type{ Types::PrimitiveType::Kind::BOOLEAN }, OneArgument(arg))
 	{
 	}
-};  // namespace Soul::IR
+}  // namespace Soul::IR

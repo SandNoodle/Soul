@@ -1,6 +1,5 @@
 #include "AST/Visitors/TypeDiscoverer.h"
 
-#include "Core/Types.h"
 #include "Types/Type.h"
 
 namespace Soul::AST::Visitors

@@ -4,8 +4,6 @@
 #include "AST/ASTFwd.h"
 #include "AST/Visitors/Visitor.h"
 
-#include <functional>
-
 namespace Soul::AST::Visitors
 {
 	/**

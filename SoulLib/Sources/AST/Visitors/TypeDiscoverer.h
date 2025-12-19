@@ -6,7 +6,7 @@
 #include "Parser/TypeSpecifier.h"
 #include "Types/TypeFwd.h"
 
-#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace Soul::AST::Visitors

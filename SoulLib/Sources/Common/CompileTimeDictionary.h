@@ -6,7 +6,7 @@ namespace Soul
 {
 	namespace Detail
 	{
-		template <bool B, auto V>
+		template <bool, auto>
 		struct VBase
 		{
 		};
@@ -17,7 +17,7 @@ namespace Soul
 			static constexpr auto k_value = V;
 		};
 
-		template <bool B, typename T>
+		template <bool, typename>
 		struct TBase
 		{
 		};

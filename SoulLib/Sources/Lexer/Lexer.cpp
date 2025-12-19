@@ -83,7 +83,7 @@ namespace Soul::Lexer
 			                                  std::min(_current_location.column,
 			                                           _current_location.column - static_cast<UInt32>(data.size())) };
 		return Token{ type, data, location };
-	};
+	}
 
 	Token Lexer::ScanToken()
 	{
@@ -100,7 +100,7 @@ namespace Soul::Lexer
 					keep_consuming = true;
 				}
 			} while (Peek(0) != Codepoint::k_eof && keep_consuming);
-		};
+		}
 
 		_offset_start = _offset_current;
 
@@ -221,4 +221,4 @@ namespace Soul::Lexer
 		}
 		return Peek(0);
 	}
-};  // namespace Soul::Lexer
+}  // namespace Soul::Lexer

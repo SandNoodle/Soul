@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 namespace Soul::AST
@@ -177,9 +176,9 @@ namespace Soul::AST
 		public:
 		enum class Type : UInt8
 		{
-			Implicit,
-			Explicit,
-			Impossible,
+			IMPLICIT,
+			EXPLICIT,
+			IMPOSSIBLE,
 		};
 
 		public:

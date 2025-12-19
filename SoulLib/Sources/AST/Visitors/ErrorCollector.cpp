@@ -2,10 +2,7 @@
 
 namespace Soul::AST::Visitors
 {
-	ErrorCollectorVisitor::ErrorCollectorVisitor(std::size_t max_depth)
-		: _depth_current(0), _depth_max(max_depth), _errors()
-	{
-	}
+	ErrorCollectorVisitor::ErrorCollectorVisitor(std::size_t max_depth) : _depth_current(0), _depth_max(max_depth) {}
 
 	void ErrorCollectorVisitor::Accept(ASTNode::Reference node)
 	{

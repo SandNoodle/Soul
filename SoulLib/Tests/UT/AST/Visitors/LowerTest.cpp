@@ -39,16 +39,16 @@ namespace Soul::AST::Visitors::UT
 
 		static std::unique_ptr<Module> Build(ASTNode::Dependency&& root)
 		{
-			const auto verify = [](ASTNode::Dependency&& root) -> ASTNode::Dependency {
+			const auto verify = [](ASTNode::Dependency&& root_node) -> ASTNode::Dependency {
 				ErrorCollectorVisitor error_collector{};
-				error_collector.Accept(root.get());
+				error_collector.Accept(root_node.get());
 				if (!error_collector.IsValid()) {
 					for (const auto& [depth, error] : error_collector.GetErrors()) {
 						std::cerr << std::format("[{}]: {}\n", depth, error->message);
 					}
 					return nullptr;
 				}
-				return root;
+				return root_node;
 			};
 
 			TypeDiscovererVisitor type_discoverer_visitor{};
@@ -212,11 +212,11 @@ namespace Soul::AST::Visitors::UT
 		}
 
 		expected_ir_builder.CreateFunction(k_function_name, PrimitiveType::Kind::VOID, {});
-		auto* slot  = expected_ir_builder.ReserveSlot("variable", PrimitiveType::Kind::INT32);
-		auto* v1    = EmitConst<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
-		auto* v2    = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
-		auto* value = expected_ir_builder.Emit<Call>(
-			PrimitiveType::Kind::INT32, k_function_to_call, std::vector<Instruction*>{ v1, v2 });
+		auto* slot = expected_ir_builder.ReserveSlot("variable", PrimitiveType::Kind::INT32);
+		auto* v1   = EmitConst<PrimitiveType::Kind::STRING>(expected_ir_builder, "my_string");
+		auto* v2   = EmitConst<PrimitiveType::Kind::BOOLEAN>(expected_ir_builder, true);
+		auto* value
+			= expected_ir_builder.Emit<Call>(PrimitiveType::Kind::INT32, k_function_to_call, std::vector{ v1, v2 });
 		expected_ir_builder.Emit<StackStore>(slot, value);
 
 		const auto& expected_ir = expected_ir_builder.Build();
@@ -663,7 +663,7 @@ namespace Soul::AST::Visitors::UT
 		ASSERT_EQ(expected_string, result_string);
 	}
 
-	template <typename T>
+	template <typename>
 	class LowerVisitorBinaryTypedTest : public LowerVisitorTest
 	{
 	};

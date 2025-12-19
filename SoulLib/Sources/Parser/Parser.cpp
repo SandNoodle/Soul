@@ -625,7 +625,7 @@ namespace Soul::Parser
 				                               Token::Name(Token::Type::SYMBOL_BRACE_RIGHT),
 				                               std::string(CurrentTokenOrDefault().data)));
 			}
-		};
+		}
 
 		return StructDeclarationNode::Create(std::string(name_identifier->data), std::move(parameters));
 	}
@@ -978,7 +978,7 @@ namespace Soul::Parser
 
 	std::optional<Token> Parser::Peek(std::ptrdiff_t n)
 	{
-		if ((_current_token + n) != std::end(_tokens)) [[likely]] {
+		if (_current_token + n != std::end(_tokens)) [[likely]] {
 			return *(_current_token + n);
 		}
 		return std::nullopt;

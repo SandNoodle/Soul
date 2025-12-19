@@ -5,7 +5,6 @@
 #include <format>
 #include <sstream>
 #include <string>
-#include <string_view>
 
 namespace Soul::IR::Visitors
 {

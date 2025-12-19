@@ -7,22 +7,22 @@
 #include <thread>
 #include <vector>
 
-enum class OptimizationLevel : soul::u8
+enum class OptimizationLevel : Soul::UInt8
 {
 	/// @brief No optimizations (other than essential ones). Corresponds to Clang's O0.
-	None = 0,
+	NONE = 0,
 
 	/// @brief Perform only essential optimizations. Corresponds to Clang's O1.
-	Low = 1,
+	LOW = 1,
 
 	/// @brief Optimize program for the execution speed, but prevent some of the longer running passes from executing.
 	/// Corresponds to Clang's O2.
-	Medium = 2,
+	MEDIUM = 2,
 
 	/// @brief Optimize program for the execution speed. Corresponds to Clang's O3.
-	High = 3,
+	HIGH = 3,
 
-	Default = None,
+	DEFAULT = NONE,
 };
 
 struct CompilerArguments
@@ -30,7 +30,7 @@ struct CompilerArguments
 	std::string_view output_filename;
 	std::vector<std::string_view> input_files;
 	OptimizationLevel optimization_level;
-	soul::u16 thread_count;
+	Soul::UInt16 thread_count;
 	bool output_soul_ir;
 };
 
@@ -92,11 +92,11 @@ int main(int argc, char* argv[])
 		}
 
 		if (argument.starts_with("-O"sv)) {
-			compiler_arguments.optimization_level = argument == "-O0"sv ? OptimizationLevel::None
-			                                      : argument == "-O1"sv ? OptimizationLevel::Low
-			                                      : argument == "-O2"sv ? OptimizationLevel::Medium
-			                                      : argument == "-O3"sv ? OptimizationLevel::High
-			                                                            : OptimizationLevel::Default;
+			compiler_arguments.optimization_level = argument == "-O0"sv ? OptimizationLevel::NONE
+			                                      : argument == "-O1"sv ? OptimizationLevel::LOW
+			                                      : argument == "-O2"sv ? OptimizationLevel::MEDIUM
+			                                      : argument == "-O3"sv ? OptimizationLevel::HIGH
+			                                                            : OptimizationLevel::DEFAULT;
 			continue;
 		}
 

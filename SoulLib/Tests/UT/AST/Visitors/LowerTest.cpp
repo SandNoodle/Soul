@@ -78,7 +78,7 @@ namespace Soul::AST::Visitors::UT
 		}
 
 		template <PrimitiveType::Kind T>
-		static Instruction* EmitConst(IRBuilder& builder, Detail::PrimitiveKindToValueType<T> value)
+		static Instruction* EmitConst(IRBuilder& builder, Detail::PrimitiveKindToValueType<T>&& value)
 		{
 			return builder.Emit<Const>(T, Scalar::Create<T>(std::move(value)));
 		}

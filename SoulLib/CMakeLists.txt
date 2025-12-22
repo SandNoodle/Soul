@@ -47,7 +47,7 @@ set(SoulLib_SOURCES
         Sources/Core/Types.h
         Sources/IR/BasicBlock.h
         Sources/IR/Builder.h
-        Sources/IR/instruction.h
+        Sources/IR/Instruction.h
         Sources/IR/InstructionFwd.h
         Sources/IR/IR.h
         Sources/IR/Visitors/Print.cpp
